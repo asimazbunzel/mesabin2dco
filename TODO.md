@@ -1,6 +1,10 @@
 TODO
 ---
 
+[ ] write better documentation
+
+[ ] find a good test-case in the database
+
 [ ] pass number of row to read from natal-kick filename info. as mesa assumes that
    each directory is unique per run, we need to trick it to believe so by setting
    the MESA_TEMP_CACHES_DIR to the number of row (maybe hidden and delete @ end of run)
