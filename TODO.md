@@ -1,6 +1,9 @@
 TODO
 ---
 
+[ ] search in Hurley et al. 2002, MNRAS, 329, 897 and decide if we use circulariztion
+   timescale of a convective or radiative envelope after a natal-kick
+
 [ ] update natal-kick read function to avoid reading the first line as it will have
    a header in a future version of the natal-kicks tool
 
