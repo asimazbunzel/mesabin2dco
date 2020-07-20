@@ -1,6 +1,9 @@
 TODO
 ---
 
+[ ] update natal-kick read function to avoid reading the first line as it will have
+   a header in a future version of the natal-kicks tool
+
 [ ] write better documentation
 
 [ ] find a good test-case in the database
