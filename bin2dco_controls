@@ -1,0 +1,22 @@
+&bin2dco_options
+
+   star_plus_star_filename = 'inlist_star_plus_star'
+   star_plus_pm_filename = 'inlist_star_plus_pm'
+
+   natal_kicks_filename = 'natal_kicks.data'
+
+   cc1_inlist_filename = 'inlist_cc'
+   cc2_inlist_filename = 'inlist_cc'
+
+   ce1_inlist_filename = 'inlist_ce'
+   ce2_inlist_filename = 'inlist_ce'
+
+   stop_after_star_plus_star = .true.
+
+   do_kicks = .true.
+   do_kicks_in_one_run = .false.
+
+   star_info_at_cc_filename = 'cc_data/star_at_core_collapse_1.data'
+   binary_info_at_cc_filename = 'cc_data/binary_at_core_collapse_1.data'
+
+/ ! end of bin2dco_options namelist
