@@ -15,7 +15,9 @@ else
    if [ "$#" -eq 0 ]; then
       ./bin2dco
    elif [ "$#" -eq 1 ]; then
+      export MESA_TEMP_CACHES_DIR=$PWD/.mesa_temp_cache/$1
       ./bin2dco $1
+      rm -rf $MESA_TEMP_CACHES_DIR
    else
       printf "\nERROR: more arguments than needed were given \n\n"
       exit 1
