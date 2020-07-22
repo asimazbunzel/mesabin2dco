@@ -390,8 +390,8 @@
          integer :: ierr
          logical :: do_switch
          integer :: star_cc_id
-
          integer :: number_io
+         real(dp), parameter :: chandra_mass = 1.4d0
 
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
@@ -423,7 +423,7 @@
          ! for low-mass evolutions
          if (low_mass_evolution) then
             if (b% point_mass_i == 0) then
-               if (b% s1% power_nuc_burn < b% s1% power_neutrinos) then
+               if (b% s1% power_nuc_burn < b% s1% power_neutrinos .and. b% s1% c_core_mass < chandra_mass) then
                   b% point_mass_i = 1
                   b% d_i = 2; b% a_i = 1
                   b% s_donor => b% s2
@@ -432,7 +432,7 @@
                   !termination_code_str(t_xtra1) = 'reach white-dwarf stage'
                   !extras_binary_finish_step = terminate
                   !return
-               else if (b% s2% power_nuc_burn < b% s2% power_neutrinos) then
+               else if (b% s2% power_nuc_burn < b% s2% power_neutrinos .and. b% s2% c_core_mass < chandra_mass) then
                   b% point_mass_i = 2
                   b% d_i = 1; b% a_i = 2
                   b% s_donor => b% s1
@@ -443,14 +443,14 @@
                   !return
                end if
             else if (b% point_mass_i == 1) then
-               if (b% s2% power_nuc_burn < b% s2% power_neutrinos) then
+               if (b% s2% power_nuc_burn < b% s2% power_neutrinos .and. b% s2% c_core_mass < chandra_mass) then
                   b% s2% termination_code = t_xtra1
                   termination_code_str(t_xtra1) = 'reach white-dwarf stage'
                   extras_binary_finish_step = terminate
                   return
                end if
             else if (b% point_mass_i == 2) then
-               if (b% s1% power_nuc_burn < b% s1% power_neutrinos) then
+               if (b% s1% power_nuc_burn < b% s1% power_neutrinos .and. b% s1% c_core_mass < chandra_mass) then
                   b% s1% termination_code = t_xtra1
                   termination_code_str(t_xtra1) = 'reach white-dwarf stage'
                   extras_binary_finish_step = terminate
@@ -465,7 +465,7 @@
             ! first collapse
             star_cc_id = 0
             if (b% point_mass_i == 0) then
-               if (b% s1% center_he4 < 1d-3 * b% s1% initial_z) then
+               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z) then
                   star_cc_id = 1
                   call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
                   b% s1% termination_code = t_xtra1

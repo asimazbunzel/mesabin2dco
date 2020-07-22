@@ -1,6 +1,9 @@
 TODO
 ---
 
+[ ] after changing white-dwarf to point-mass, apply f_mt = 1.0 but limit accretion to
+   Eddington limit onto the WD
+
 [ ] search in Hurley et al. 2002, MNRAS, 329, 897 and decide if we use circulariztion
    timescale of a convective or radiative envelope after a natal-kick
 

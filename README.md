@@ -8,6 +8,12 @@ to the formation of a double-compact object system.
 
 ## Walkthrough of a run
 
+Here we briefly describe how a MESA simulation proceeds according to the mass range of binary components.
+
+### High-mass binaries
+
+### Low-mass binaries
+
 ## Requirements
 
 It requires having the open-access, evolutionary code MESA (see their [official website](http://mesa.sourceforge.net/))
