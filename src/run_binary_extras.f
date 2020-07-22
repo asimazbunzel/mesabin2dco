@@ -424,15 +424,23 @@
          if (low_mass_evolution) then
             if (b% point_mass_i == 0) then
                if (b% s1% power_nuc_burn < b% s1% power_neutrinos) then
-                  b% s1% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'reach white-dwarf stage'
-                  extras_binary_finish_step = terminate
-                  return
+                  b% point_mass_i = 1
+                  b% d_i = 2; b% a_i = 1
+                  b% s_donor => b% s2
+                  b% s_accretor => b% s1
+                  !b% s1% termination_code = t_xtra1
+                  !termination_code_str(t_xtra1) = 'reach white-dwarf stage'
+                  !extras_binary_finish_step = terminate
+                  !return
                else if (b% s2% power_nuc_burn < b% s2% power_neutrinos) then
-                  b% s2% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'reach white-dwarf stage'
-                  extras_binary_finish_step = terminate
-                  return
+                  b% point_mass_i = 2
+                  b% d_i = 1; b% a_i = 2
+                  b% s_donor => b% s1
+                  b% s_accretor => b% s2
+                  !b% s2% termination_code = t_xtra1
+                  !termination_code_str(t_xtra1) = 'reach white-dwarf stage'
+                  !extras_binary_finish_step = terminate
+                  !return
                end if
             else if (b% point_mass_i == 1) then
                if (b% s2% power_nuc_burn < b% s2% power_neutrinos) then
