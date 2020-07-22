@@ -40,6 +40,12 @@
       close(iounit)
       call free_iounit(iounit)
 
+      ! just check that `*_mass_evolution` are not both false
+      if (.not. high_mass_evolution .and. .not. low_mass_evolution) then
+         write(*,'(/,a,/)') 'cannot have both `high_mass_evolution` and `low_mass_evolution` set to .false.'
+         stop 'wrong bin2dco_options'
+      end if
+
 
       ! if file .skip_star_plus_star exist, then do not make the first part of the simulation
       iounit = alloc_iounit(ierr)
