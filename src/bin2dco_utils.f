@@ -7,6 +7,47 @@
 
       contains
 
+      ! check version of codes
+      subroutine check_version_numbers
+         use const_def, only: strlen
+         use utils_lib, only: alloc_iounit, free_iounit
+         integer :: iounit, ierr
+         character(len=strlen) :: mesa_dirname
+         integer :: mesa_version_used, mesa_version_supported
+         logical :: dbg = .false.
+
+         ! get version number from $MESA_DIR
+         call get_environment_variable('MESA_DIR', mesa_dirname)
+         iounit = alloc_iounit(ierr)
+         open(unit=iounit, file=trim(mesa_dirname) // '/data/version_number', status='old', action='read', iostat=ierr)
+         read(iounit, *, iostat=ierr) mesa_version_used
+         if (ierr /= 0) then
+            write(*,'(a)') 'failed to open ' // trim(mesa_dirname) // '/data/version_number'
+            close(iounit)
+            call free_iounit(ierr)
+         end if
+
+         ! get version number from bin2dco
+         open(unit=iounit, file='version_number', status='old', action='read', iostat=ierr)
+         read(iounit, *, iostat=ierr) mesa_version_supported
+         if (ierr /= 0) then
+            write(*,'(a)') 'failed to open version_number'
+            close(iounit)
+            call free_iounit(ierr)
+         end if
+
+         if (dbg) then
+            write(*,'(a32, 2x, i12)') 'MESA version:', mesa_version_used
+            write(*,'(a32, 2x, i12)') 'bin2dco version:', mesa_version_supported
+         end if
+
+         ! check that they match
+         if (mesa_version_used /= mesa_version_supported) then
+            stop 'MESA version used does not match supported one'
+         end if
+
+      end subroutine check_version_numbers
+
       ! search for string in file and return value associated to it
       subroutine read_parameter(string, filename, val, ierr)
          use const_def, only: dp, strlen

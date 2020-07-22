@@ -24,42 +24,16 @@
       character(len=strlen) :: str_index
       character(len=strlen) :: termination_code_star_plus_star
 
-      character(len=strlen) :: mesa_dirname
-      integer :: mesa_version_used, mesa_version_supported
-
 
       MESA_INLIST_RESOLVED = .true.
-      max_Nsim = 100000
       tst = .true.
 
-      ! get version number from $MESA_DIR
-      call get_environment_variable('MESA_DIR', mesa_dirname)
-      iounit = alloc_iounit(ierr)
-      open(unit=iounit, file=trim(mesa_dirname) // '/data/version_number', status='old', action='read', iostat=ierr)
-      read(iounit, *, iostat=ierr) mesa_version_used
-      if (ierr /= 0) then
-         write(*,'(a)') 'failed to open ' // trim(mesa_dirname) // '/data/version_number'
-         close(iounit)
-         call free_iounit(ierr)
-      end if
 
-      ! get version number from bin2dco
-      open(unit=iounit, file='version_number', status='old', action='read', iostat=ierr)
-      read(iounit, *, iostat=ierr) mesa_version_supported
-      if (ierr /= 0) then
-         write(*,'(a)') 'failed to open version_number'
-         close(iounit)
-         call free_iounit(ierr)
-      end if
-
-      ! check that they match
-      if (mesa_version_used /= mesa_version_supported) then
-         write(*,'(a)') 'MESA version used does not match to supported one'
-         stop
-      end if
+      ! check that versions match
+      call check_version_numbers
 
 
-      ! first, get bin2dco_options
+      ! get bin2dco_options
       iounit = alloc_iounit(ierr)
       if (ierr /= 0) stop 'could not alloc_iounit to get bin2dco_options namelist'
       open(unit=iounit, file='bin2dco_controls', status='old', action='read', iostat=ierr)
@@ -68,6 +42,7 @@
       if (ierr /= 0) stop 'failed to read bin2dco_options'
       close(iounit)
       call free_iounit(iounit)
+
 
       ! just check that `*_mass_evolution` are not both false
       if (.not. high_mass_evolution .and. .not. low_mass_evolution) then

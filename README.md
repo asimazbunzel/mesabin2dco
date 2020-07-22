@@ -16,19 +16,79 @@ kit version 20180822 (get it [here](http://www.astro.wisc.edu/~townsend/static.p
 
 ## Getting started
 
-- If this is the first time running the code, modules stored in the `src` folder need to be compiled. In order to do so,
-  run `./mk_mods` which is found in the root of the tree structure.
+1. If this is the first time running the code, modules stored in the `src` folder need to be compiled. In order to do so,
+   run `./mk_mods` which is found in the root of the tree structure.
 
-- Next, change MESA parameters in the different inlist files as convenient, and also have a look and change controls in
-  the `bin2dco_controls` file.
+2. Next, change MESA parameters in the different inlist files as convenient, and also have a look and change controls in
+   the `bin2dco_controls` file.
 
-- Now is time to compile the whole source code. Do that by running `./mk`.
+3. Now is time to compile the whole source code. Do that by running `./mk`.
 
-- Finally, to run the simulation just type `./rn`.
+4. Finally, to run the simulation there are different ways to do it, depending on the type of run:
+
+   - star + star: after configuring the controls (description below), just run `./rn`,
+
+   - star + point-mass: create a hidden file called `.skip_star_plus_star` with `touch .skip_star_plus_star`, and then
+   run `./rn`,
+
+   - one kick: configure the `natal_kicks_filename`, create the `.skip_star_plus_star` file, check the `do_kick*` flags
+   and type `./rn N` with N the row index of the `natal_kicks_filename` to explore,
+
+   - many kicks in a loop: just as before, configure `natal_kicks_filename`, touch the `.skip_star_plus_star` file, kick
+   flags and simply type `./rn` (no need to add a number in the argument after the `rn`).
 
 ## Options and controls
 
 ### bin2dco
+
+#### high_mass_evolution
+
+If this flag is true, the code will try to evolve a star until core-collapse. NOTE: it can be used in combination with the
+`low_mass_evolution` flag, to model for instance the progenitor of a LMXB.
+
+#### low_mass_evolution
+
+With this flag we check if a star end up as a white-dwarf. NOTE: it can be used in combination with the `high_mass_evolution`
+flag, to model for instance the progenitor of a LMXB.
+
+#### star_plus_star_filename
+#### star_plus_pm_filename
+
+Name of files containing binary controls for star + star simulation and star + point-mass, respectively.
+
+#### cc1_inlist_filename
+#### cc2_inlist_filename
+
+Name of files with controls for the core-collapse module. `cc1_*` is used in star + star simulations, while `cc2_*` in the
+star + point-mass case.
+
+#### cc1_inlist_filename
+#### cc2_inlist_filename
+
+Name of files with controls for the common-envelope module. `ce1_*` is used in star + star simulations, while `ce2_*` in the
+star + point-mass case.
+
+#### stop_after_star_plus_star
+
+Flag to stop simulation at the end of star + star simulation.
+
+#### do_kicks
+
+Flag to apply natal-kick on a star + point-mass simulation. If this flag is true and the `do_kicks_in_one_run` is set to false,
+then many natal-kicks will be run one after the other in a loop.
+
+#### do_kicks_in_one_run
+
+Flag to run only one natal-kick and then exit the simulation.
+
+#### natal_kicks_filename
+
+Name of the file containing natal-kick information needed to apply a kick to a star + point-mass simulation.
+
+#### star_info_at_cc_filename
+#### binary_info_at_cc_filename
+
+Name of files with information of the collapsing star & binary at core-collapse.
 
 ### Common-envelope phase
 
