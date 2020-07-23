@@ -70,17 +70,17 @@
             ierr, &
             inlist_fname_arg)
 
-         iounit = alloc_iounit(ierr)
-         if (ierr /= 0) stop 'could not alloc_iounit after star_plus_star run'
-         open(unit=iounit, file='termination_codes/termination_code_star_plus_star', status='old', action='read', iostat=ierr)
-         if (ierr /= 0) stop 'unable to open termination_code file'
-         read(iounit, '(a)') termination_code_star_plus_star
-         close(iounit)
-         call free_iounit(iounit)
-         if (termination_code_star_plus_star /= 'core-collapse') then
-            write(*,*) 'run did not reach core-collapse'
-            call exit()
-         end if
+         ! iounit = alloc_iounit(ierr)
+         ! if (ierr /= 0) stop 'could not alloc_iounit after star_plus_star run'
+         ! open(unit=iounit, file='termination_codes/termination_code_star_plus_star', status='old', action='read', iostat=ierr)
+         ! if (ierr /= 0) stop 'unable to open termination_code file'
+         ! read(iounit, '(a)') termination_code_star_plus_star
+         ! close(iounit)
+         ! call free_iounit(iounit)
+         ! if (termination_code_star_plus_star /= 'core-collapse') then
+         !    write(*,*) 'run did not reach core-collapse'
+         !    call exit()
+         ! end if
 
          ! if require to stop after the star + star, then do it
          if (stop_after_star_plus_star) then

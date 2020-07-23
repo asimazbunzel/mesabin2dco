@@ -594,6 +594,8 @@
          else
             if (b% s1% termination_code > 0) then
                termination_code = trim(termination_code_str(b% s1% termination_code))
+            else if (b% s2% termination_code > 0) then
+               termination_code = trim(termination_code_str(b% s2% termination_code))
             else
                termination_code = 'unknown'
             end if
