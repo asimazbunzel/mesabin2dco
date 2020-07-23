@@ -31,6 +31,10 @@
       
       implicit none
 
+      ! find zams info
+      logical :: found_zams
+
+      real(dp) :: X_central_initial
       
       ! these routines are called by the standard run_star check_model
       contains
@@ -217,15 +221,23 @@
          logical, intent(in) :: restart
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
+         
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+         
          extras_startup = 0
+         
          if (.not. restart) then
             call alloc_extra_info(s)
          else ! it is a restart
             call unpack_extra_info(s)
          end if
+
+         found_zams = .false.
+
+         X_central_initial = s% center_h1
+
       end function extras_startup
       
 
@@ -233,10 +245,30 @@
          integer, intent(in) :: id, id_extra
          integer :: ierr
          type (star_info), pointer :: s
+         real(dp) :: Lnuc_div_L
+         
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+         
          extras_start_step = 0
+
+         ! Aaron Dotter's ZAMS definition in MIST is:
+         !
+         ! The ZAMS EEP is taken as the first point after the
+         ! H-burning luminosity exceeds 99.9% of the total
+         ! luminosity and before the central H mass fraction has
+         ! fallen below its initial value by 0.0015.
+         Lnuc_div_L = s% L_nuc_burn_total / s% L_phot
+         if (Lnuc_div_L > 0.999d0 .and. .not. found_zams) then
+            if (X_central_initial - s% center_h1 > 0.015d0) then
+               write(*,'(a)') 'found ZAMS!'
+               found_zams = .true.
+               s% xtra30 = s% L_phot
+            end if
+         end if
+
+
       end function extras_start_step
 
 

@@ -1,6 +1,9 @@
 TODO
 ---
 
+[ ] improve donor switch: not just consider overflowing star but also which one is near
+   to having R~RL
+
 [ ] after changing white-dwarf to point-mass, apply f_mt = 1.0 but limit accretion to
    Eddington limit onto the WD
 

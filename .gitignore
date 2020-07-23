@@ -12,6 +12,7 @@ build.log
 **/make/*.smod
 *.o
 *.so
+**/include/
 
 # Output
 **/LOGS/
