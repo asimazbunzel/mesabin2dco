@@ -24,7 +24,7 @@
 
  ! mass-transfer controls
    mass_transfer_alpha = 0.0d0
-   mass_transfer_beta = 0.5d0
+   mass_transfer_beta = 0.99d0
    mass_transfer_delta = 0.0d0
    mass_transfer_gamma = 0.0d0
    mdot_scheme = 'Kolb'

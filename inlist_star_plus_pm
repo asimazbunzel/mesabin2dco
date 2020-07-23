@@ -34,6 +34,8 @@
    do_jdot_ls = .false.
 
    do_tidal_circ = .true.
+   circ_type_1 = 'Hut_rad'
+   circ_type_2 = 'Hut_rad'
 
  ! numerical resolution during mass-transfer
    fr = 0.1 ! 0.025

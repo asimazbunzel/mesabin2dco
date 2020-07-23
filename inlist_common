@@ -11,16 +11,16 @@
 
   ! winds
   ! - Brott et al. 2011 prescription
-   use_other_wind = .true.
+   use_other_wind = .false.
 
   ! - low-mass star
-  ! cool_wind_full_on_T = 1d6
-  ! hot_wind_full_on_T = 1d7
-  ! cool_wind_RGB_scheme = 'Reimers'
-  ! cool_wind_AGB_scheme = 'Blocker'
-  ! RGB_to_AGB_wind_switch = 1d-4
-  ! Reimers_scaling_factor = 1d0
-  ! Blocker_scaling_factor = 1d0
+   cool_wind_full_on_T = 1d6
+   hot_wind_full_on_T = 1d7
+   cool_wind_RGB_scheme = 'Reimers'
+   cool_wind_AGB_scheme = 'Blocker'
+   RGB_to_AGB_wind_switch = 1d-4
+   Reimers_scaling_factor = 1d0
+   Blocker_scaling_factor = 1d0
 
   ! Sravan et al. 2018. Also Yoon et al. 2017
   ! hot_wind_scheme = 'Dutch'

@@ -1,8 +1,8 @@
 &binary_controls
 
-   m1 = 22d0
-   m2 = 20d0
-   initial_period_in_days = -1d0
+   m1 = 5d0
+   m2 = 3d0
+   initial_period_in_days = 365d0
    initial_separation_in_Rsuns = 200d0
 
 /

@@ -10,7 +10,7 @@
   ! are, for example, LMXB which are composed by a low-mass evolved star and compact
   ! companion. however, note that both flags cannot be false simultaneously.
    high_mass_evolution = .false.
-   low_mass_evolution = .false.
+   low_mass_evolution = .true.
    
   ! filenames of the inlists with the binary control values:
   !  - `star_plus_star_filename` contains the controls for the star + star simulation,
@@ -47,7 +47,7 @@
   ! `./rn 10` will make the code to search for the 10th line in the `natal_kicks_filename`
   ! and run the corresponding binary (of course, the number passed should be less or equal
   ! to the number of rows in the file).
-   do_kicks = .true.
+   do_kicks = .false.
    do_kicks_in_one_run = .false.
    
   ! filename with the natal-kicks. only used if one of the `do_kick*` flags are used
