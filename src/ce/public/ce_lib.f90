@@ -371,10 +371,17 @@
 
          ce_duration = ce_duration + b% time_step
 
-         if (ce_duration < years_to_max_mdot_rlof) then
+         if (ce_duration < years_to_max_mdot_rlof .and. abs(b% mtransfer_rate) * secyer/Msun < max_mdot_rlof) then
             write(*,*) 'reduce dt due to not reaching years_to_max_mdot_rlof'
             b% s_donor% dt_next = min(0.5d0 * secyer, b% s_donor% dt_next)
             if (ce_type == ce_two_stars) b% s_accretor% dt_next = b% s_donor% dt_next
+         end if
+
+         ! start to count the time a binary is detached. after a certain amount,
+         ! just exit CE
+         if (b% r(b% d_i) < b% rl(b% d_i)) then
+            ce_years_in_detach = ce_years_in_detach + b% time_step
+            write(*,*) 'binary close ce end. years detached:', ce_years_in_detach
          end if
 
          ! add energy removed to cumulative

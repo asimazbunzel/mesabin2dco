@@ -4,7 +4,7 @@
    alpha_two_stars = 1d0
 
   ! efficiency for removing envelope in binaries of a star and a compact object (point mass)
-   alpha_xrb = 5d0
+   alpha_xrb = 1d0
   
   ! Eddington scaling factor to trigger ce
    edd_scaling_factor = 1d0
@@ -14,6 +14,9 @@
   ! where tol_* depends on the type of binary system (two stars or star + point mass)
    tol_two_stars = -1d-2
    tol_xrb = -1d-1
+
+  ! wait this time before turning ce off when tolerance has been fulfilled
+   years_in_detachment = 1d0
 
   ! increment mdot_rlof during this many years until reach max_mdot_rlof
    years_to_max_mdot_rlof = 7.5d0

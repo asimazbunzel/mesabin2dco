@@ -24,7 +24,8 @@
 
          ierr = 0
 
-         if (ce_duration <= years_to_max_mdot_rlof) then
+         if (ce_duration <= years_to_max_mdot_rlof .and. &
+             abs(b% mtransfer_rate) * secyer/Msun < max_mdot_rlof) then
             x0 = 0d0; x1 = years_to_max_mdot_rlof
             y0 = lg_mtransfer_rate_start_ce; y1 = safe_log10_cr(max_mdot_rlof)
             m = (y1 - y0) / (x1 - x0)

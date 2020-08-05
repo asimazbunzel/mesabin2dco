@@ -27,6 +27,9 @@
 
          b% extra_jdot = 0
 
+         ! just be extra-sure that binary is circular
+         if (b% eccentricity > 0d0) b% eccentricity = 0d0
+
          ! binding energy of the whole star
          call eval_binding_energy(b% s_donor, &
                          ! limits of integration

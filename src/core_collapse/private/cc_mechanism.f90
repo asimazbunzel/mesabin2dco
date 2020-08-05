@@ -67,10 +67,8 @@
          ! First, mass of proto-compact object is evaluated
          select case (model_id)
          case (cc_rapid)
-            write(*,*) 'Rapid SN model'
             proto_mass = 1d0
          case (cc_delayed)
-            write(*,*) 'Delayed SN model'
             if (c_core_mass < 3.5d0) then
                proto_mass = 1.2d0
             else if (c_core_mass < 6d0) then
@@ -83,7 +81,6 @@
                stop 'failed to get range of proto_mass for delayed mechanism'
             end if
          case (cc_startrack)
-            write(*,*) 'StarTrack SN model'
             if (c_core_mass < 4.82d0) then
                proto_mass = 1.5d0
             else if (c_core_mass < 6.31d0) then
@@ -96,7 +93,6 @@
                stop 'failed to get range of proto_mass for startrack mechanism'
             end if
          case (cc_combine)
-            write(*,*) 'ComBiNe SN model'
             if (c_core_mass > 1.37d0 .and. c_core_mass < 1.435d0) then
                proto_mass = c_core_mass
             else if (c_core_mass > 1.435d0 .and. c_core_mass < 6.5d0) then

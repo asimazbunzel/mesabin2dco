@@ -34,6 +34,9 @@
       ! tolerance to determine end of ce, depending on the binary system
       real(dp) :: tol_two_stars, tol_xrb
 
+      ! wait at least this many years before turning ce off
+      real(dp) :: years_in_detachment
+
       ! years to reach the maximum mass-transfer rate during ce
       real(dp) :: years_to_max_mdot_rlof
 
@@ -66,7 +69,7 @@
       logical :: ce_detach, ce_merge
       real(dp) :: ce_initial_age
       integer :: ce_initial_model_number
-      real(dp) :: ce_duration
+      real(dp) :: ce_duration, ce_years_in_detach
       real(dp) :: alpha_mt_start_ce, beta_mt_start_ce, delta_mt_start_ce, gamma_mt_start_ce
       real(dp) :: fj_start_ce
       real(dp) :: accretor_overflow_terminate_start_ce

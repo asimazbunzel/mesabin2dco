@@ -28,8 +28,10 @@
       real(dp) :: max_ns_mass
 
       ! pre-cc data
+      integer :: model_number_pre_cc
       real(dp) :: age_pre_cc
       real(dp) :: he_core_mass_pre_cc, c_core_mass_pre_cc
+      real(dp) :: he_core_radius_pre_cc, c_core_radius_pre_cc
       real(dp) :: M_pre_cc, R_pre_cc, Teff_pre_cc, L_pre_cc
       logical :: save_model_pre_cc
 
@@ -43,7 +45,9 @@
       ! binary pre-cc data
       real(dp) :: progenitor_mass, companion_mass
       real(dp) :: angular_momentum_pre_cc, separation_pre_cc, &
-         rl_pre_cc(2), mt_rate_pre_cc
+         period_pre_cc, eccentricity_pre_cc
+      real(dp) :: radius_pre_cc(2), rl_pre_cc(2)
+      real(dp) :: mt_rate_pre_cc
       
       ! binary post-cc data
       logical :: continue_binary_evolution

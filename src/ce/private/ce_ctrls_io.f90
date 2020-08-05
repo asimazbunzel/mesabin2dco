@@ -16,6 +16,7 @@
          edd_scaling_factor, &
          tol_two_stars, &
          tol_xrb, &
+         years_in_detachment, &
          years_to_max_mdot_rlof, &
          max_mdot_rlof, &
          add_accretion_on_ce, &
@@ -44,6 +45,7 @@
          edd_scaling_factor = 1d0
          tol_two_stars = -1d-2
          tol_xrb = -1d-1
+         years_in_detachment = 1d0
          years_to_max_mdot_rlof = 7.5d0
          max_mdot_rlof = 0.1d0
          add_accretion_on_ce = .false.

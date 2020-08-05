@@ -57,11 +57,14 @@
 
          ierr = 0
 
+         model_number_pre_cc = s% model_number
          age_pre_cc = s% star_age
          M_pre_cc = s% star_mass
          he_core_mass_pre_cc = s% he_core_mass
+         he_core_radius_pre_cc = s% he_core_radius
          c_core_mass_pre_cc = s% c_core_mass
-         R_pre_cc = s% photosphere_r
+         c_core_radius_pre_cc = s% c_core_radius
+         R_pre_cc = s% r(1) / Rsun
          Teff_pre_cc = s% Teff
          L_pre_cc = s% photosphere_L
 
@@ -84,6 +87,10 @@
 
          angular_momentum_pre_cc = b% angular_momentum_j
          separation_pre_cc = b% separation / Rsun
+         period_pre_cc = b% period / (60d0*60d0*24d0)
+         eccentricity_pre_cc = b% eccentricity
+         radius_pre_cc(1) = b% r(1) / Rsun
+         radius_pre_cc(2) = b% r(2) / Rsun
          rl_pre_cc(1) = b% rl(1) / Rsun
          rl_pre_cc(2) = b% rl(2) / Rsun
          mt_rate_pre_cc = b% mtransfer_rate * secyer / Msun
@@ -113,11 +120,14 @@
             return
          end if
 
+         write(iounit,2) 'model_number_pre_cc', model_number_pre_cc
          write(iounit,1) 'age_pre_cc', age_pre_cc
          write(iounit,1) 'mass_pre_cc', M_pre_cc
          write(iounit,1) 'he_core_mass_pre_cc', he_core_mass_pre_cc
          write(iounit,1) 'c_core_mass_pre_cc', c_core_mass_pre_cc
-         write(iounit,1) 'radius_pre_cc', R_pre_cc
+         write(iounit,1) 'he_core_radius_pre_cc', he_core_radius_pre_cc
+         write(iounit,1) 'c_core_radius_pre_cc', c_core_radius_pre_cc
+         write(iounit,1) 'star_radius_pre_cc', R_pre_cc
          write(iounit,1) 'Teff_pre_cc', Teff_pre_cc
          write(iounit,1) 'L_pre_cc', L_pre_cc
 
@@ -152,7 +162,10 @@
          write(iounit,1) 'progenitor_mass', progenitor_mass
          write(iounit,1) 'companion_mass', companion_mass
          write(iounit,1) 'orbital_angular_momentum_pre_cc', angular_momentum_pre_cc
+         write(iounit,1) 'period_pre_cc', period_pre_cc
          write(iounit,1) 'separation_pre_cc', separation_pre_cc
+         write(iounit,1) 'r_1_pre_cc', radius_pre_cc(1)
+         write(iounit,1) 'r_2_pre_cc', radius_pre_cc(2)
          write(iounit,1) 'rl_1_pre_cc', rl_pre_cc(1)
          write(iounit,1) 'rl_2_pre_cc', rl_pre_cc(2)
          write(iounit,1) 'mt_rate_pre_cc', mt_rate_pre_cc
@@ -185,8 +198,8 @@
             return
          end if
 
-         write(iounit,'(a)')
          write(iounit,4) 'sn_model', model_name
+         write(iounit,1) 'max_ns_mass', max_ns_mass
          write(iounit,1) 'baryonic_mass', M_baryonic
          write(iounit,1) 'remnant_mass', M_remnant
          write(iounit,1) 'ejected_mass', M_ejected
@@ -220,7 +233,6 @@
             return
          end if
          
-         write(iounit,'(a)')
          write(iounit,1) 'orbital_angular_momentum_after_cc', angular_momentum_after_cc
          write(iounit,1) 'separation_after_cc', separation_after_cc
          write(iounit,1) 'rl_1_after_cc', rl_after_cc(1)

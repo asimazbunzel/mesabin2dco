@@ -50,6 +50,7 @@
          ce_initial_model_number = b% model_number
 
          ce_duration = 0d0
+         ce_years_in_detach = 0d0
 
          cumulative_removed_binding_energy = 0d0
 
@@ -106,7 +107,9 @@
          if (ce_type == ce_two_stars) tol = tol_two_stars
 
          ! check detachment
-         if (b% rl_relative_gap(ce_donor_id) < tol) is_detach = .true.
+         if (b% rl_relative_gap(ce_donor_id) < tol) then
+            if (ce_years_in_detach >= years_in_detachment) is_detach = .true.
+         end if
 
       end function is_detach
 
