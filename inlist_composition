@@ -15,7 +15,7 @@
 
 &controls
 
- ! custom opacity that scales with iron abundance
+  ! custom opacity that scales with iron abundance
    use_Type2_opacities = .true.
    Zbase = 0.02
 

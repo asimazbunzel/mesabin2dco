@@ -22,7 +22,7 @@
    history_interval = 1
    append_to_star_history = .false.
 
- ! mass-transfer controls
+  ! mass-transfer controls
    mass_transfer_alpha = 0.0d0
    mass_transfer_beta = 0.99d0
    mass_transfer_delta = 0.0d0
@@ -36,19 +36,19 @@
 
    keep_donor_fixed = .false.
 
- ! numerical resolution during mass-transfer
+  ! numerical resolution during mass-transfer
    fr = 0.025
-   varcontrol_case_a = 3d-4
-   varcontrol_case_b = 5d-4
-   varcontrol_ms = 5d-4
-   varcontrol_post_ms = 5d-4
-   dt_softening_factor = 0.4
-   implicit_scheme_tolerance = 1d-2
-   max_tries_to_achieve = 200
-   min_change_factor = 1.025
-   max_change_factor = 1.2d0
-   initial_change_factor = 1.2d0
-   change_factor_fraction = 0.8d0
+   !varcontrol_case_a = 3d-4
+   !varcontrol_case_b = 5d-4
+   !varcontrol_ms = 5d-4
+   !varcontrol_post_ms = 5d-4
+   !dt_softening_factor = 0.4
+   !implicit_scheme_tolerance = 1d-2
+   !max_tries_to_achieve = 200
+   !min_change_factor = 1.025
+   !max_change_factor = 1.2d0
+   !initial_change_factor = 1.2d0
+   !change_factor_fraction = 0.8d0
    min_mdot_for_implicit = 1d-10
 
 / ! end of binary_controls namelist

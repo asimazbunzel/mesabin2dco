@@ -13,7 +13,7 @@
 
 &binary_controls
 
- ! parameters after core-collapse in inlist_after_kick
+  ! parameters after core-collapse in inlist_after_kick
    read_extra_binary_controls_inlist1 = .false.
    extra_binary_controls_inlist1_name = 'inlist_after_kick'
 
@@ -21,7 +21,7 @@
    append_to_star_history = .false.
    log_directory = 'LOGS_binary'
 
- ! mass-transfer controls
+  ! mass-transfer controls
    mass_transfer_alpha = 0.0d0
    mass_transfer_beta = 0.0d0
    mass_transfer_delta = 0.0d0
@@ -34,10 +34,10 @@
    do_jdot_ls = .false.
 
    do_tidal_circ = .true.
-   circ_type_1 = 'Hut_rad'
-   circ_type_2 = 'Hut_rad'
+   circ_type_1 = 'Hut_conv'
+   circ_type_2 = 'Hut_conv'
 
- ! numerical resolution during mass-transfer
+  ! numerical resolution during mass-transfer
    fr = 0.1 ! 0.025
    !varcontrol_case_a = 3d-4
    !varcontrol_case_b = 5d-4
@@ -50,7 +50,7 @@
    !max_change_factor = 1.2d0
    !initial_change_factor = 1.2d0
    !change_factor_fraction = 0.8d0
-   !min_mdot_for_implicit = 1d-10
+   min_mdot_for_implicit = 1d-10
 
 / ! end of binary_controls namelist
 
