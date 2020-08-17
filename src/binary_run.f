@@ -30,7 +30,7 @@
 
 
       ! check that versions match
-      call check_version_numbers
+      ! call check_version_numbers
 
 
       ! get bin2dco_options
