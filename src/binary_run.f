@@ -42,6 +42,7 @@
       if (ierr /= 0) stop 'failed to read bin2dco_options'
       close(iounit)
       call free_iounit(iounit)
+      write(*,'(a)') 'succesfully read controls from bin2dco_controls file'
 
 
       ! just check that `*_mass_evolution` are not both false
