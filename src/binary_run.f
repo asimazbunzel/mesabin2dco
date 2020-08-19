@@ -42,7 +42,6 @@
       if (ierr /= 0) stop 'failed to read bin2dco_options'
       close(iounit)
       call free_iounit(iounit)
-      write(*,'(a)') 'succesfully read controls from bin2dco_controls file'
 
 
       ! just check that `*_mass_evolution` are not both false
@@ -210,6 +209,7 @@
          ! do star plus pm but for a different case, .e.g, UCWD binaries
          ! for that we will use the MESA_INLIST env variable set by the
          ! script that launches the runs
+         inlist_fname_arg = star_plus_pm_filename
          call run1_binary(tst, &
             ! star extras
             extras_controls, &
