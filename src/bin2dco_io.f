@@ -45,4 +45,31 @@
 
       end subroutine store_termination_code
 
+
+      ! check if termination_code is core-collapse
+      logical function end_as_core_collapse(filename)
+         use const_def, only: strlen
+         use utils_lib, only: alloc_iounit, free_iounit
+         character(len=*) :: filename
+         character(len=strlen) :: end_code_string
+         integer :: iounit, ierr
+
+         end_as_core_collapse = .false.
+
+         iounit = alloc_iounit(ierr)
+         if (ierr /= 0) stop 'could not alloc_iounit for searching termination_code'
+         open(unit=iounit, file=trim(filename), action='read', status='old', iostat=ierr)
+         if (ierr /= 0) then
+            call free_iounit(iounit)
+            write(*,*) 'failed to open ' // trim(filename)
+            return
+         else
+            read(iounit, '(a)') end_code_string
+            close(iounit)
+            call free_iounit(iounit)
+            if (end_code_string == 'core-collapse') end_as_core_collapse = .true.
+         end if
+
+      end function end_as_core_collapse
+
       end module bin2dco_io

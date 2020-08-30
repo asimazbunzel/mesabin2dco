@@ -234,6 +234,8 @@
 
          ! instant circularization
          b% eccentricity = 0d0
+         b% eccentricity_old = b% eccentricity
+         b% eccentricity_older = b% eccentricity
 
          ! do not change donor during ce
          if (ce_type == ce_two_stars) b% keep_donor_fixed = .true.

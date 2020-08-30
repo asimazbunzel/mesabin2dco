@@ -23,6 +23,7 @@
       character(len=strlen) :: cc_model_name
       character(len=strlen) :: str_index
       character(len=strlen) :: termination_code_star_plus_star
+      logical :: has_reached_cc
 
 
       MESA_INLIST_RESOLVED = .true.
@@ -74,6 +75,14 @@
          if (stop_after_star_plus_star) then
             write(*,*) 'star + star simulation ended. exit program'
             call exit()
+         end if
+
+         if (do_kicks) then
+            has_reached_cc = end_as_core_collapse('termination_codes/termination_code_star_plus_star')
+            if (.not. has_reached_cc) then
+               write(*,*) 'star + star simulation did not reach first core-collapse. exit program'
+               call exit()
+            end if
          end if
 
       else
