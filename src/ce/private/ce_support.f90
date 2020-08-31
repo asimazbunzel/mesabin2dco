@@ -129,6 +129,7 @@
          return
 
          ! if exceeds max relative gap, also merge
+         write(*,*) 'rl_relative_gap(ce_donor_id) =', b% rl_relative_gap(ce_donor_id), max_relative_gap
          if (b% rl_relative_gap(ce_donor_id) > max_relative_gap) will_merge = .true.
          return
 

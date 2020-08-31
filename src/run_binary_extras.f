@@ -457,13 +457,13 @@
             ! first collapse
             star_cc_id = 0
             if (b% point_mass_i == 0) then
-               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z) then
+               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z .and. b% s1% center_he4 < 1d-6) then
                   star_cc_id = 1
                   call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
                   b% s1% termination_code = t_xtra1
                   termination_code_str(t_xtra1) = 'core-collapse'
                   extras_binary_finish_step = terminate
-               else if (b% s2% center_c12 < 1d-3 * b% s2% initial_z) then
+               else if (b% s2% center_c12 < 1d-3 * b% s2% initial_z .and. b% s2% center_he4 < 1d-6) then
                   star_cc_id = 2
                   call star_write_model(1, 'companion_at_core_collapse.mod', ierr)
                   b% s2% termination_code = t_xtra1
@@ -472,7 +472,7 @@
                end if
             ! second collapse
             else if (b% point_mass_i == 1) then
-               if (b% s2% center_c12 < 1d-3 * b% s2% initial_z) then
+               if (b% s2% center_c12 < 1d-3 * b% s2% initial_z .and. b% s2% center_he4 < 1d-6) then
                   second_collapse = .true.
                   star_cc_id = 2
                   b% s2% termination_code = t_xtra1
@@ -480,7 +480,7 @@
                   extras_binary_finish_step = terminate
                end if
             else if (b% point_mass_i == 2) then
-               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z) then
+               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z .and. b% s1% center_he4 < 1d-6) then
                   second_collapse = .true.
                   star_cc_id = 1
                   b% s1% termination_code = t_xtra1
