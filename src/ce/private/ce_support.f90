@@ -125,13 +125,16 @@
          if (b% model_number <= ce_initial_model_number) return
 
          ! check for many retries during ce
-         if (b% s_donor% num_retries > max_number_retries_during_ce) will_merge = .true.
-         return
+         if (b% s_donor% num_retries > max_number_retries_during_ce) then
+            will_merge = .true.
+            return
+         end if
 
          ! if exceeds max relative gap, also merge
-         write(*,*) 'rl_relative_gap(ce_donor_id) =', b% rl_relative_gap(ce_donor_id), max_relative_gap
-         if (b% rl_relative_gap(ce_donor_id) > max_relative_gap) will_merge = .true.
-         return
+         if (b% rl_relative_gap(ce_donor_id) > max_relative_gap) then
+            will_merge = .true.
+            return
+         end if
 
          ! if accretor inside donor star, merge
          if (b% separation < b% r(ce_accretor_id)) will_merge = .true.
