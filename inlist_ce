@@ -4,7 +4,7 @@
    alpha_two_stars = 1d0
 
   ! efficiency for removing envelope in binaries of a star and a compact object (point mass)
-   alpha_xrb = 1d0
+   alpha_xrb = 2d0
   
   ! Eddington scaling factor to trigger ce
    edd_scaling_factor = 1d0
@@ -49,9 +49,9 @@
    filename_accretor_model_after_ce = 'accretor_after_ce'
 
   ! if (r-rl)/rl > max_relative_gap during ce, then consider it a merger
-   max_relative_gap = 1d2
+   max_relative_gap = 50d0
 
   ! if number_retries > max_number_retries_during_ce, consider it a merger
-   max_number_retries_during_ce = 400
+   max_number_retries_during_ce = 300
 
 / ! end of ce_controls namelist

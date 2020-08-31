@@ -69,7 +69,7 @@
 
 
       subroutine read_ce_controls(inlist_fname, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit, mkdir
+         use utils_lib, only: alloc_iounit, free_iounit
          character (len=*), intent(in) :: inlist_fname
          integer, intent(out) :: ierr
          integer :: iounit
@@ -93,9 +93,6 @@
          end if
          close(iounit)
          call free_iounit(iounit)
-
-         ! after getting ce_controls, run `mkdir -p` over ce_data_directory
-         call mkdir(ce_data_directory)
 
       end subroutine read_ce_controls
 

@@ -86,11 +86,15 @@
       ! ce initialize
       subroutine ce_init(ce_id, ierr)
          use ce_ctrls_io, only: save_ce_profile, save_ce_model
+         use utils_lib, only: mkdir
          integer, intent(in) :: ce_id
 
          integer, intent(out) :: ierr
 
          ierr = 0
+         
+         ! run `mkdir -p` over ce_data_directory if it does not exist
+         call mkdir(ce_data_directory)
 
          ! check type of ce
          call ce_type_of(ce_id, ierr)
@@ -379,9 +383,9 @@
             if (ce_type == ce_two_stars) b% s_accretor% dt_next = b% s_donor% dt_next
          end if
 
-         ! start to count the time a binary is detached. after a certain amount,
-         ! just exit CE
-         if (b% r(b% d_i) < b% rl(b% d_i)) then
+         ! start to count the time a binary is detached but only after reaching max_mdot_rlof
+         ! after a certain amount of time, just exit CE
+         if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_duration > years_to_max_mdot_rlof) then
             ce_years_in_detach = ce_years_in_detach + b% time_step
             write(*,*) 'binary close ce end. years detached:', ce_years_in_detach
          end if
