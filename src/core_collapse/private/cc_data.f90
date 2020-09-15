@@ -204,6 +204,7 @@
          write(iounit,1) 'remnant_mass', M_remnant
          write(iounit,1) 'ejected_mass', M_ejected
          write(iounit,1) 'fallback_mass', M_fallback
+         write(iounit,1) 'fallback_fraction', fallback_fraction
 
          close(iounit)
          call free_iounit(iounit)

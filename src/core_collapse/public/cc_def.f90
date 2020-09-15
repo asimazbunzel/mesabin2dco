@@ -35,6 +35,9 @@
       real(dp) :: M_pre_cc, R_pre_cc, Teff_pre_cc, L_pre_cc
       logical :: save_model_pre_cc
 
+      ! fraction of mass that falls back
+      real(dp) :: fallback_fraction
+
       ! post-cc data (in Msun)
       real(dp) :: M_baryonic, M_remnant
       real(dp) :: M_ejected, M_fallback

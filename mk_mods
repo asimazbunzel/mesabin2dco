@@ -12,10 +12,14 @@ function check_okay {
 
 if [ ! -r lib ]; then
    mkdir lib
+else
+   rm -f lib/*
 fi
 
 if [ ! -r include ]; then
    mkdir include
+else
+   rm -f include/*
 fi
 check_okay;
 

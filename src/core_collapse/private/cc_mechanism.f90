@@ -174,6 +174,17 @@
             fallback_mass = 0d0
          end if
 
+         ! eval fallback fraction. Note that this is well defined in the StarTrack, rapid and
+         ! delayed mechanism but it is rather difficult to find a simple way to write it for
+         ! the combine mechanism. Thus we ONLY consider reasonable values those from any
+         ! mechanism that is not combine
+         if (model_id /= cc_combine) then
+            fallback_fraction = fallback_mass / (s% star_mass - proto_mass)
+         else
+            fallback_fraction = -1d0
+         end if
+
+
          ! Now that fallback_mass & proto_mass are set, calculate gravitational mass of compact
          ! remnant
          baryonic_mass = proto_mass + fallback_mass
