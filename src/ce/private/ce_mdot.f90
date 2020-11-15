@@ -7,7 +7,7 @@
       use star_lib
       use binary_def
       use binary_lib
-      use crlibm_lib
+      use math_lib
       
       implicit none
 
@@ -27,9 +27,9 @@
          if (ce_duration <= years_to_max_mdot_rlof .and. &
              abs(b% mtransfer_rate) * secyer/Msun < max_mdot_rlof) then
             x0 = 0d0; x1 = years_to_max_mdot_rlof
-            y0 = lg_mtransfer_rate_start_ce; y1 = safe_log10_cr(max_mdot_rlof)
+            y0 = lg_mtransfer_rate_start_ce; y1 = safe_log10(max_mdot_rlof)
             m = (y1 - y0) / (x1 - x0)
-            mdot = - exp10_cr(m*(ce_duration-x0)+y0) * Msun/secyer
+            mdot = - exp10(m*(ce_duration-x0)+y0) * Msun/secyer
             return
          end if
 
@@ -46,10 +46,10 @@
          else
             write(*,*) 'reducing mdot_rlof'
             x0 = 0d0; x1 = rl_rel_limit
-            y0 = safe_log10_cr(max_mdot_rlof)
+            y0 = safe_log10(max_mdot_rlof)
             y1 = lg_mtransfer_rate_start_ce -1d0
             m = (y1 - y0) / (x1 - x0)
-            mdot = - exp10_cr(m*(b% rl_relative_gap(b% d_i)-x0)+y0) * Msun/secyer
+            mdot = - exp10(m*(b% rl_relative_gap(b% d_i)-x0)+y0) * Msun/secyer
          end if
       end function eval_ce_mdot
 

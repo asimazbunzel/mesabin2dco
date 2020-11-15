@@ -25,7 +25,7 @@
       use star_lib
       use star_def
       use const_def
-      use crlibm_lib
+      use math_lib
       use chem_def
       use binary_def
       
@@ -73,9 +73,10 @@
       
       
       ! use Brott+ (2011) prescription for winds
-      subroutine brott_wind_prescription(id, Lsurf, Msurf, Rsurf, Tsurf, w, ierr)
+      subroutine brott_wind_prescription(id, Lsurf, Msurf, Rsurf, Tsurf, X, Y, Z, w, ierr)
+         use star_def
          integer, intent(in) :: id
-         real(dp), intent(in) :: Lsurf, Msurf, Rsurf, Tsurf ! surface values (cgs)
+         real(dp), intent(in) :: Lsurf, Msurf, Rsurf, Tsurf, X, Y, Z ! surface values (cgs)
          ! NOTE: surface is outermost cell. not necessarily at photosphere.
          ! NOTE: don't assume that vars are set at this point.
          ! so if you want values other than those given as args,
@@ -84,11 +85,9 @@
          real(dp), intent(out) :: w ! wind in units of Msun/year (value is >= 0)
          integer, intent(out) :: ierr
          integer :: h1, he4
-         real(dp) :: Xs, Ys, Z_div_Z_solar, Teff_jump, alfa
-         real(dp) :: L1, M1, R1, T1
-         real(dp) :: vink_wind, nieu_wind, hamann_wind
+         real(dp) :: Xs, Ys, Z_div_Z_solar, Teff_jump, alfa, L1, M1, R1, T1, &
+            vink_wind, nieu_wind, hamann_wind
          type (star_info), pointer :: s
-
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
@@ -102,15 +101,15 @@
          he4 = s% net_iso(ihe4)
          Xs = s% xa(h1,1)
          Ys = s% xa(he4,1)
-         ! Z=0.017 is Z from Grevesse et al. 1996
+         ! Z=0.0142 is Z from Asplund et al. 2009
          Z_div_Z_solar = s% Zbase/0.017d0
          ! use Vink et al 2001, eqns 14 and 15 to set "jump" temperature
-         Teff_jump = 1d3*(61.2d0 + 2.59d0*(-13.636d0 + 0.889d0*log10_cr(Z_div_Z_solar)))
+         Teff_jump = 1d3*(61.2d0 + 2.59d0*(-13.636d0 + 0.889d0*log10(Z_div_Z_solar)))
 
          vink_wind = 0d0
          nieu_wind = 0d0
          hamann_wind = 0d0
-         w = 0d0
+         w = 0
 
          call eval_Vink_wind(vink_wind)
          call eval_Nieuwenhuijzen_wind(nieu_wind)
@@ -137,7 +136,7 @@
 
          contains
 
-            subroutine eval_Vink_wind(w)
+         subroutine eval_Vink_wind(w)
             real(dp), intent(inout) :: w
             real(dp) :: alfa, w1, w2, logMdot, dT, vinf_div_vesc
 
@@ -159,35 +158,37 @@
 
             if (alfa > 0) then ! eval hot side wind (eqn 24)
                vinf_div_vesc = 2.6d0 ! this is the hot side galactic value
-               vinf_div_vesc = vinf_div_vesc*pow_cr(Z_div_Z_solar,0.13d0) ! corrected for Z
+               vinf_div_vesc = vinf_div_vesc*pow(Z_div_Z_solar,0.13d0) ! corrected for Z
                logMdot = &
                   - 6.697d0 &
-                  + 2.194d0*log10_cr(L1/Lsun/1d5) &
-                  - 1.313d0*log10_cr(M1/Msun/30) &
-                  - 1.226d0*log10_cr(vinf_div_vesc/2d0) &
-                  + 0.933d0*log10_cr(T1/4d4) &
-                  - 10.92d0*pow2(log10_cr(T1/4d4)) &
-                  + 0.85d0*log10_cr(Z_div_Z_solar)
-               w1 = exp10_cr(logMdot)
+                  + 2.194d0*log10(L1/Lsun/1d5) &
+                  - 1.313d0*log10(M1/Msun/30) &
+                  - 1.226d0*log10(vinf_div_vesc/2d0) &
+                  + 0.933d0*log10(T1/4d4) &
+                  - 10.92d0*pow2(log10(T1/4d4)) &
+                  + 0.85d0*log10(Z_div_Z_solar)
+               w1 = exp10(logMdot)
             else
                w1 = 0
             end if
 
             if (alfa < 1) then ! eval cool side wind (eqn 25)
                vinf_div_vesc = 1.3d0 ! this is the cool side galactic value
-               vinf_div_vesc = vinf_div_vesc*pow_cr(Z_div_Z_solar,0.13d0) ! corrected for Z
+               vinf_div_vesc = vinf_div_vesc*pow(Z_div_Z_solar,0.13d0) ! corrected for Z
                logMdot = &
                   - 6.688d0 &
-                  + 2.210d0*log10_cr(L1/Lsun/1d5) &
-                  - 1.339d0*log10_cr(M1/Msun/30) &
-                  - 1.601d0*log10_cr(vinf_div_vesc/2d0) &
-                  + 1.07d0*log10_cr(T1/2d4) &
-                  + 0.85d0*log10_cr(Z_div_Z_solar)
-               w2 = exp10_cr(logMdot)
+                  + 2.210d0*log10(L1/Lsun/1d5) &
+                  - 1.339d0*log10(M1/Msun/30) &
+                  - 1.601d0*log10(vinf_div_vesc/2d0) &
+                  + 1.07d0*log10(T1/2d4) &
+                  + 0.85d0*log10(Z_div_Z_solar)
+               w2 = exp10(logMdot)
             else
                w2 = 0
             end if
+
             w = alfa*w1 + (1 - alfa)*w2
+
          end subroutine eval_Vink_wind
 
          subroutine eval_Nieuwenhuijzen_wind(w)
@@ -195,11 +196,11 @@
             real(dp), intent(out) :: w
             real(dp) :: log10w
             log10w = -14.02d0 &
-                     +1.24d0*log10_cr(L1/Lsun) &
-                     +0.16d0*log10_cr(M1/Msun) &
-                     +0.81d0*log10_cr(R1/Rsun) &
-                     +0.85d0*log10_cr(Z_div_Z_solar)
-            w = exp10_cr(log10w)
+                     +1.24d0*log10(L1/Lsun) &
+                     +0.16d0*log10(M1/Msun) &
+                     +0.81d0*log10(R1/Rsun) &
+                     +0.85d0*log10(Z_div_Z_solar)
+            w = exp10(log10w)
          end subroutine eval_Nieuwenhuijzen_wind
 
          subroutine eval_Hamann_wind(w)
@@ -207,16 +208,16 @@
             real(dp), intent(out) :: w
             real(dp) :: log10w
             log10w = -11.95d0 &
-                     +1.5d0*log10_cr(L1/Lsun) &
+                     +1.5d0*log10(L1/Lsun) &
                      -2.85d0*Xs &
-                     + 0.85d0*log10_cr(Z_div_Z_solar)
-            w = exp10_cr(log10w)
+                     + 0.85d0*log10(Z_div_Z_solar)
+            w = exp10(log10w)
          end subroutine eval_Hamann_wind
-
+  
       end subroutine brott_wind_prescription
 
 
-      integer function extras_startup(id, restart, ierr)
+      subroutine extras_startup(id, restart, ierr)
          integer, intent(in) :: id
          logical, intent(in) :: restart
          integer, intent(out) :: ierr
@@ -225,8 +226,6 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         
-         extras_startup = 0
          
          if (.not. restart) then
             call alloc_extra_info(s)
@@ -238,11 +237,11 @@
 
          X_central_initial = s% center_h1
 
-      end function extras_startup
+      end subroutine extras_startup
       
 
-      integer function extras_start_step(id, id_extra)
-         integer, intent(in) :: id, id_extra
+      integer function extras_start_step(id)
+         integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
          real(dp) :: Lnuc_div_L
@@ -264,7 +263,6 @@
             if (X_central_initial - s% center_h1 > 0.015d0) then
                write(*,'(a)') 'found ZAMS!'
                found_zams = .true.
-               s% xtra30 = s% L_phot
             end if
          end if
 
@@ -273,8 +271,8 @@
 
 
       ! returns either keep_going, retry, backup, or terminate.
-      integer function extras_check_model(id, id_extra)
-         integer, intent(in) :: id, id_extra
+      integer function extras_check_model(id)
+         integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
          integer, parameter :: phase_carbon_burning = 7
@@ -302,8 +300,8 @@
       end function extras_check_model
 
 
-      integer function how_many_extra_history_columns(id, id_extra)
-         integer, intent(in) :: id, id_extra
+      integer function how_many_extra_history_columns(id)
+         integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
          ierr = 0
@@ -313,8 +311,8 @@
       end function how_many_extra_history_columns
       
       
-      subroutine data_for_extra_history_columns(id, id_extra, n, names, vals, ierr)
-         integer, intent(in) :: id, id_extra, n
+      subroutine data_for_extra_history_columns(id, n, names, vals, ierr)
+         integer, intent(in) :: id, n
          character (len=maxlen_history_column_name) :: names(n)
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
@@ -357,9 +355,9 @@
       end subroutine data_for_extra_history_columns
 
 
-      integer function how_many_extra_profile_columns(id, id_extra)
+      integer function how_many_extra_profile_columns(id)
          use star_def, only: star_info
-         integer, intent(in) :: id, id_extra
+         integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
          ierr = 0
@@ -369,10 +367,10 @@
       end function how_many_extra_profile_columns
       
       
-      subroutine data_for_extra_profile_columns(id, id_extra, n, nz, names, vals, ierr)
+      subroutine data_for_extra_profile_columns(id, n, nz, names, vals, ierr)
          use star_def, only: star_info, maxlen_profile_column_name
          use const_def, only: dp
-         integer, intent(in) :: id, id_extra, n, nz
+         integer, intent(in) :: id, n, nz
          character (len=maxlen_profile_column_name) :: names(n)
          real(dp) :: vals(nz,n)
          integer, intent(out) :: ierr
@@ -395,62 +393,68 @@
       end subroutine data_for_extra_profile_columns
 
 
-      subroutine how_many_extra_history_header_items(id, id_extra, num_cols)
-         integer, intent(in) :: id, id_extra
-         integer, intent(out) :: num_cols
-         num_cols = 0
-      end subroutine how_many_extra_history_header_items
+      integer function how_many_extra_history_header_items(id)
+         integer, intent(in) :: id
+         integer :: ierr
+         type (star_info), pointer :: s
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+         how_many_extra_history_header_items = 0
+      end function how_many_extra_history_header_items
      
 
-      subroutine data_for_extra_history_header_items( &
-                  id, id_extra, num_extra_header_items, &
-                  extra_header_item_names, extra_header_item_vals, ierr)
-         integer, intent(in) :: id, id_extra, num_extra_header_items
-         character (len=*), pointer :: extra_header_item_names(:)
-         real(dp), pointer :: extra_header_item_vals(:)
+      subroutine data_for_extra_history_header_items(id, n, names, vals, ierr)
+         integer, intent(in) :: id, n
+         character (len=maxlen_history_column_name) :: names(n)
+         real(dp) :: vals(n)
          type(star_info), pointer :: s
          integer, intent(out) :: ierr
          ierr = 0
          call star_ptr(id,s,ierr)
          if(ierr/=0) return
 
-         !here is an example for adding an extra history header item
-         !set num_cols=1 in how_many_extra_history_header_items and then unccomment these lines
-         !extra_header_item_names(1) = 'mixing_length_alpha'
-         !extra_header_item_vals(1) = s% mixing_length_alpha
+         ! here is an example for adding an extra history header item
+         ! also set how_many_extra_history_header_items
+         ! names(1) = 'mixing_length_alpha'
+         ! vals(1) = s% mixing_length_alpha
+
       end subroutine data_for_extra_history_header_items
 
 
-      subroutine how_many_extra_profile_header_items(id, id_extra, num_cols)
-      integer, intent(in) :: id, id_extra
-      integer, intent(out) :: num_cols
-      num_cols = 0
-      end subroutine how_many_extra_profile_header_items
-      
-      subroutine data_for_extra_profile_header_items( &
-                  id, id_extra, num_extra_header_items, &
-                  extra_header_item_names, extra_header_item_vals, ierr)
-      integer, intent(in) :: id, id_extra, num_extra_header_items
-      character (len=*), pointer :: extra_header_item_names(:)
-      real(dp), pointer :: extra_header_item_vals(:)
-      type(star_info), pointer :: s
-      integer, intent(out) :: ierr
+      integer function how_many_extra_profile_header_items(id)
+         integer, intent(in) :: id
+         integer :: ierr
+         type (star_info), pointer :: s
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+         how_many_extra_profile_header_items = 0
+      end function how_many_extra_profile_header_items
+     
 
-      ierr = 0
-      call star_ptr(id,s,ierr)
-      if(ierr/=0) return
+      subroutine data_for_extra_profile_header_items(id, n, names, vals, ierr)
+         integer, intent(in) :: id, n
+         character (len=maxlen_profile_column_name) :: names(n)
+         real(dp) :: vals(n)
+         type(star_info), pointer :: s
+         integer, intent(out) :: ierr
+         ierr = 0
+         call star_ptr(id,s,ierr)
+         if(ierr/=0) return
 
-      !here is an example for adding an extra profile header item
-      !set num_cols=1 in how_many_extra_profile_header_items and then unccomment these lines
-      !extra_header_item_names(1) = 'mixing_length_alpha'
-      !extra_header_item_vals(1) = s% mixing_length_alpha
+         ! here is an example for adding an extra profile header item
+         ! also set how_many_extra_profile_header_items
+         ! names(1) = 'mixing_length_alpha'
+         ! vals(1) = s% mixing_length_alpha
+
       end subroutine data_for_extra_profile_header_items
 
 
       ! returns either keep_going or terminate.
       ! note: cannot request retry or backup; extras_check_model can do that.
-      integer function extras_finish_step(id, id_extra)
-         integer, intent(in) :: id, id_extra
+      integer function extras_finish_step(id)
+         integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
          ierr = 0
@@ -470,8 +474,8 @@
       end function extras_finish_step
       
       
-      subroutine extras_after_evolve(id, id_extra, ierr)
-         integer, intent(in) :: id, id_extra
+      subroutine extras_after_evolve(id, ierr)
+         integer, intent(in) :: id
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          ierr = 0

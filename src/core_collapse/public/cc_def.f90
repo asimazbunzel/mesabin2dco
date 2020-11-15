@@ -5,8 +5,7 @@
 
       implicit none
 
-      ! integer numbers associated with different
-      ! SN engine explosions
+      ! integer numbers associated with different SN engine explosions
       integer, parameter :: cc_rapid = 1
       integer, parameter :: cc_delayed = 2
       integer, parameter :: cc_startrack = 3
@@ -53,8 +52,6 @@
       real(dp) :: mt_rate_pre_cc
       
       ! binary post-cc data
-      logical :: continue_binary_evolution
-      logical :: add_asymmetric_kick
       real(dp) :: angular_momentum_after_cc, separation_after_cc, &
          rl_after_cc(2), mt_rate_after_cc
 

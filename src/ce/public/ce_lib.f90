@@ -8,7 +8,7 @@
       use binary_def
       use binary_lib
 
-      use crlibm_lib
+      use math_lib
       
       implicit none
 
@@ -61,7 +61,7 @@
          if (b% point_mass_i == 0) then
             if (b% m(b% d_i) > b% m(b% a_i) .and. abs(b% mtransfer_rate) > edd_scaling_factor * mdot_edd_donor) then
                ce_condition = 'mtransfer_rate > mdot_edd_donor'
-            else if (b% m(b% d_i) > b% m(b% a_i) .and. abs(b% mtransfer_rate * b% xfer_fraction) > mdot_edd_accretor) then
+            else if (b% m(b% d_i) > b% m(b% a_i) .and. abs(b% component_mdot(b% a_i)) > mdot_edd_accretor) then
                ce_condition = 'maccreted_rate > mdot_edd_accretor'
             else if (b% m(b% d_i) > b% m(b% a_i) .and. abs(b% mtransfer_rate) * secyer/Msun > max_mdot_rlof) then
                ce_condition = 'mtransfer_rate > max_mdot_rlof'

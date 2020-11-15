@@ -13,6 +13,8 @@
 
 &binary_controls
 
+   report_rlo_solver_progress = .true.
+
   ! initial parameters in inlist_binary
    read_extra_binary_controls_inlist1 = .true.
    extra_binary_controls_inlist1_name = 'inlist_binary'
@@ -23,16 +25,13 @@
    append_to_star_history = .false.
 
   ! mass-transfer controls
-   mass_transfer_alpha = 0.0d0
-   mass_transfer_beta = 0.99d0
-   mass_transfer_delta = 0.0d0
-   mass_transfer_gamma = 0.0d0
    mdot_scheme = 'Kolb'
    limit_retention_by_mdot_edd = .false.
    do_jdot_gr = .false.
    do_jdot_ml = .true.
    do_jdot_mb = .false.
-   do_jdot_ls = .false.
+   do_jdot_ls = .true.
+   do_jdot_missing_wind = .true.
 
    keep_donor_fixed = .false.
 
@@ -50,6 +49,15 @@
    !initial_change_factor = 1.2d0
    !change_factor_fraction = 0.8d0
    min_mdot_for_implicit = 1d-10
+
+   sync_mode_1 = 'Uniform'
+   sync_type_1 = 'Hut_rad'
+   Ftid_1 = 1
+   sync_mode_2 = 'Uniform'
+   sync_type_2 = 'Hut_rad'
+   Ftid_2 = 1
+   do_initial_orbit_sync_1 = .true.
+   do_initial_orbit_sync_2 = .true.
 
 / ! end of binary_controls namelist
 

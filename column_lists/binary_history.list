@@ -86,14 +86,14 @@
       !star_1_div_star_2_mass ! star_1_mass/star_2_mass
       !delta_star_1_mass ! star_2_mass/initial_star_2_mass
       !delta_star_2_mass ! star_2_mass/initial_star_2_mass
-      xfer_fraction ! mass transfer fraction
+      !xfer_fraction ! mass transfer fraction
       !lg_mdot_edd ! log10 Eddington accretion rate for point mass accretor in units of Msun/secyer
       !mdot_edd_eta ! Efficiency of radiation from accretion to point source
       !lg_accretion_luminosity ! log10 Luminosity from accretion to point source (in units of Lsun)
       !bh_spin ! Spin parameter of BH accretor 
-      lg_mdot_system h1 ! you can use lg_mdot_system <isotope> to get the mass loss
-                        ! rate from the system corresponding to a particular isotope.
-      lg_mdot_system he4
+      !lg_mdot_system h1 ! you can use lg_mdot_system <isotope> to get the mass loss
+                         ! rate from the system corresponding to a particular isotope.
+      !lg_mdot_system he4
 
       ! Information regarding angular momentum
 

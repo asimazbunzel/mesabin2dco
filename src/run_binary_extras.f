@@ -31,7 +31,7 @@
 
       use star_lib
       use num_lib
-      use crlibm_lib
+      use math_lib
       use utils_lib
       use ce_lib
       use cc_lib
@@ -190,14 +190,14 @@
 
          ! Based on Eggleton 2006 'Evolutionary processes in binary and multiple stars'
          q = donor_mass / accretor_mass
-         q13 = pow_cr(q,one_third)
+         q13 = pow(q,one_third)
          if (q > 1d0) then
             rl2 = 0.49d0 * q13*q13 + 0.15d0
          else
             rl2 = 0.49d0 * q13*q13 + 0.27d0 * q - 0.12d0 * q13*q13*q13*q13
          end if
 
-         rl2 = (separation * rl2) / (0.6d0 * q13*q13 + log1p_cr(q13))
+         rl2 = (separation * rl2) / (0.6d0 * q13*q13 + log1p(q13))
       end function eval_outer_roche_lobe
       
       
@@ -271,7 +271,7 @@
             b% initial_period_in_days = after_cc_period
             b% initial_eccentricity = after_cc_eccentricity
             call binary_set_period_eccentricity(binary_id, &
-               b% initial_period_in_days*(24d0*60d0*60d0), b% initial_eccentricity)
+               b% initial_period_in_days*(24d0*60d0*60d0), b% initial_eccentricity, ierr)
             write(b% history_name, '(a)') 'binary_history_' // trim(name_id) // '.data'
             write(b% s_donor% star_history_name, '(a)') 'secondary_history_' // trim(name_id) // '.data'
             
@@ -356,9 +356,9 @@
             ! (Kolb & Ritter 1990 use the opposite!)
             ! consider range of validity for F1, do not extrapolate Eq. A9 of Ritter 1988
             q_temp = min(max(q,0.5d0),10d0)
-            F1 = (1.23d0  + 0.5d0* log10_cr(q_temp))
+            F1 = (1.23d0  + 0.5d0* log10(q_temp))
             rl3 = (b% rl(b% d_i))*(b% rl(b% d_i))*(b% rl(b% d_i))
-            mdot_thin_donor = (2.0d0*pi/exp_cr(0.5d0)) * v_th*v_th*v_th * &
+            mdot_thin_donor = (2.0d0*pi/exp(0.5d0)) * v_th*v_th*v_th * &
                rl3/(b% s_donor% cgrav(1)*b% m(b% d_i)) * rho * F1
 
             rho = b% s_accretor% rho(1)  ! density at surface in g/cm^3
@@ -371,9 +371,9 @@
             ! (Kolb & Ritter 1990 use the opposite!)
             ! consider range of validity for F1, do not extrapolate! Eq. A9 of Ritter 1988
             q_temp = min(max(q,0.5d0),10d0)
-            F1 = (1.23d0  + 0.5d0* log10_cr(q_temp))
+            F1 = (1.23d0  + 0.5d0* log10(q_temp))
             rl3 = (b% rl(b% a_i))*(b% rl(b% a_i))*(b% rl(b% a_i))
-            mdot_thin_accretor = (2.0d0*pi/exp_cr(0.5d0)) * v_th*v_th*v_th * &
+            mdot_thin_accretor = (2.0d0*pi/exp(0.5d0)) * v_th*v_th*v_th * &
                rl3/(b% s_accretor% cgrav(1)*b% m(b% a_i)) * rho * F1
          
             if (abs(mdot_thin_accretor) < abs(mdot_thin_donor)) do_switch = .true.

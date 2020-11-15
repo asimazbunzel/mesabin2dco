@@ -6,7 +6,7 @@
    read_extra_star_job_inlist2 = .false.
    extra_star_job_inlist2_name = 'inlist_composition'
 
-   load_saved_model = .true.
+   load_saved_model = .false.
    saved_model_name = 'companion_at_core_collapse.mod'
 
 / ! end of star_job namelist

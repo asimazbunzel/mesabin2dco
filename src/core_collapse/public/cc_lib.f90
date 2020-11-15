@@ -27,7 +27,7 @@
       ! type of core-collapse model
       subroutine cc_set_explosion_mechanism(mechanism_name, ierr)
          use cc_mechanism, only: set_explosion_mechanism
-         character(*), intent(in) :: mechanism_name
+         character(len=*), intent(in) :: mechanism_name
          integer, intent(out) :: ierr
 
          call set_explosion_mechanism(mechanism_name, ierr)
@@ -77,10 +77,10 @@
          call do_compact_object_formation(cc_id, cc_binary_id, ierr)
 
          call cc_write_star_info_after_cc(cc_id, star_data_fname, ierr)
-         if (cc_binary_id == 1 ) then
-            if (continue_binary_evolution) &
-               call cc_write_binary_info_after_cc(cc_binary_id, binary_data_fname, ierr)
-         end if
+         ! if (cc_binary_id == 1) then
+         !    if (continue_binary_evolution) &
+         !       call cc_write_binary_info_after_cc(cc_binary_id, binary_data_fname, ierr)
+         ! end if
 
       end subroutine cc_compact_object_formation
 

@@ -11,9 +11,7 @@
          max_ns_mass, &
          cc_data_directory, &
          filename_for_star_data, &
-         filename_for_binary_data, &
-         continue_binary_evolution, &
-         add_asymmetric_kick
+         filename_for_binary_data
 
       contains
 
@@ -22,38 +20,36 @@
          model_name = 'rapid'
          max_ns_mass = 2.5d0
          cc_data_directory = 'cc_data'
-         filename_for_star_data = 'core_collapse_star'
-         filename_for_binary_data = 'core_collapse_binary'
-         continue_binary_evolution = .false.
-         add_asymmetric_kick = .false.
+         filename_for_star_data = 'star_at_core_collapse'
+         filename_for_binary_data = 'binary_at_core_collapse'
 
       end subroutine set_default_controls
 
-      subroutine read_cc_controls(inlist_fname, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit, mkdir
-         character (len=*), intent(in) :: inlist_fname
+      subroutine read_cc_controls(fname, ierr)
+         use utils_lib, only: mkdir
+         character (len=*), intent(in) :: fname
          integer, intent(out) :: ierr
          integer :: iounit
 
-         include 'formats.inc'
-
          ierr = 0
 
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(inlist_fname), action='read', delim='quote', status='old', iostat=ierr)
+         open(newunit=iounit, file=trim(fname), action='read', delim='quote', status='old', iostat=ierr)
          if (ierr /= 0) then
-            write(*,*) 'failed to open ' // trim(inlist_fname)
-            call free_iounit(iounit)
+            write(*,*) 'failed to open ' // trim(fname)
             return
          end if
-
          read(iounit, nml=cc_controls, iostat=ierr)
+         close(iounit)
          if (ierr /= 0) then
-            write(*,*) 'failed to read cc_controls'
+            write(*,'(a)')
+            write(*,'(a)') 'failed to read cc_controls'
+            write(*,'(a)') 'the following runtime error can help you find the problem'
+            write(*,'(a)')
+            open(newunit=iounit, file=trim(fname), action='read', delim='quote', status='old', iostat=ierr)
+            read(iounit, nml=cc_controls)
+            close(iounit)
             return
          end if
-         close(iounit)
-         call free_iounit(iounit)
 
          ! after reading cc_data_directory, run `mkdir -p` on it
          call mkdir(cc_data_directory)

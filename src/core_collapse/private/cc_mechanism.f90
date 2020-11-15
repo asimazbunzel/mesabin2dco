@@ -4,7 +4,7 @@
       use cc_def
       use const_def
       use utils_lib
-      use crlibm_lib
+      use math_lib
       use num_lib
       use star_lib
       
@@ -18,7 +18,7 @@
          character(len=*), intent(in) :: mechanism_name
          integer, intent(out) :: ierr
 
-         include 'formats.inc'
+         ierr = 0
 
          ! assign name to a number as defined in public/cc_def.f
          if (mechanism_name == 'rapid') then
@@ -35,8 +35,6 @@
             return
          end if
 
-         ierr = 0
-
       end subroutine set_explosion_mechanism
 
       subroutine do_explode_star(s, ierr)
@@ -48,6 +46,7 @@
          real(dp) :: h_envelope, he_envelope
          real(dp) :: remnant_mass
          real(dp) :: proto_mass, fallback_mass
+         real(dp) :: max_baryonic_mass
 
          real(dp) :: a1, b1, a2, b2
 
@@ -55,11 +54,13 @@
 
          include 'formats.inc'
 
+         ierr = 0
+
          he_core_mass = s% he_core_mass
          c_core_mass = s% c_core_mass
 
          if (c_core_mass <= 0d0) then
-            write(*,*) 'failed in do_explode_star. carbon core mass <= 0'
+            write(*,'(a)') 'failed in do_explode_star. carbon core mass <= 0'
             ierr = -1
             return
          end if
@@ -101,7 +102,7 @@
                if (abs(h_envelope - 0d0) < 1d-6) then
                   he_envelope = s% star_mass - s% c_core_mass
                   if (abs(he_envelope - 0d0) < 1d-6) then 
-                     proto_mass = - (1d0/0.618d0) + sqrt(pow2(1d0/0.618d0) + (1.06d0/0.084d0) * pow_cr(c_core_mass,0.454d0))
+                     proto_mass = - (1d0/0.618d0) + sqrt(pow2(1d0/0.618d0) + (1.06d0/0.084d0) * pow(c_core_mass,0.454d0))
                   else
                      proto_mass = 0.23d0 * c_core_mass + 0.83d0
                   end if
@@ -188,7 +189,12 @@
          ! Now that fallback_mass & proto_mass are set, calculate gravitational mass of compact
          ! remnant
          baryonic_mass = proto_mass + fallback_mass
-         if (baryonic_mass < max_ns_mass) then
+
+         ! use eq. 13 of Fryer et al. 2012 for max baryonic mass to produce NS:
+         ! max_baryonic_mass = 0.075 * x**2 + x, with x = 2.5
+         max_baryonic_mass = 0.075d0 * pow2(max_ns_mass) + max_ns_mass
+
+         if (baryonic_mass < max_baryonic_mass) then
             if (model_id == cc_combine) then
                remnant_mass = 0.9d0 * baryonic_mass
             else
@@ -197,9 +203,9 @@
                !        0.075 * x**2 + x - x0 = 0
                ! and solve for x
                yy1 = aux_grav_mass(baryonic_mass, 0d0)
-               yy2 = aux_grav_mass(baryonic_mass, max_ns_mass/2d0)
-               yy3 = aux_grav_mass(baryonic_mass, max_ns_mass)
-               remnant_mass = find0_quadratic(0d0, yy1, max_ns_mass/2d0, yy2, max_ns_mass, yy3, ierr)
+               yy2 = aux_grav_mass(baryonic_mass, max_baryonic_mass/2d0)
+               yy3 = aux_grav_mass(baryonic_mass, max_baryonic_mass)
+               remnant_mass = find0_quadratic(0d0, yy1, max_baryonic_mass/2d0, yy2, max_baryonic_mass, yy3, ierr)
 
                if (ierr /= 0) then
                   write(*,*) 'bad root in find0_quadratic for remnant < 2.5 Msun'

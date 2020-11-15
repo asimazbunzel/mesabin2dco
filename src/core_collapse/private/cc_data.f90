@@ -16,8 +16,6 @@
          type(star_info), pointer :: s
          integer, intent(out) :: ierr
 
-         include 'formats.inc'
-
          ierr = 0
 
          s% mstar = M_remnant
@@ -99,7 +97,6 @@
 
 
       subroutine write_star_info_pre_cc(cc_id, filename, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          integer, intent(in) :: cc_id
          character(len=*) :: filename
          integer, intent(out) :: ierr
@@ -112,11 +109,9 @@
 
          ierr = 0
 
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(filename), action='write', status='replace', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='write', status='replace', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
 
@@ -132,13 +127,11 @@
          write(iounit,1) 'L_pre_cc', L_pre_cc
 
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine write_star_info_pre_cc
 
 
       subroutine write_binary_info_pre_cc(cc_binary_id, filename, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          integer, intent(in) :: cc_binary_id
          character(len=*) :: filename
          integer, intent(out) :: ierr
@@ -151,11 +144,9 @@
 
          ierr = 0
 
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(filename), action='write', status='replace', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='write', status='replace', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
 
@@ -171,13 +162,11 @@
          write(iounit,1) 'mt_rate_pre_cc', mt_rate_pre_cc
 
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine write_binary_info_pre_cc
 
 
       subroutine write_star_info_after_cc(cc_id, filename, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          integer, intent(in) :: cc_id
          character(len=*) :: filename
          integer, intent(out)  :: ierr
@@ -190,11 +179,9 @@
 
          ierr = 0
          
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(filename), action='write', position='append', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='write', position='append', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
 
@@ -207,13 +194,11 @@
          write(iounit,1) 'fallback_fraction', fallback_fraction
 
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine write_star_info_after_cc
 
 
       subroutine write_binary_info_after_cc(cc_binary_id, filename, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          integer, intent(in) :: cc_binary_id
          character(len=*) :: filename
          integer, intent(out)  :: ierr
@@ -226,11 +211,9 @@
 
          ierr = 0
          
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(filename), action='write', position='append', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='write', position='append', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
          
@@ -241,7 +224,6 @@
          write(iounit,1) 'mt_rate_after_cc', mt_rate_after_cc
 
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine write_binary_info_after_cc
 

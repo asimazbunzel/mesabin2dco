@@ -69,7 +69,6 @@
 
 
       subroutine read_ce_controls(inlist_fname, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          character (len=*), intent(in) :: inlist_fname
          integer, intent(out) :: ierr
          integer :: iounit
@@ -78,21 +77,23 @@
 
          ierr = 0
 
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(inlist_fname), action='read', delim='quote', status='old', iostat=ierr)
+         open(newunit=iounit, file=trim(inlist_fname), action='read', delim='quote', status='old', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(inlist_fname)
-            call free_iounit(iounit)
             return
          end if
-
          read(iounit, nml=ce_controls, iostat=ierr)
+         close(iounit)
          if (ierr /= 0) then
-            write(*,*) 'failed to read ce_controls'
+            write(*,'(a)')
+            write(*,'(a)') 'failed to read ce_controls'
+            write(*,'(a)') 'the following runtime error can help you find the problem'
+            write(*,'(a)')
+            open(newunit=iounit, file=trim(inlist_fname), action='read', delim='quote', status='old', iostat=ierr)
+            read(iounit, nml=ce_controls)
+            close(iounit)
             return
          end if
-         close(iounit)
-         call free_iounit(iounit)
 
       end subroutine read_ce_controls
 
@@ -103,7 +104,6 @@
          integer, intent(out) :: ierr
          character(len=strlen) :: fname
          logical :: do_accretor_save
-         integer :: id_extra
          integer :: ce_num
 
          100 format(a,i0.3,a)
@@ -121,25 +121,25 @@
          if (step_id == 'pre') then
             write(fname,100) trim(ce_data_directory) // '/' // trim(filename_donor_profile_pre_ce) &
                // '_event', ce_num, '.data'
-            call star_write_profile_info(ce_donor_id, fname, id_extra, ierr)
+            call star_write_profile_info(ce_donor_id, fname, ierr)
             if (ierr /= 0) return
 
             if (do_accretor_save) then
                write(fname,100) trim(ce_data_directory) // '/' // trim(filename_accretor_profile_pre_ce) &
                   //  '_event', ce_num, '.data'
-               call star_write_profile_info(ce_accretor_id, fname, id_extra, ierr)
+               call star_write_profile_info(ce_accretor_id, fname, ierr)
                if (ierr /= 0) return
             end if
          else
             write(fname,100) trim(ce_data_directory) // '/' // trim(filename_donor_profile_after_ce) &
                // '_event', ce_num, '.data'
-            call star_write_profile_info(ce_donor_id, fname, id_extra, ierr)
+            call star_write_profile_info(ce_donor_id, fname, ierr)
             if (ierr /= 0) return
 
             if (do_accretor_save) then
                write(fname,100) trim(ce_data_directory) // '/' // trim(filename_accretor_profile_after_ce) &
                   // '_event', ce_num, '.data'
-               call star_write_profile_info(ce_accretor_id, fname, id_extra, ierr)
+               call star_write_profile_info(ce_accretor_id, fname, ierr)
                if (ierr /= 0) return
             end if
          end if

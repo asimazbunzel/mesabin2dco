@@ -1,14 +1,14 @@
 &star_job
 
-   set_uniform_initial_composition = .false.
+   set_uniform_initial_composition = .true.
    initial_h1 = 0.7d0
    initial_h2 = 0d0
    initial_he3 = 0d0
    initial_he4 = 0.28d0
 
-   relax_initial_Z = .false.
+   relax_initial_Z = .true.
    new_Z = 0.004d0
-   relax_initial_Y = .false.
+   relax_initial_Y = .true.
    new_Y = 0.296d0
 
 /
@@ -17,6 +17,6 @@
 
   ! custom opacity that scales with iron abundance
    use_Type2_opacities = .true.
-   Zbase = 0.02
+   Zbase = 0.004
 
 /

@@ -8,7 +8,7 @@
       use star_lib
       use binary_def
       use binary_lib
-      use crlibm_lib
+      use math_lib
       
       implicit none
 
@@ -66,7 +66,7 @@
 
          accretor_overflow_terminate_start_ce = b% accretor_overflow_terminate
 
-         lg_mtransfer_rate_start_ce = safe_log10_cr(abs(b% mtransfer_rate*secyer/Msun))
+         lg_mtransfer_rate_start_ce = safe_log10(abs(b% mtransfer_rate*secyer/Msun))
 
          donor_mass_start_ce = b% m(b% d_i)  ! in g
          donor_radius_start_ce = b% r(b% d_i)  ! in cm

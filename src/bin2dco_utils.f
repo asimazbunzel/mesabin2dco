@@ -10,7 +10,6 @@
       ! check version of codes
       subroutine check_version_numbers
          use const_def, only: strlen
-         use utils_lib, only: alloc_iounit, free_iounit
          integer :: iounit, ierr
          character(len=strlen) :: mesa_dirname
          integer :: mesa_version_used, mesa_version_supported
@@ -18,22 +17,19 @@
 
          ! get version number from $MESA_DIR
          call get_environment_variable('MESA_DIR', mesa_dirname)
-         iounit = alloc_iounit(ierr)
-         open(unit=iounit, file=trim(mesa_dirname) // '/data/version_number', status='old', action='read', iostat=ierr)
+         open(newunit=iounit, file=trim(mesa_dirname) // '/data/version_number', status='old', action='read', iostat=ierr)
          read(iounit, *, iostat=ierr) mesa_version_used
          if (ierr /= 0) then
             write(*,'(a)') 'failed to open ' // trim(mesa_dirname) // '/data/version_number'
             close(iounit)
-            call free_iounit(ierr)
          end if
 
          ! get version number from bin2dco
-         open(unit=iounit, file='version_number', status='old', action='read', iostat=ierr)
+         open(newunit=iounit, file='version_number', status='old', action='read', iostat=ierr)
          read(iounit, *, iostat=ierr) mesa_version_supported
          if (ierr /= 0) then
             write(*,'(a)') 'failed to open version_number'
             close(iounit)
-            call free_iounit(ierr)
          end if
 
          if (dbg) then
@@ -51,7 +47,6 @@
       ! search for string in file and return value associated to it
       subroutine read_parameter(string, filename, val, ierr)
          use const_def, only: dp, strlen
-         use utils_lib, only: alloc_iounit, free_iounit, number_iounits_allocated
          character(len=*) :: string
          character(len=*) :: filename
          real(dp), intent(out) :: val
@@ -62,12 +57,9 @@
          integer :: iounit
 
          ! allocate file unit
-         iounit = alloc_iounit(ierr)
-         if (ierr /= 0) stop 'could not alloc_iounit to read_parameter'
-         open(unit=iounit, file=trim(filename), action='read', delim='quote', status='old', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='read', delim='quote', status='old', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
 
@@ -88,23 +80,19 @@
          end do
 
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine read_parameter
 
 
       ! get number of natal kicks saved in the natal-kick file
       integer function number_of_kicks(filename, ierr)
-         use utils_lib, only: alloc_iounit, free_iounit
          character(len=*) :: filename
          integer, intent(out) :: ierr
          integer :: iounit
          integer :: Nsim
 
          Nsim = 0
-         iounit = alloc_iounit(ierr)
-         if (ierr /= 0) stop 'could not alloc_iounit to get number of simulations after first collapse'
-         open(unit=iounit, file=trim(filename), status='old', action='read', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), status='old', action='read', iostat=ierr)
          if (ierr /= 0) stop 'could not open ' // trim(filename)
          do
             if (Nsim > max_Nsim) then
@@ -118,7 +106,6 @@
          end do
          ierr = 0
          close(iounit)
-         call free_iounit(iounit)
 
          number_of_kicks = Nsim
 
@@ -128,7 +115,6 @@
       ! read from file natal kick information: id, velocity, angles
       subroutine read_natal_kick(filename, line_number, name_id, kick, theta, phi, ierr)
          use const_def, only: dp, strlen
-         use utils_lib, only: alloc_iounit, free_iounit
          character(len=*) :: filename
          character(len=*), intent(out) :: name_id
          integer, intent(in) :: line_number
@@ -144,12 +130,9 @@
          logical :: dbg = .false.
 
          ! allocate file unit
-         iounit = alloc_iounit(ierr)
-         if (ierr /= 0) stop 'could not alloc_iounit to read_natal_kick'
-         open(unit=iounit, file=trim(filename), action='read', delim='quote', status='old', iostat=ierr)
+         open(newunit=iounit, file=trim(filename), action='read', delim='quote', status='old', iostat=ierr)
          if (ierr /= 0) then
             write(*,*) 'failed to open ' // trim(filename)
-            call free_iounit(iounit)
             return
          end if
    
@@ -196,7 +179,6 @@
 
          ierr = 0
          close(iounit)
-         call free_iounit(iounit)
 
       end subroutine read_natal_kick
 
@@ -205,7 +187,7 @@
       subroutine binary_parameters_post_cc(a_pre_cc, mass_pre_cc, mass_after_cc, companion_mass, &
             vk, theta, phi, porbf, ef)
          use const_def, only: dp, pi
-         use crlibm_lib, only: cos_cr, sin_cr, pow2, pow3
+         use math_lib, only: cos, sin, pow2, pow3
          real(dp), intent(in) :: a_pre_cc
          real(dp), intent(in) :: mass_pre_cc
          real(dp), intent(in) :: mass_after_cc
@@ -231,9 +213,9 @@
          w = vk * 1d5
 
          ! project kick to (x,y,z)
-         wx = w * cos_cr(phi) * sin_cr(theta)
-         wy = w * cos_cr(theta)
-         wz = w * sin_cr(phi) * sin_cr(theta)
+         wx = w * cos(phi) * sin(theta)
+         wy = w * cos(theta)
+         wz = w * sin(phi) * sin(theta)
 
          ! velocity pre_cc in cgs (assuming circular orbit)
          v_pre = sqrt(standard_cgrav * (m1i + m2) / ai)
@@ -257,7 +239,6 @@
             mass_of_progenitor, mass_of_remnant, mass_of_companion, pre_cc_separation, &
             name_id, after_cc_period, after_cc_eccentricity, is_disrupted, ierr)
          use const_def, only: dp
-         use utils_lib, only: alloc_iounit, free_iounit
          character(len=*) :: filename
          integer, intent(in) :: k
          real(dp), intent(in) :: mass_of_progenitor, mass_of_remnant, mass_of_companion
@@ -300,13 +281,10 @@
             ! save is_disrupted now
             is_disrupted = .true.
             ! write natal-kick id into a disrupted file
-            iounit = alloc_iounit(ierr)
-            if (ierr /= 0) stop 'could not alloc_iounit for disrupted cases'
-            open(unit=iounit, file='disrupted_ids.data', action='write', position='append', iostat=ierr)
+            open(newunit=iounit, file='disrupted_ids.data', action='write', position='append', iostat=ierr)
             if (ierr /= 0) stop 'could not open disrupted_ids.data'
             write(iounit,*) name_id
             close(iounit)
-            call free_iounit(iounit)
             ! cycle
          else
             write(*,'(a)') 'binary parameters after core-collapse:'

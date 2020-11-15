@@ -3,8 +3,6 @@
       use bin2dco_utils
       use bin2dco_io
       use const_def, only: dp, strlen
-      use utils_def, only: min_io_unit, max_io_unit
-      use utils_lib, only: alloc_iounit, free_iounit
       use star_def, only: have_initialized_star_handles
       use binary_def, only: have_initialized_binary_handles
       use binary_lib, only: run1_binary
@@ -30,19 +28,13 @@
       tst = .true.
 
 
-      ! check that versions match
-      ! call check_version_numbers
-
 
       ! get bin2dco_options
-      iounit = alloc_iounit(ierr)
-      if (ierr /= 0) stop 'could not alloc_iounit to get bin2dco_options namelist'
-      open(unit=iounit, file='bin2dco_controls', status='old', action='read', iostat=ierr)
+      open(newunit=iounit, file='bin2dco_controls', status='old', action='read', iostat=ierr)
       if (ierr /= 0) stop 'failed to open bin2dco_controls'
       read(iounit, nml=bin2dco_options, iostat=ierr)
       if (ierr /= 0) stop 'failed to read bin2dco_options'
       close(iounit)
-      call free_iounit(iounit)
 
 
       ! just check that `*_mass_evolution` are not both false
@@ -53,13 +45,10 @@
 
 
       ! if file .skip_star_plus_star exist, then do not make the first part of the simulation
-      iounit = alloc_iounit(ierr)
-      if (ierr /= 0) stop 'could not alloc_iounit to find .skip_star_plus_star file'
-      open(unit=iounit, file='.skip_star_plus_star', status='old', action='read', iostat=ierr)
+      open(newunit=iounit, file='.skip_star_plus_star', status='old', action='read', iostat=ierr)
       if (ierr /= 0) then
 
          close(iounit)
-         call free_iounit(iounit)
 
          ! Call MESA binary
          inlist_fname_arg = star_plus_star_filename
@@ -88,7 +77,6 @@
       else
 
          close(iounit)
-         call free_iounit(iounit)
 
       end if
 

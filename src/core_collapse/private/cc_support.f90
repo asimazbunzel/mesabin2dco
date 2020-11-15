@@ -45,14 +45,6 @@
          call do_star_update_after_cc(s, ierr)
          if (failed('failed do_star_update_after_cc', ierr)) return
 
-         ! update binary parameters if needed
-         if (cc_binary_id == 1) then
-            if (continue_binary_evolution) then 
-               call do_binary_update_after_cc(cc_binary_id, cc_id, ierr)
-               if (failed('failed do_star_update_after_cc', ierr)) return
-            end if
-         end if
-         
       end subroutine do_compact_object_formation
 
 

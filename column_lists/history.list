@@ -655,7 +655,7 @@
       
       total_internal_energy
       total_gravitational_energy
-      total_linear_kinetic_energy
+      !total_linear_kinetic_energy
       total_radiation
       total_eps_grav
       total_energy_sources_and_sinks

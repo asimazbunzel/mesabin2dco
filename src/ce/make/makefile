@@ -21,12 +21,42 @@ SRCS = \
 
 #################################################################
 #
+# LIBRARIES
+
+ifeq ($(USE_SHARED), YES)
+        LIBS_OTHER = $(LIBS_MESA_STAR)
+        DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
+        LOAD_OTHER = -L$(MESA_LIB_DIR) $(LOAD_MESA_STAR)
+endif
+
+#################################################################
+#
 # TARGETS
 
 LIB = libce.a
-LIB_OBJS = $(patsubst %.f,%.o,$(patsubst %.f90,%.o,$(SRCS)))
-$(LIB) : $(LIB_OBJS)
-	$(LIB_TOOL) $(LIB) $(LIB_OBJS)
+
+OBJS = $(patsubst %.f,%.o,$(patsubst %.f90,%.o,$(SRCS)))
+
+$(LIB) : $(OBJS) $(DEPS_OTHER)
+ifneq ($(QUIET),)
+	@echo LIB_TOOL $(LIB)
+	@$(LIB_TOOL) $(LIB) $(OBJS) $(LOAD_OTHER)
+else
+	$(LIB_TOOL) $(LIB) $(OBJS) $(LOAD_OTHER)
+endif
+
+clean:
+	-@rm -f *.o *.mod *.modmic *genmod.f90 *.so *.a .depend *.smod
+
+MKDIR_P = mkdir -p
+
+install:
+	@(MKDIR_P) ../../../include ../../../lib
+	@$(CP_IF_NEWER) cc_lib.mod ../../../include
+	@$(CP_IF_NEWER) cc_def.mod ../../../include
+	@$(CP_IF_NEWER) $(LIB) ../../../lib
+
+nodeps : $(.DEFAULT_GOAL)
 
 #################################################################
 #
@@ -35,44 +65,52 @@ $(LIB) : $(LIB_OBJS)
 COMPILE = $(COMPILE_TO_DEPLOY) $(FCfree)
 #COMPILE = $(COMPILE_TO_TEST) $(FCfree)
 
-COMPILE_FIXED = $(COMPILE_TO_DEPLOY) $(FCfixed)
-#COMPILE_FIXED = $(COMPILE_TO_TEST) $(FCfixed)
-
 COMPILE_CMD = $(COMPILE)
 
-%.o : %.f
-	$(COMPILE_CMD) $<
-%.o : %.f90
-	$(COMPILE_CMD) $<
-%.mod : %.o
-	@true
 %.o : %.mod
 
-clean:
-	-@rm -f *.o *.mod *.modmic *genmod.f90 *.a .depend
+%.o : %.f
+ifneq ($(QUIET),)
+	@echo COMPILE_CMD $<
+	@$(COMPILE_CMD) $<
+else
+	$(COMPILE_CMD) $<
+endif
+
+%.o : %.f90
+ifneq ($(QUIET),)
+	@echo COMPILE_CMD $<
+	@$(COMPILE_CMD) $<
+else
+	$(COMPILE_CMD) $<
+endif
+
+%.mod : %.o
+	@true
 
 #################################################################
 #
 # DEPENDENCIES
 
-# Paths to search for source & include files
+SRC_PATH = $(MOD_PUBLIC_DIR):$(MOD_PRIVATE_DIR):$(MOD_OTHER_DIR)
 
-VPATH = $(MOD_PUBLIC_DIR):$(MOD_PRIVATE_DIR)
+vpath %.f90 $(SRC_PATH)
+vpath %.inc $(SRC_PATH)
 
-# Automatic dependency generation using makedepf90
-
-nodeps : $(.DEFAULT_GOAL)
+vpath %.mod $(MESA_DIR)/include
 
 NODEPS = $(or $(filter nodeps,$(MAKECMDGOALS)),$(filter clean,$(MAKECMDGOALS)))
 
 ifeq ($(NODEPS),)
 
-  DEPEND_DIRS = $(MOD_PUBLIC_DIR):$(MOD_PRIVATE_DIR)
-
   .depend :
-	makedepf90 -m %m.mod -I$(DEPEND_DIRS) $(SRCS) > .depend
+  ifneq ($(QUIET),)
+	@echo MAKEDEPF90
+	@$(MAKEDEPF90) -I$(SRC_PATH) $(SRCS) > .depend
+  else
+	$(MAKEDEPF90) -I$(SRC_PATH) $(SRCS) > .depend
+  endif
+
   -include .depend
 
 endif
-
-### END ###

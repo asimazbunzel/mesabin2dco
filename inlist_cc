@@ -13,10 +13,4 @@
   ! maximum mass for a neutron star in Msun (used if model_name is 'rapid' or 'delayed')
    max_ns_mass = 2.5d0
 
-  ! add natal-kick from within MESA. NOT READY TO USE
-   add_asymmetric_kick = .false.
-
-  ! continue binary evolution after core-collapse. NOT READY TO USE
-   continue_binary_evolution = .false.
-
 / ! end of cc_controls namelist

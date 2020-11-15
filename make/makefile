@@ -7,10 +7,9 @@ include $(MESA_DIR)/utils/makefile_header
 OWN_INCLUDE_DIR = ../include
 OWN_LIB_DIR = ../lib
 
-LOAD_OWN_MESA_BINARY = \
-	-L$(MESA_LIB_DIR) -L$(OWN_LIB_DIR) -lcc -lce -lbinary $(STAR_LOAD_LIST)
-
-LOAD_ALL = $(LOAD_EXTRAS1) $(LOAD_OWN_MESA_BINARY) $(LOAD_EXTRAS)
+OWN_LIBS = cc ce $(LIBS_MESA_BINARY)
+LOAD_OWN = -L$(MESA_LIB_DIR) -L$(OWN_LIB_DIR) $(addprefix -l,$(OWN_LIBS))
+LOAD_ALL = $(LOAD_OWN) $(LOAD_MESA_BINARY_EXT)
 
 #################################################################
 
