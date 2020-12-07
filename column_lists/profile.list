@@ -28,26 +28,18 @@
 
 ! minimal set of enabled columns:
 
-   zone        ! numbers start with 1 at the surface
-   mass        ! m/Msun. mass coordinate of outer boundary of cell.
-   radius      ! radius at outer boundary of zone (in Rsun units)
-   temperature ! temperature at center of zone
-   rho         ! density
-   pressure    ! total pressure at center of zone (pgas + prad)
-   energy      ! internal energy in erg/g
-   eps_nuc     ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
-   total_energy ! specific total energy of cell (ergs/g). internal+potential+kinetic+rotation.
-   total_energy_integral ! sum from surface inwards of cell dm * cell total_energy (ergs)
+   zone       ! numbers start with 1 at the surface
+   mass       ! m/Msun. mass coordinate of outer boundary of cell.
+   logR       ! log10(radius/Rsun) at outer boundary of zone
+   logT       ! log10(temperature) at center of zone
+   logRho     ! log10(density) at center of zone
+   logP       ! log10(pressure) at center of zone
    x_mass_fraction_H
    y_mass_fraction_He
    z_mass_fraction_metals
-   h1
-   he4
-   c12
-   n14
-   o16
 
-! everything below this line is deactived
+
+! everything below this line is deactivated
 
 
 !# Structure
@@ -251,7 +243,7 @@
    !nonnucneu_brem ! bremsstrahlung (for reactions like e- + (z,a) => e- + (z,a) + nu + nubar)
    !nonnucneu_phot ! photon neutrinos (for reactions like e- + gamma => e- + nu_e + nubar_e)
    !nonnucneu_pair ! pair production (for reactions like e+ + e- => nu_e + nubar_e)
-
+   !nonnucneu_reco ! recombination  neutrinos (for reactions like e- (continuum) => e- (bound) + nu_e + nubar_e)
 
    ! ergs/g/sec for reaction categories
    !add_reaction_categories ! this adds all the reaction categories
@@ -383,7 +375,6 @@
 
    !conv_vel ! convection velocity (cm/sec)
    !log_conv_vel ! log10 convection velocity (cm/sec)
-   !log_conv_vel_old ! log10 previous convection velocity (cm/sec)
    !log_tau_conv_yrs ! timescale for change of conv velocity
 
    !conv_L_div_L
@@ -588,19 +579,21 @@
    !log_brunt_nonB ! = grada - gradT
       
    !sign_brunt_N2 ! sign of brunt_N2 (+1 for Ledoux stable; -1 for Ledoux unstable)
-   !lamb_S2 ! for l=1: S = 2*(csound/r)^2
-   !lamb_S ! for l=1: S = sqrt(2)*csound/r
    !brunt_nu ! brunt_frequency in microHz
-      
-   !lamb_Sl1 ! for l=1; = sqrt(2)*csound/r   (microHz)
-   !lamb_Sl2 ! for l=2; = sqrt(6)*csound/r   (microHz)
-   !lamb_Sl3 ! for l=3; = sqrt(12)*csound/r   (microHz)
-
    !log_brunt_nu ! brunt_frequency in microHz
-   !log_lamb_Sl1 ! for l=1; = sqrt(2)*csound/r   (microHz)
-   !log_lamb_Sl2 ! for l=2; = sqrt(6)*csound/r   (microHz)
-   !log_lamb_Sl3 ! for l=3; = sqrt(12)*csound/r   (microHz)
-   !log_lamb_Sl10
+      
+   !lamb_S ! lamb frequency for l=1: S = sqrt(2)*csound/r   (rad/s)
+   !lamb_S2 ! squared lamb frequency for l=1: S2 = 2*(csound/r)^2   (rad^2/s^2)
+   
+   !lamb_Sl1 ! lamb frequency for l=1; = sqrt(2)*csound/r   (microHz)
+   !lamb_Sl2 ! lamb frequency for l=2; = sqrt(6)*csound/r   (microHz)
+   !lamb_Sl3 ! lamb frequency for l=3; = sqrt(12)*csound/r   (microHz)
+   !lamb_Sl10 ! lamb frequency for l=10; = sqrt(110)*csound/r   (microHz)
+
+   !log_lamb_Sl1 ! log10(lamb_Sl1)
+   !log_lamb_Sl2 ! log10(lamb_Sl2)
+   !log_lamb_Sl3 ! log10(lamb_Sl3)
+   !log_lamb_Sl10 ! log10(lamb_Sl10)
       
    !brunt_N_div_r_integral ! integral from center of N*dr/r
    !k_r_integral ! integral from center of k_r*dr
@@ -620,6 +613,11 @@
    !extra_omegadot ! set in other_torque routine
 
    !extra_opacity_factor ! set in other_opacity_factor routine
+
+   ! diffusion factor profile for species, set in other_diffusion_factor routine
+   !extra_diffusion_factor h1
+   !extra_diffusion_factor he4
+   !extra_diffusion_factor o16
 
 
 

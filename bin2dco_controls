@@ -32,7 +32,7 @@
 
   ! only used if doing star + star simulation. stops as soon as MESA reaches the end
   ! of the simulation (either as one would expect or because of a numerical failure).
-   stop_after_star_plus_star = .false.
+   stop_after_star_plus_star = .true.
 
   ! controls to apply kicks to a simulation of star + point-mass.
   ! `do_kicks` holds control on the natal-kick methods, while the `do_kicks_in_one_run`

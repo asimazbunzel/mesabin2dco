@@ -7,9 +7,9 @@
    initial_he4 = 0.28d0
 
    relax_initial_Z = .true.
-   new_Z = 0.004d0
+   new_Z = 0.0047d0
    relax_initial_Y = .true.
-   new_Y = 0.296d0
+   new_Y = 0.2953d0
 
 /
 
@@ -17,6 +17,6 @@
 
   ! custom opacity that scales with iron abundance
    use_Type2_opacities = .true.
-   Zbase = 0.004
+   Zbase = 0.0047
 
 /
