@@ -11,12 +11,10 @@
    relax_initial_Y = .true.
    new_Y = 0.2953d0
 
-/
+/ ! end of star_job namelist
 
-&controls
+&kap
 
-  ! custom opacity that scales with iron abundance
-   use_Type2_opacities = .true.
    Zbase = 0.0047
 
-/
+/ ! end of kap namelist

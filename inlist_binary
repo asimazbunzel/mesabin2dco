@@ -3,8 +3,6 @@
    m1 = 20d0
    m2 = 19d0
    initial_period_in_days = 3d0
-   initial_separation_in_Rsuns = 200d0
-   initial_eccentricity = 0.0d0
 
   ! mass-transfer based on rotation limits
    mass_transfer_alpha = 0.0d0

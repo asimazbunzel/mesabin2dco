@@ -11,12 +11,12 @@ include $(MESA_DIR)/utils/makefile_header
 # SOURCE FILES
 
 SRCS = \
-	ce_def.f90 \
-	ce_utils.f90 \
-	ce_mdot.f90 \
-	ce_jdot.f90 \
-	ce_ctrls_io.f90 \
-	ce_support.f90 \
+   ce_def.f90 \
+   ce_utils.f90 \
+   ce_mdot.f90 \
+   ce_jdot.f90 \
+   ce_ctrls_io.f90 \
+   ce_support.f90 \
    ce_lib.f90
 
 #################################################################
@@ -24,9 +24,9 @@ SRCS = \
 # LIBRARIES
 
 ifeq ($(USE_SHARED), YES)
-        LIBS_OTHER = $(LIBS_MESA_STAR)
-        DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
-        LOAD_OTHER = -L$(MESA_LIB_DIR) $(LOAD_MESA_STAR)
+     LIBS_OTHER = $(LIBS_MESA_STAR)
+     DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
+     LOAD_OTHER = -L$(MESA_LIB_DIR) $(LOAD_MESA_STAR)
 endif
 
 #################################################################
@@ -51,7 +51,7 @@ clean:
 MKDIR_P = mkdir -p
 
 install:
-	@(MKDIR_P) ../../../include ../../../lib
+	@$(MKDIR_P) ../../../include ../../../lib
 	@$(CP_IF_NEWER) cc_lib.mod ../../../include
 	@$(CP_IF_NEWER) cc_def.mod ../../../include
 	@$(CP_IF_NEWER) $(LIB) ../../../lib

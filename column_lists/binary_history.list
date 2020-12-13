@@ -44,7 +44,7 @@
       !period_minutes ! orbital period in minutes
       !lg_separation ! log10 of orbital separation in rsun
       binary_separation ! orbital separation in rsun
-      !eccentricity ! orbital eccentricity
+      eccentricity ! orbital eccentricity
       v_orb_1 ! orbital velocity of first star (in km/s)
       v_orb_2 ! orbital velocity of first star (in km/s)
 
@@ -72,23 +72,23 @@
       star_2_mass ! mass of second star in msun
       !lg_star_2_mass ! log10 mass of second star in msun
       !sum_of_masses ! star_1_mass + star_2_mass
-      lg_mtransfer_rate ! log10 of abs(mass transfer rate) in Msun/secyer
+      lg_mtransfer_rate ! log10 of abs(mass transfer rate) in Msun/yr
                      ! this considers the amount of mass lost from the donor due to RLOF
                      ! not the actual mass that ends up accreted
-      lg_mstar_dot_1 ! log10 of first star abs(mdot) in Msun/secyer
-      lg_mstar_dot_2 ! log10 of second star abs(mdot) in Msun/secyer
+      lg_mstar_dot_1 ! log10 of first star abs(mdot) in Msun/yr
+      lg_mstar_dot_2 ! log10 of second star abs(mdot) in Msun/yr
       lg_system_mdot_1 ! log10 of abs(mdot) of mass lost from the system from
-                        ! around star 1 due to inneficient mass transfer in Msun/secyer
+                        ! around star 1 due to inneficient mass transfer in Msun/yr
       lg_system_mdot_2 ! log10 of abs(mdot) of mass lost from the system from
-                        ! around star 2 due to inneficient mass transfer in Msun/secyer
-      lg_wind_mdot_1 ! log10 of first star abs(mdot) due to winds in Msun/secyer
-      lg_wind_mdot_2 ! log10 of second star abs(mdot) due to winds in Msun/secyer
+                        ! around star 2 due to inneficient mass transfer in Msun/yr
+      lg_wind_mdot_1 ! log10 of first star abs(mdot) due to winds in Msun/yr
+      lg_wind_mdot_2 ! log10 of second star abs(mdot) due to winds in Msun/yr
       !star_1_div_star_2_mass ! star_1_mass/star_2_mass
       !delta_star_1_mass ! star_2_mass/initial_star_2_mass
       !delta_star_2_mass ! star_2_mass/initial_star_2_mass
       fixed_xfer_fraction ! fixed mass transfer fraction 1-alpha-beta-delta
       eff_xfer_fraction ! effective efficiency, -dot_M_a/dot_M_d
-      !lg_mdot_edd ! log10 Eddington accretion rate for point mass accretor in units of Msun/secyer
+      !lg_mdot_edd ! log10 Eddington accretion rate for point mass accretor in units of Msun/yr
       !mdot_edd_eta ! Efficiency of radiation from accretion to point source
       !lg_accretion_luminosity ! log10 Luminosity from accretion to point source (in units of Lsun)
       !bh_spin ! Spin parameter of BH accretor 
@@ -97,7 +97,7 @@
 
       ! Information regarding angular momentum
 
-      J_orb ! orbital angular momentum
+      J_orb ! orbital angular momentum in g cm^2 s^-1
       !J_spin_1 ! spin angular momentum of first star
       !J_spin_2 ! spin angular momentum of second star
       !J_total ! orbital+spin angular momentum

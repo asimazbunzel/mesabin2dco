@@ -1,4 +1,4 @@
-&bin2dco_options
+&bin2dco_controls
 
   ! flags controlling the kind of evolution.
   ! - `high_mass_evolution` will try to reach a core-collapse stage (which we set to be
@@ -11,6 +11,9 @@
   ! companion. however, note that both flags cannot be false simultaneously.
    high_mass_evolution = .true.
    low_mass_evolution = .false.
+
+  ! flag to control if going to do star + star simulation
+   do_star_plus_star = .true.
    
   ! filenames of the inlists with the binary control values:
   !  - `star_plus_star_filename` contains the controls for the star + star simulation,
@@ -60,7 +63,13 @@
   ! filenames where the information of the binary system at core-collapse can be found.
   ! this is only important when running natal-kicks, as the code needs to know what were
   ! the binary parameters when the more evolved star collapsed.
-   star_info_at_cc_filename = 'cc_data/star_at_core_collapse_1.data'
-   binary_info_at_cc_filename = 'cc_data/binary_at_core_collapse_1.data'
+   star_info_at_cc_filename = 'cc_data/star_at_core_collapse.data'
+   binary_info_at_cc_filename = 'cc_data/binary_at_core_collapse.data'
+   
+  ! flag to add the id of a kick to CE output (profiles & .mod file) 
+   add_kick_id_as_suffix = .false.
 
-/ ! end of bin2dco_options namelist
+  ! folder with files containing termination code strings
+   termination_codes_folder = 'termination_codes'
+
+/ ! end of bin2dco_controls namelist

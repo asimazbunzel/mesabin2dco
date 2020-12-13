@@ -3,10 +3,6 @@
 
 / ! end of eos namelist
 
-&kap
-
-/ ! end of kap namelist
-
 &star_job
 
    show_log_description_at_start = .false.
@@ -35,10 +31,8 @@
    !timestep_factor_for_backups = 0.8
    !min_timestep_factor = 0.9
    !max_timestep_factor = 1.05
-   backup_hold = 10
    retry_hold = 5
    redo_limit = -1
-   newton_itermin_until_reduce_min_corr_coeff = 15
 
    min_q_for_normal_mlt_gradT_full_off = 0.98d0
    max_q_for_normal_mlt_gradT_full_on = 0.99d0
@@ -80,7 +74,6 @@
   ! stopping condition in case core-collapse or ce modules fail
    max_model_number = 10000
    max_number_retries = 500
-   max_number_backups = 50
 
   ! io controls
    history_interval = 1
@@ -89,14 +82,9 @@
 
   ! numerics
    mesh_delta_coeff = 1d0
-	gold_newton_iterations_limit = 40
    scale_max_correction = 0.01d0
-   max_tries1 = 500
-   max_tries = 50
    max_tries_for_retry = 50
    max_tries_after_5_retries = 50
-   max_tries_after_backup = 50
-   max_tries_after_backup2 = 50
    tiny_corr_coeff_limit = 100
 
 	ignore_species_in_max_correction = .true.

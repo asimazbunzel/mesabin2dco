@@ -1,22 +1,31 @@
 #!/bin/bash
 
-function check_okay {
-	if [ $? -ne 0 ]
-	then
-		exit 1
-	fi
+photo_directory=photos
+
+function most_recent_photo {
+    (
+        cd $photo_directory
+        bp=$(ls -t b_* | head -1)
+        echo ${bp#b_}
+    )
 }
-if [ $1 ]
+
+if [ $# -eq 0 ]
 then
-    echo $1 > .restart
-fi
-check_okay
-date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-if [[ -e binary.exe ]];then
-	./binary.exe
+    photo=$(most_recent_photo)
 else
-	./binary
+    photo=$1
 fi
+
+if [ -z "$photo" ] || ! [ -f "$photo_directory/b_$photo" ] || ! [ -f "$photo_directory/1_$photo" ]
+then
+    echo "Not all specified photos exist:" $photo
+    exit 1
+fi
+
+echo "restart from $photo"
+echo $photo > .restart
+
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-
-
+./bin2dco
+date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"

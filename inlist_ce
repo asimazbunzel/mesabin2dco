@@ -28,8 +28,8 @@
    add_accretion_on_ce = .false.
 
   ! save profile(s) at start/end of ce
-   save_profile_pre_ce = .true.
-   save_profile_after_ce = .true.
+   save_profile_pre_ce = .false.
+   save_profile_after_ce = .false.
 
   ! save model(s) at start/end of ce
    save_model_pre_ce = .false.

@@ -11,21 +11,21 @@ include $(MESA_DIR)/utils/makefile_header
 # SOURCE FILES
 
 SRCS = \
-	cc_def.f90 \
-	cc_data.f90 \
-	cc_mechanism.f90 \
-	cc_ctrls_io.f90 \
-	cc_support.f90 \
-	cc_lib.f90
+   cc_def.f90 \
+   cc_data.f90 \
+   cc_mechanism.f90 \
+   cc_ctrls_io.f90 \
+   cc_support.f90 \
+   cc_lib.f90
 
 #################################################################
 #
 # LIBRARIES
 
 ifeq ($(USE_SHARED), YES)
-	LIBS_OTHER = $(LIBS_MESA_STAR)
-	DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
-	LOAD_OTHER = -L$(MESA_LIB_DIR) $(LOAD_MESA_STAR)
+     LIBS_OTHER = $(LIBS_MESA_STAR)
+     DEPS_OTHER = $(patsubst %,$(MESA_LIB_DIR)/lib%.$(LIB_SUFFIX),$(LIBS_OTHER))
+     LOAD_OTHER = -L$(MESA_LIB_DIR) $(LOAD_MESA_STAR)
 endif
 
 #################################################################
@@ -45,12 +45,12 @@ else
 endif
 
 clean:
-	-@rm -f *.o *.mod *.modmic *genmod.f90 *.so *.a .depend *.smod
+	-@rm -f *.o *.mod *genmod.f90 *.so *.a .depend *.smod
 
 MKDIR_P = mkdir -p
 
 install:
-	@(MKDIR_P) ../../../include ../../../lib
+	@$(MKDIR_P) ../../../include ../../../lib
 	@$(CP_IF_NEWER) cc_lib.mod ../../../include
 	@$(CP_IF_NEWER) cc_def.mod ../../../include
 	@$(CP_IF_NEWER) $(LIB) ../../../lib
