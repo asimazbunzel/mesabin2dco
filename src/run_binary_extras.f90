@@ -145,6 +145,10 @@
             end if
          end if
 
+         ! two possible ways of doing star + point-mass evolution: either grabbing
+         ! assymetric kicks from a file after which binary parameters will be updated,
+         ! or a typical MESAbinary evolution in which binary parameters needs to be
+         ! set in the file `inlist_star_plus_pm`
          if (do_kicks) then
 
             ! get masses from files produced by core_collapse module
@@ -168,6 +172,12 @@
             else
                write(*,'(a)') 'TBD'
             end if
+
+         else
+            
+            call run1_binary(.true., extras_controls, extras_binary_controls, &
+               ierr, &
+               star_plus_pm_filename)
 
          end if
 

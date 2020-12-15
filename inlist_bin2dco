@@ -13,7 +13,7 @@
    low_mass_evolution = .false.
 
   ! flag to control if going to do star + star simulation
-   do_star_plus_star = .true.
+   do_star_plus_star = .false.
    
   ! filenames of the inlists with the binary control values:
   !  - `star_plus_star_filename` contains the controls for the star + star simulation,

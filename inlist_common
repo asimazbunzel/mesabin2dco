@@ -10,10 +10,10 @@
    history_columns_file = 'column_lists/history.list'
    profile_columns_file = 'column_lists/profile.list'
 
-   new_rotation_flag = .true.
-   change_rotation_flag = .true.
-   set_initial_surface_rotation_v = .true.
-   new_surface_rotation_v = 50
+   !new_rotation_flag = .true.
+   !change_rotation_flag = .true.
+   !set_initial_surface_rotation_v = .true.
+   !new_surface_rotation_v = 50
 
    set_cumulative_energy_error_at_step = 1
    new_cumulative_energy_error = 0d0
@@ -44,7 +44,7 @@
   ! - Brott et al. 2011 prescription
    use_other_wind = .true.
   ! close to critical rotation, use implicit wind
-   max_mdot_redo_cnt = 100
+   max_mdot_redo_cnt = 0  ! 100
    min_years_dt_for_redo_mdot = 0
    surf_w_div_w_crit_limit = 0.98d0
    surf_w_div_w_crit_tol = 0.001d0
@@ -142,20 +142,20 @@
    fix_eps_grav_transition_to_grid = .true.
 
   ! rotation mixing coeffs
-   am_nu_ST_factor = 1.0
-   D_visc_factor = 0.0
-   am_nu_SH_factor = 0.0
-   D_ST_factor = 0.0
-   D_SH_factor = 0.0
-   D_GSF_factor = 1.0
-   D_ES_factor = 1.0
-   D_SSI_factor = 1.0
-   D_DSI_factor = 1.0
-   am_D_mix_factor = 0.0333333d0
-   am_gradmu_factor = 0.1d0
-   num_cells_for_smooth_gradL_composition_term = 2
+   !am_nu_ST_factor = 1.0
+   !D_visc_factor = 0.0
+   !am_nu_SH_factor = 0.0
+   !D_ST_factor = 0.0
+   !D_SH_factor = 0.0
+   !D_GSF_factor = 1.0
+   !D_ES_factor = 1.0
+   !D_SSI_factor = 1.0
+   !D_DSI_factor = 1.0
+   !am_D_mix_factor = 0.0333333d0
+   !am_gradmu_factor = 0.1d0
+   !num_cells_for_smooth_gradL_composition_term = 2
    ! premix omega to avoid doing the newton with crazily shearing material
-   premix_omega = .true.
+   !premix_omega = .true.
 	
 / ! end of controls namelist
 

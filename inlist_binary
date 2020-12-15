@@ -1,8 +1,8 @@
 &binary_controls
 
-   m1 = 20d0
-   m2 = 19d0
-   initial_period_in_days = 3d0
+   m1 = 40d0
+   m2 = 7d0
+   initial_period_in_days = 1000d0
 
   ! mass-transfer based on rotation limits
    mass_transfer_alpha = 0.0d0

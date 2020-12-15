@@ -3,7 +3,7 @@
    read_extra_star_job_inlist1 = .true.
    extra_star_job_inlist1_name = 'inlist_common'
    
-   read_extra_star_job_inlist2 = .false.
+   read_extra_star_job_inlist2 = .true.
    extra_star_job_inlist2_name = 'inlist_composition'
 
    load_saved_model = .false.
@@ -11,17 +11,27 @@
 
 / ! end of star_job namelist
 
+&eos
+
+   read_extra_eos_inlist1 = .true.
+   extra_eos_inlist1_name = 'inlist_common'
+
+/ ! end of eos namelist
+
+&kap
+
+   read_extra_kap_inlist1 = .true.
+   extra_kap_inlist1_name = 'inlist_composition'
+
+/ ! end of kap namelist
+
 &controls
 
    read_extra_controls_inlist1 = .true.
    extra_controls_inlist1_name = 'inlist_common'
 
-   read_extra_controls_inlist2 = .true.
-   extra_controls_inlist2_name = 'inlist_composition'
-
   ! input/output
-   photo_directory = 'photos2'
-   log_directory = 'LOGS2'
+   log_directory = 'LOGS_companion'
 	
 / ! end of controls namelist
 

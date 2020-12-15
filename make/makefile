@@ -21,7 +21,9 @@ OWN_WORK_COMPILE = \
 	$(FC) $(FCbasic) $(FCopenmp) $(FCchecks) $(FCdebug) $(FCfree) \
 	-I$(MESA_INCLUDE_DIR) -I$(OWN_INCLUDE_DIR) $(INCLUDE_HDF5) -c
 
+ifndef STAR
 STAR = bin2dco
+endif
 
 OBJS = $(BINARY_WORK_OBJS) binary_run.o
 

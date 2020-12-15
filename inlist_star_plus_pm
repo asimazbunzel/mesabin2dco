@@ -15,8 +15,9 @@
 
    report_rlo_solver_progress = .true.
 
-  ! parameters after core-collapse in inlist_after_kick
-   read_extra_binary_controls_inlist1 = .false.
+  ! in case classical star + point-mass evolution, set this to true
+  ! and use binary parameters from `inlist_binary`
+   read_extra_binary_controls_inlist1 = .true.
    extra_binary_controls_inlist1_name = 'inlist_binary'
 
    history_interval = 1
@@ -29,12 +30,12 @@
    do_jdot_gr = .false.
    do_jdot_ml = .true.
    do_jdot_mb = .false.
-   do_jdot_ls = .true.
+   !do_jdot_ls = .true.
    do_jdot_missing_wind = .true.
 
-   do_tidal_circ = .true.
-   circ_type_1 = 'Hut_conv'
-   circ_type_2 = 'Hut_conv'
+   !do_tidal_circ = .true.
+   !circ_type_1 = 'Hut_conv'
+   !circ_type_2 = 'Hut_conv'
 
   ! numerical resolution during mass-transfer
    fr = 0.1 ! 0.025
@@ -51,10 +52,10 @@
    !change_factor_fraction = 0.8d0
    min_mdot_for_implicit = 1d-10
    
-   sync_mode_1 = 'Uniform'
-   sync_type_1 = 'Hut_rad'
-   Ftid_1 = 1
-   do_initial_orbit_sync_1 = .true.
+   !sync_mode_1 = 'Uniform'
+   !sync_type_1 = 'Hut_rad'
+   !Ftid_1 = 1
+   !do_initial_orbit_sync_1 = .true.
 
 / ! end of binary_controls namelist
 
