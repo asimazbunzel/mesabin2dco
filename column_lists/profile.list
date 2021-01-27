@@ -135,16 +135,16 @@
    !logT_face_div_logT_bb
 
    !energy ! internal energy (ergs/g)
-   !logE ! log10(specific internal energy) at center of zone
-   !rho ! density
+   logE ! log10(specific internal energy) at center of zone
+   rho ! density
    !density ! rho
 
-   !entropy ! specific entropy divided by (avo*kerg)
+   entropy ! specific entropy divided by (avo*kerg)
    !logS ! log10(specific entropy)
    !logS_per_baryon ! log10(specific entropy per baryon / kerg)
    !del_entropy ! entropy - entropy_start (includes change in entropy due to diffusion at beginning of step)
 
-   !pressure ! total pressure at center of zone (pgas + prad)
+   pressure ! total pressure at center of zone (pgas + prad)
    !prad ! radiation pressure at center of zone
    !pgas ! gas pressure at center of zone (electrons and ions)
    !logPgas ! log10(pgas)
@@ -184,7 +184,7 @@
 
 
 !# Mass accretion
-   !eps_grav ! -T*ds/dt (negative for expansion)
+   eps_grav ! -T*ds/dt (negative for expansion)
    !eps_grav_dm_term_const_q ! advection term, T*(ds/dm)*(dm/dt)_q
    !eps_grav_dt_term_const_q ! fixed relative mass time derivative term, -T*(ds/dt)_q
    !log_abs_eps_grav_dm_div_L
@@ -218,15 +218,15 @@
 
 !# Nuclear energy generation
    !signed_log_eps_grav ! sign(eps_grav)*log10(max(1,abs(eps_grav)))
-   !net_nuclear_energy ! erg/gm/s from nuclear reactions minus all neutrino losses
+   net_nuclear_energy ! erg/gm/s from nuclear reactions minus all neutrino losses
       ! The value plotted is net_nuclear_energy = sign(val)*log10(max(1,abs(val)))
       ! where val = net nuclear energy minus all neutrino losses.
-   !net_energy ! net_energy + eps_grav.
+   net_energy ! net_energy + eps_grav.
       ! The value plotted is net_energy = sign(val)*log10(max(1,abs(val)))
       ! where val = net nuclear energy plus eps_grav minus all neutrino losses.
    !eps_nuc_plus_nuc_neu
 
-   !eps_nuc ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
+   eps_nuc ! ergs/g/sec from nuclear reactions (reaction neutrinos subtracted)
    !log_abs_eps_nuc
    !d_lnepsnuc_dlnd
    !d_epsnuc_dlnd
@@ -336,7 +336,7 @@
 
 
 !# Opacity
-   !opacity ! opacity measured at center of zone
+   opacity ! opacity measured at center of zone
    !log_opacity ! log10(opacity)
    !dkap_dlnrho_face ! partial derivative of opacity wrt. ln rho (at T=const) at outer edge of cell
       !  (was previously called dkap_dlnrho_at_face)
@@ -346,7 +346,7 @@
 
 
 !# Luminosity 
-   !luminosity ! luminosity at outer boundary of zone (in Lsun units)
+   luminosity ! luminosity at outer boundary of zone (in Lsun units)
    !logL ! log10(max(1d-2,L/Lsun))
    !log_Lrad
    !log_Ledd ! log10(Leddington/Lsun) -- local Ledd, 4 pi clight G m / kap
@@ -457,7 +457,7 @@
 
 
 !# Optical Depth
-   !tau ! optical depth
+   tau ! optical depth
    !log_column_depth ! log10 column depth, exterior mass / area (g cm^-2)
    !log_radial_depth ! log10 radial distance to surface (cm)
    !logtau ! log10(optical depth) at center of zone

@@ -9,6 +9,7 @@
       namelist /cc_controls/ &
          model_name, &
          max_ns_mass, &
+         report_core_collapse, &
          cc_data_directory, &
          filename_for_star_data, &
          filename_for_binary_data
@@ -19,6 +20,7 @@
 
          model_name = 'rapid'
          max_ns_mass = 2.5d0
+         report_core_collapse = .false.
          cc_data_directory = 'cc_data'
          filename_for_star_data = 'star_at_core_collapse'
          filename_for_binary_data = 'binary_at_core_collapse'

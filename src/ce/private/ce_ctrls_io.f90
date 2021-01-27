@@ -24,6 +24,7 @@
          save_profile_after_ce, &
          save_model_pre_ce, &
          save_model_after_ce, &
+         report_mdot_for_ce, &
          ce_data_directory, &
          filename_donor_profile_pre_ce, &
          filename_donor_profile_after_ce, &
@@ -53,6 +54,7 @@
          save_profile_after_ce = .true.
          save_model_pre_ce = .true.
          save_model_after_ce = .true.
+         report_mdot_for_ce = .false.
          ce_data_directory = 'ce_data'
          filename_donor_profile_pre_ce = 'profile_donor_pre_ce'
          filename_donor_profile_after_ce = 'profile_donor_after_ce'

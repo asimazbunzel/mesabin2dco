@@ -46,18 +46,19 @@
          if (ierr /= 0) return
 
          ! Eddington mass-changes rates
-         mdot_edd_donor = (pi4 * clight * b% s_donor% r(1)) &
+         mdot_edd_donor = (4d0 * pi * clight * b% s_donor% r(1)) &
             / b% s_donor% photosphere_opacity
+
          if (b% point_mass_i == 0) then
-            mdot_edd_accretor = (pi4 * clight * b% s_accretor% r(1)) &
+            mdot_edd_accretor = (4d0 * pi * clight * b% s_accretor% r(1)) &
                / b% s_accretor% photosphere_opacity
          else
-            mdot_edd_accretor = 4.0d0*pi*b% s_donor% cgrav(1)*b% m(b% a_i) &
-               / (clight*b% s_donor% opacity(1) *b% mdot_edd_eta)
+            mdot_edd_accretor = 4.0d0 * pi * standard_cgrav * b% m(b% a_i) &
+               / (clight * b% s_donor% opacity(1) * b% mdot_edd_eta)
          end if
 
          ! check for ce init
-         ce_condition = ''
+         ce_condition = 'stable mt'
          if (b% point_mass_i == 0) then
             if (b% m(b% d_i) > b% m(b% a_i) .and. abs(b% mtransfer_rate) > edd_scaling_factor * mdot_edd_donor) then
                ce_condition = 'mtransfer_rate > mdot_edd_donor'
@@ -74,11 +75,71 @@
             end if
          end if
 
-         if (ce_condition /= '') then
-            write(*,'(a,1x,a)') 'turning ce on, condition:', ce_condition
+         if (report_mdot_for_ce) then
+            call report_mdot_comparison
+         end if
+
+         if (ce_condition /= 'stable mt') then
+            write(*,'(/,a)') 'turning ce on, condition: ' // trim(ce_condition)
             ce_on = .true.
             ce_off = .false.
          end if
+
+         contains
+
+         subroutine report_mdot_comparison
+            real(dp) :: m_conv, f_conv
+            type(star_info), pointer :: s
+            integer :: k
+
+            s => b% s_donor
+
+            if (s% he_core_mass > 0d0 .and. s% center_h1 < 1d-6) then
+               m_conv = 0d0
+               if (s% he_core_k == 1 .or. (s% star_mass - s% he_core_mass) < 1d-3) then
+                  f_conv = 0d0
+               else
+                  do k = 1, s% he_core_k
+                     if (s% mixing_type(k) == convective_mixing) m_conv = m_conv + s% dm(k)
+                  end do
+                  f_conv = (m_conv / Msun) / (s% star_mass - s% he_core_mass)
+               end if
+            else
+               m_conv = 0d0
+               f_conv = 0d0
+            end if
+
+            if (b% point_mass_i == 0) then
+               if (b% num_tries == 1) then
+                  write(*,'(a)') '  binary_step  mtransfer_rate  mdot_edd_donor' // &
+                     '      f_conv  mdot_edd_accretor  mdot_accretor  max_mdot_rlof                              result'
+                  write(*,'(a)') '  -------------------------------------------' // &
+                     '-------------------------------------------------------------------------------------------------'
+               end if
+               write(*,'(i13,2(1pe16.3,0p),1(1pe12.3,0p),1(1pe19.3,0p),2(1pe15.3,0p),a36)') b% s_donor% model_number, &
+                  abs(b% mtransfer_rate) * secyer/Msun, &
+                  mdot_edd_donor * edd_scaling_factor * secyer/Msun, &
+                  f_conv, &
+                  mdot_edd_accretor * secyer/Msun, &
+                  abs(b% component_mdot(b% a_i)) * secyer/Msun, &
+                  max_mdot_rlof, &
+                  trim(ce_condition)
+            else
+               if (b% num_tries == 1) then
+                  write(*,'(a)') '  binary_step  mtransfer_rate  mdot_edd_donor' // &
+                     '          f_conv   max_mdot_rlof                              result'
+                  write(*,'(a)') '  -------------------------------------------' // &
+                     '--------------------------------------------------------------------'
+               end if
+               write(*,'(i13,4(1pe16.3,0p),a36)') b% s_donor% model_number, &
+                  abs(b% mtransfer_rate) * secyer/Msun, &
+                  mdot_edd_donor * edd_scaling_factor * secyer/Msun, &
+                  f_conv, &
+                  max_mdot_rlof, &
+                  trim(ce_condition)
+            end if
+         end subroutine report_mdot_comparison
+
 
       end subroutine ce_unstable_mt_phase
 
@@ -164,12 +225,16 @@
          type(binary_info), pointer :: b
          logical :: val
 
+         include 'formats'
+
          ierr = 0
          call binary_ptr(ce_id, b, ierr)
          if (ierr /= 0) return
 
          ce_type = binary_type(b, ierr)
          if (ierr /= 0) return
+
+         if (ce_dbg) write(*,11) 'type of ce', ce_type
 
       end subroutine ce_type_of
 
@@ -232,6 +297,18 @@
          b% do_jdot_mb = .false.
 
          b% fj = 0.01d0
+
+         b% max_explicit_abs_mdot = max_mdot_rlof
+         b% max_tries_to_achieve = 0
+         b% solver_type = 'bisect'
+
+         b% s_donor% delta_lgTeff_limit = 0.1d0
+         b% s_donor% delta_lgL_phot_limit_L_min = 1d99
+         b% s_donor% delta_lgL_limit_L_min = 1d99
+         
+         ! avoid burning info on donor
+         b% s_donor% mix_factor = 0d0
+         b% s_donor% dxdt_nuc_factor = 0d0
 
          ! only used in two stars to avoid accretor overflow
          b% accretor_overflow_terminate = 0d0
@@ -331,7 +408,7 @@
          if (ierr /= 0) return
 
          if (b% model_number <= ce_initial_model_number) then
-            write(*,'(a)') 'First model is not evaluated. Skipping it'
+            write(*,'(/,a,/)') 'first model is not evaluated. Skipping it'
             ce_detach = .false.
             ce_merge = .false.
             return
@@ -346,7 +423,7 @@
          if (ierr /= 0) return
 
          if (ce_detach) then
-            write(*,'(a)') 'reach ce detach'
+            write(*,'(/,a,/)') 'reach ce detach'
             if (save_profile_after_ce) call save_ce_profile(ce_id, 'after', ierr)
             if (save_model_after_ce) call save_ce_model(ce_id, 'after', ierr)
             call ce_end(b, ierr)
@@ -370,6 +447,8 @@
          integer, intent(out) :: ierr
          type(binary_info), pointer :: b
 
+         include 'formats'
+
          ierr = 0
          call binary_ptr(ce_id, b, ierr)
          if (ierr /= 0) return
@@ -377,16 +456,20 @@
          ce_duration = ce_duration + b% time_step
 
          if (ce_duration < years_to_max_mdot_rlof .and. abs(b% mtransfer_rate) * secyer/Msun < max_mdot_rlof) then
-            write(*,*) 'reduce dt due to not reaching years_to_max_mdot_rlof'
-            b% s_donor% dt_next = min(0.5d0 * secyer, b% s_donor% dt_next)
-            if (ce_type == ce_two_stars) b% s_accretor% dt_next = b% s_donor% dt_next
+            if (b% s_donor% dt_next > 0.5d0 * secyer) then
+               write(*,1) 'reduce dt due to not reaching years_to_max_mdot_rlof', &
+                  b% s_donor% dt_next / secyer, &
+                  min(0.5d0 * secyer, b% s_donor% dt_next) / secyer
+               b% s_donor% dt_next = min(0.5d0 * secyer, b% s_donor% dt_next)
+               if (ce_type == ce_two_stars) b% s_accretor% dt_next = b% s_donor% dt_next
+            end if
          end if
 
          ! start to count the time a binary is detached but only after reaching max_mdot_rlof
          ! after a certain amount of time, just exit CE
          if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_duration > years_to_max_mdot_rlof) then
             ce_years_in_detach = ce_years_in_detach + b% time_step
-            write(*,*) 'binary close ce end. years detached:', ce_years_in_detach
+            write(*,1) 'binary close ce end. years detached:', ce_years_in_detach
          end if
 
          ! add energy removed to cumulative
@@ -424,6 +507,13 @@
          b% mass_transfer_gamma = gamma_mt_start_ce
 
          b% fj = fj_start_ce
+
+         b% max_explicit_abs_mdot = max_explicit_abs_mdot_ce
+         b% max_tries_to_achieve = max_tries_to_achieve_ce
+         b% solver_type = solver_type_start_ce
+         
+         b% s_donor% mix_factor = 1d0
+         b% s_donor% dxdt_nuc_factor = 1d0
 
          b% accretor_overflow_terminate = accretor_overflow_terminate_start_ce
 

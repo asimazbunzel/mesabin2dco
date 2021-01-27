@@ -1,164 +1,124 @@
 
-&eos
-
-/ ! end of eos namelist
-
 &star_job
 
-   show_log_description_at_start = .false.
+    show_log_description_at_start = .false.
 
-   history_columns_file = 'column_lists/history.list'
-   profile_columns_file = 'column_lists/profile.list'
+    set_cumulative_energy_error_at_step = 1
+    new_cumulative_energy_error = 0d0
 
-   !new_rotation_flag = .true.
-   !change_rotation_flag = .true.
-   !set_initial_surface_rotation_v = .true.
-   !new_surface_rotation_v = 50
+    history_columns_file = 'column_lists/history.list'
+    profile_columns_file = 'column_lists/profile.list'
 
-   set_cumulative_energy_error_at_step = 1
-   new_cumulative_energy_error = 0d0
+    ! pgstar_flag = .true.
 
-   logT_for_conv_vel_flag = 7.5d0
+    set_cumulative_energy_error_at_step = 1
+    new_cumulative_energy_error = 0d0
 
 / ! end of star_job namelist
 
+
+&eos
+    !logRho_min_for_all_OPAL = -9.5d0
+    !logRho_min_for_any_OPAL = -9.6d0
+    !logRho_max_for_all_PTEH = 2.92d0
+    !logRho_max_for_any_PTEH = 3.52d0
+/ ! end of eos namelist
+
+
 &controls
 
-   fitted_fp_ft_i_rot = .true.
-   w_div_wcrit_max = 0.9d0
+    delta_lgTeff_limit = 0.05d0
+    delta_lgTeff_hard_limit = 0.1d0
 
-   !timestep_factor_for_retries = 0.8
-   !timestep_factor_for_backups = 0.8
-   !min_timestep_factor = 0.9
-   !max_timestep_factor = 1.05
-   retry_hold = 5
-   redo_limit = -1
+    ! debugging
+    !solver_test_partials_call_number = 7191
+    !solver_test_partials_iter_number = 2
+    !solver_test_partials_k = 13
+    !solver_test_partials_equ_name = 'all'
+    !solver_test_partials_var_name = 'all'
+    !solver_test_partials_dx_0 = 1d-7
 
-   min_q_for_normal_mlt_gradT_full_off = 0.98d0
-   max_q_for_normal_mlt_gradT_full_on = 0.99d0
+    max_model_number = 10000  !1355
 
-   !smooth_outer_xa_big = 0.5
-   !smooth_outer_xa_small = 0.3
+    report_solver_progress = .false.
+    report_ierr = .false.
 
-  ! winds
-  ! - Brott et al. 2011 prescription
-   use_other_wind = .true.
-  ! close to critical rotation, use implicit wind
-   max_mdot_redo_cnt = 0  ! 100
-   min_years_dt_for_redo_mdot = 0
-   surf_w_div_w_crit_limit = 0.98d0
-   surf_w_div_w_crit_tol = 0.001d0
-   rotational_mdot_boost_fac = 1d10
-   rotational_mdot_kh_fac = 1d10
-   mdot_revise_factor = 1.2
-   implicit_mdot_boost = 0.1
-   surf_avg_tau_min = 0
-   surf_avg_tau = 10
+    redo_limit = -1
 
-  ! - low-mass star
-  ! cool_wind_full_on_T = 1d6
-  ! hot_wind_full_on_T = 1d7
-  ! cool_wind_RGB_scheme = 'Reimers'
-  ! cool_wind_AGB_scheme = 'Blocker'
-  ! RGB_to_AGB_wind_switch = 1d-4
-  ! Reimers_scaling_factor = 1d0
-  ! Blocker_scaling_factor = 1d0
+    ! wind options implemented as in Brott et al. 2011
+    use_other_wind = .true.
 
-  ! Sravan et al. 2018. Also Yoon et al. 2017
-  ! hot_wind_scheme = 'Dutch'
-  ! cool_wind_RGB_scheme = 'Dutch'
-  ! cool_wind_AGB_scheme = 'Dutch'
-  ! Dutch_wind_lowT_scheme = 'de Jager'
-  ! Dutch_scaling_factor = 1.0
+    ! atmosphere
+    atm_option = 'T_tau'
+    atm_T_tau_relation = 'Eddington'
+    atm_T_tau_opacity = 'fixed'
 
-  ! stopping condition in case core-collapse or ce modules fail
-   max_model_number = 10000
-   max_number_retries = 500
+    ! io controls
+    photo_interval = 100
+    photo_digits = 4
+    history_interval = 1
+    write_profiles_flag = .false.
 
-  ! io controls
-   history_interval = 1
-   write_profiles_flag = .false.
-   photo_interval = 100000
+    ! timesteps
+    delta_lgRho_cntr_limit = 0.03
+    delta_lgRho_limit = 0.1
+    delta_lgT_max_limit = 0.001
+    delta_lgT_max_hard_limit = 0.01
+    dHe_div_He_limit = -1
+    delta_lgL_He_limit = 0.1
+    delta_lg_XH_cntr_limit = 0.01d0
+    delta_lg_XH_cntr_max = 0.0d0
+    delta_lg_XH_cntr_min = -4.0d0
+    delta_lg_XH_cntr_hard_limit = 0.02d0
+    dX_nuc_drop_limit = 8d-3
+    dX_nuc_drop_min_X_limit = 1d-3
+    dX_nuc_drop_max_A_limit = 52
 
-  ! numerics
-   mesh_delta_coeff = 1d0
-   scale_max_correction = 0.01d0
-   max_tries_for_retry = 50
-   max_tries_after_5_retries = 50
-   tiny_corr_coeff_limit = 100
+    ! limit on changes in timestep
+    !min_timestep_factor = 0.8
+    !max_timestep_factor = 1.05
+    !timestep_factor_for_retries = 0.75
+   
+    ! relative variation in the structure
+    !varcontrol_target = 1d-3  ! 7d-4
 
-	ignore_species_in_max_correction = .true.
+    ! mesh grid resolution
+    mesh_delta_coeff = 1.0  ! 0.5
+    min_dq_for_xa = 1d-4
+    max_dq = 0.0005
 
+    ! solver
+    solver_iters_timestep_limit = 10
+    use_gold2_tolerances = .true.
+    convergence_ignore_equL_residuals = .true.
+    ignore_too_large_correction = .true.
+    make_gradr_sticky_in_solver_iters = .true.
 
-  ! - extra spatial resolution for receding convective core
-   max_dq = 0.001
-   min_dq_for_xa = 1d-5
-  ! - extra controls for timestep
-   delta_lg_star_mass_limit = 2d-3
-   delta_lg_star_mass_hard_limit = 2d-3
-   delta_lg_XH_cntr_limit = 0.02d0
-   delta_lg_XH_cntr_max = 0.0d0
-   delta_lg_XH_cntr_hard_limit = 0.03d0
-   delta_lg_XHe_cntr_limit = 0.02d0
-   delta_lg_XHe_cntr_max = 0.0d0
-   delta_lg_XHe_cntr_hard_limit = 0.03d0
-   delta_lg_XC_cntr_limit = 0.01d0
-   delta_lg_XC_cntr_max = 0.0d0
-   delta_lg_XC_cntr_hard_limit = 0.02d0
-   delta_HR_limit = 0.01d0
-  ! - detailed burning at the very late phases does not make a significant difference
-   dX_nuc_drop_limit = 5d-2
-   remove_mixing_glitches = .false.
-   remove_small_D_limit = 1d-50
-   !mixing_D_limit_for_log = 1d-50
-  ! - this is to avoid odd behaviour when a star switches from accreting to mass losing
-   max_mdot_jump_for_rotation = 1.1
+    okay_to_reduce_gradT_excess = .true.
+    gradT_excess_age_fraction = 0.99d0
+    gradT_excess_max_change = 0.001d0
 
-  ! physics
-  ! - convection, semiconvection, thermohaline, overshooting
-   mixing_length_alpha = 1.5d0
-   use_ledoux_criterion = .true.
-   alpha_semiconvection = 1d0
-   thermohaline_coeff = 1d0
-	max_conv_vel_div_csound = 1d0
-  ! - step-overshooting as in Brott et al. 2011
-   overshoot_scheme(1) = 'step'
-   overshoot_zone_type(1) = 'burn_H'
-   overshoot_zone_loc(1) = 'core'
-   overshoot_bdy_loc(1) = 'top'
-   overshoot_f(1) = 0.345
-   overshoot_f0(1) = 0.01
-  ! - mlt++ on, Paxton et al. 2013 
-   okay_to_reduce_gradT_excess = .true.
-   gradT_excess_age_fraction = 0.99d0
-   gradT_excess_max_change = 0.001d0
-  ! - near eddington limit
-   max_logT_for_k_below_const_q = 100
-   max_q_for_k_below_const_q = 0.995
-   min_q_for_k_below_const_q = 0.995
-   max_logT_for_k_const_mass = 100
-   max_q_for_k_const_mass = 0.99
-   min_q_for_k_const_mass = 0.99
-   fix_eps_grav_transition_to_grid = .true.
+    !screening_mode = 'chugunov'
 
-  ! rotation mixing coeffs
-   !am_nu_ST_factor = 1.0
-   !D_visc_factor = 0.0
-   !am_nu_SH_factor = 0.0
-   !D_ST_factor = 0.0
-   !D_SH_factor = 0.0
-   !D_GSF_factor = 1.0
-   !D_ES_factor = 1.0
-   !D_SSI_factor = 1.0
-   !D_DSI_factor = 1.0
-   !am_D_mix_factor = 0.0333333d0
-   !am_gradmu_factor = 0.1d0
-   !num_cells_for_smooth_gradL_composition_term = 2
-   ! premix omega to avoid doing the newton with crazily shearing material
-   !premix_omega = .true.
-	
+    scale_max_correction = 0.1
+    ignore_species_in_max_correction = .true.
+
+    ! mixing
+    mixing_length_alpha = 1.5d0
+    MLT_option = 'Henyey'
+    use_Ledoux_criterion = .true.
+    alpha_semiconvection = 1d0
+    thermohaline_coeff = 1d0
+    !min_overshoot_q = 0d0
+    !overshoot_D_min = 100d0
+    overshoot_scheme(1) = 'exponential'
+    overshoot_zone_type(1) = 'any'
+    overshoot_zone_loc(1) = 'any'
+    overshoot_bdy_loc(1) = 'any'
+    overshoot_f(1) = 0.01
+    overshoot_f0(1) = 0.005
+
+    ! this is to avoid odd behaviour when a star switches from accreting to mass losing
+    max_mdot_jump_for_rotation = 1.1
+
 / ! end of controls namelist
-
-&pgstar
-      
-/ ! end of pgstar namelist

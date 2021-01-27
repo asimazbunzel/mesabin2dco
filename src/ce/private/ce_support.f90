@@ -63,6 +63,10 @@
          gamma_mt_start_ce = b% mass_transfer_gamma
 
          fj_start_ce = b% fj
+         
+         max_explicit_abs_mdot_ce = b% max_explicit_abs_mdot
+         max_tries_to_achieve_ce = b% max_tries_to_achieve
+         solver_type_start_ce = b% solver_type
 
          accretor_overflow_terminate_start_ce = b% accretor_overflow_terminate
 

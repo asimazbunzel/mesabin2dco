@@ -25,7 +25,11 @@
 
          ierr = 0
 
-         b% extra_jdot = 0
+         b% extra_jdot = 0d0
+         b% jdot_ml = 0d0
+         b% jdot_ls = 0d0
+         b% jdot_missing_wind = 0d0
+         b% jdot_mb = 0d0
 
          ! just be extra-sure that binary is circular
          if (b% eccentricity > 0d0) b% eccentricity = 0d0
@@ -45,7 +49,7 @@
          removed_binding_energy = donor_bind_energy_prev_step - donor_bind_energy
 
          if (add_accretion_on_ce) then
-            write(*,'(a)') 'This feature is not ready so nothing will be calculated'
+            write(*,'(/,a)') 'this feature is not ready so nothing will be calculated'
          end if
 
          ! check for type of ce

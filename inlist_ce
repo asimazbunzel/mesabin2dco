@@ -4,7 +4,7 @@
    alpha_two_stars = 1d0
 
   ! efficiency for removing envelope in binaries of a star and a compact object (point mass)
-   alpha_xrb = 2d0
+   alpha_xrb = 10d0
   
   ! Eddington scaling factor to trigger ce
    edd_scaling_factor = 1d0
@@ -22,7 +22,7 @@
    years_to_max_mdot_rlof = 7.5d0
 
   ! max value for rlo mdot
-   max_mdot_rlof = 0.1d0
+   max_mdot_rlof = 0.05d0
 
   ! consider accretion on accretor during ce. NOT READY TO USE
    add_accretion_on_ce = .false.
@@ -34,6 +34,9 @@
   ! save model(s) at start/end of ce
    save_model_pre_ce = .false.
    save_model_after_ce = .false.
+
+  ! flag to report mdot comparison to init a ce
+   report_mdot_for_ce = .true.
 
   ! directory where profile(s) and model(s) during ce will be saved
    ce_data_directory = 'ce_data'

@@ -6,6 +6,9 @@
   ! name of folder where core-collapse data will be saved
    cc_data_directory = 'cc_data'
 
+  ! flag to print out core-collapse info
+   report_core_collapse = .true.
+
   ! name of files with information of the collapsing star & binary system at core-collapse
    filename_for_star_data = 'star_at_core_collapse'
    filename_for_binary_data = 'binary_at_core_collapse'

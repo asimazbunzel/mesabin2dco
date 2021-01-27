@@ -63,6 +63,12 @@
       ! max number of retries before considering ce merge
       integer :: max_number_retries_during_ce
 
+      ! flag to turn on/off report of mdot comparison to init a ce
+      logical :: report_mdot_for_ce
+
+      ! debugging flag for ce module
+      logical :: ce_dbg = .true.
+
       ! -----------------------------
       ! parameters during ce
       logical :: ce_on, ce_off
@@ -72,10 +78,13 @@
       real(dp) :: ce_duration, ce_years_in_detach
       real(dp) :: alpha_mt_start_ce, beta_mt_start_ce, delta_mt_start_ce, gamma_mt_start_ce
       real(dp) :: fj_start_ce
+      character(len=strlen) :: solver_type_start_ce
       real(dp) :: accretor_overflow_terminate_start_ce
       real(dp) :: lg_mtransfer_rate_start_ce
       real(dp) :: donor_mass_start_ce, donor_radius_start_ce
       real(dp) :: accretor_mass_start_ce, accretor_radius_start_ce
+      real(dp) :: max_explicit_abs_mdot_ce
+      real(dp) :: max_tries_to_achieve_ce
 
       real(dp) :: donor_grav_energy_prev_step, donor_int_energy_prev_step
       real(dp) :: donor_bind_energy_prev_step, donor_bind_energy

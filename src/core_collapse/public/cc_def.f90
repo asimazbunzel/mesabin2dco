@@ -54,6 +54,9 @@
       ! binary post-cc data
       real(dp) :: angular_momentum_after_cc, separation_after_cc, &
          rl_after_cc(2), mt_rate_after_cc
+      
+      ! flag to turn on/off report of cc module
+      logical :: report_core_collapse
 
       end module cc_def
 

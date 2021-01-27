@@ -1,8 +1,11 @@
 &binary_controls
 
-   m1 = 40d0
-   m2 = 7d0
-   initial_period_in_days = 1000d0
+   m1 = 27.19d0
+   m2 = 8.75d0
+   !initial_period_in_days = 162.46d0
+   initial_period_in_days = -1d0
+   initial_separation_in_Rsuns = 144.05d0
+   initial_eccentricity = 0.11d0
 
   ! mass-transfer based on rotation limits
    mass_transfer_alpha = 0.0d0

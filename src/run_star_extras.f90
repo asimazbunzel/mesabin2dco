@@ -214,9 +214,16 @@
          logical, intent(in) :: restart
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
+         integer :: k
+
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
+         !do k=1, s% nvar
+         !   write(*,*) k, s% nameofvar(k), s% nameofequ(k)
+         !end do
+
       end subroutine extras_startup
 
 
@@ -233,7 +240,19 @@
 
       integer function extras_check_model(id)
          integer, intent(in) :: id
+         integer :: ierr
+         type (star_info), pointer :: s
+
+         include 'formats'
+
+         ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+         
          extras_check_model = keep_going
+
+         write(*,1) 'rel_error', abs(s% error_in_energy_conservation/s% total_energy_end)
+
       end function extras_check_model
 
 

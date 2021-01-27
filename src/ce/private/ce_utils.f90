@@ -19,6 +19,8 @@
          integer, intent(out) :: ierr
          type(binary_info), pointer :: b
 
+         include 'formats'
+
          ierr = 0
          call binary_ptr(ce_id, b, ierr)
 
@@ -33,6 +35,9 @@
          else
             ce_num_xrb = ce_num_xrb + 1
          end if
+
+         if (ce_dbg) write(*,11) 'ce num star + star', ce_num_two_stars
+         if (ce_dbg) write(*,11) 'ce num star + point-mass', ce_num_xrb
 
       end subroutine num_events
 

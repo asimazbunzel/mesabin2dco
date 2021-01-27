@@ -42,6 +42,14 @@
 
       integer, parameter :: max_num_kicks = 100000
 
+      ! b% lxtra(lx_ce_on) is true when ce is on
+      integer, parameter :: lx_ce_on = 1
+      ! b% lxtra(lx_ce_off) is true when ce is off
+      integer, parameter :: lx_ce_off = 2
+
+      ! b% ixtra(ix_ce_model_number) contains the model number of a ce start
+      integer, parameter :: ix_ce_model_number = 1
+
       logical :: high_mass_evolution, low_mass_evolution
       character(len=strlen) :: star_plus_star_filename, star_plus_pm_filename
       character(len=strlen) :: cc1_inlist_filename, cc2_inlist_filename
@@ -283,13 +291,43 @@
             return
          end if
 
-         ! set initial ce variables, no need to check if it's a restart
-         if (b% point_mass_i == 0) then
-            call ce_variables_on_startup(ce1_inlist_filename, ierr)
-            if (ierr /= 0) return
+         if (.not. restart) then
+            b% lxtra(lx_ce_on) = .false.
+            b% lxtra(lx_ce_off) = .true.
+            b% ixtra(ix_ce_model_number) = 0
+
+            ! set initial ce variables, no need to check if it's a restart
+            if (b% point_mass_i == 0) then
+               call ce_variables_on_startup(ce1_inlist_filename, ierr)
+               if (ierr /= 0) return
+            else
+               call ce_variables_on_startup(ce2_inlist_filename, ierr)
+               if (ierr /= 0) return
+            end if
          else
-            call ce_variables_on_startup(ce2_inlist_filename, ierr)
-            if (ierr /= 0) return
+            if (b% lxtra(lx_ce_on)) then
+               ce_on = .true.
+               ce_off = .false.
+            end if
+            if (b% lxtra(lx_ce_off)) then
+               ce_on = .false.
+               ce_off = .true.
+            end if
+
+            ! set ce controls
+            if (b% point_mass_i == 0) then
+               call ce_set_controls(ce1_inlist_filename, ierr)
+               if (ierr /= 0) return
+            else
+               call ce_set_controls(ce2_inlist_filename, ierr)
+               if (ierr /= 0) return
+            end if
+
+            if (ce_on) then
+               call ce_init_binary_controls(binary_id, ierr)
+               call ce_donor_binding_energy_prev_step(binary_id, ierr)
+               call ce_orbital_energy_prev_step(binary_id, ierr)
+            end if
          end if
 
          ! when doing kicks, change output name to contain kick id
@@ -306,14 +344,14 @@
          
          extras_binary_startup = keep_going
 
-      end function  extras_binary_startup
+      end function extras_binary_startup
       
 
       integer function extras_binary_start_step(binary_id,ierr)
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
          integer, intent(out) :: ierr
-
+         
          extras_binary_start_step = keep_going
 
          call binary_ptr(binary_id, b, ierr)
@@ -321,17 +359,26 @@
             return
          end if
 
-         ! check if ce
-         if (b% r(b% d_i) > b% rl(b% d_i) .and. ce_off) then
-            call ce_unstable_mt_phase(binary_id, ierr)
-            if (ierr /= 0) return
-
-            if (ce_on) call ce_init(binary_id, ierr)
-            if (ierr /= 0) return
-         end if
-
          ! check ce end
          if (ce_on) then
+
+            !b% s_donor% use_gold2_tolerances = .false.
+            !b% s_donor% use_gold_tolerances = .false.
+            !b% s_donor% use_dedt_form_of_energy_eqn = .false.
+            !b% s_donor% always_use_dedt_form_of_energy_eqn = .false.
+            !b% s_donor% use_dedt_form_with_total_energy_conservation = .false.
+            !b% s_donor% varcontrol_target = 1d-4
+            !b% s_donor% Pextra_factor = 4
+            !b% s_donor% mesh_delta_coeff = 0.5d0
+            !b% s_donor% kap_rq% kap_blend_logT_lower_bdy = 4.1
+            !b% s_donor% kap_rq% kap_blend_logT_upper_bdy = 4.2
+            !b% s_donor% tau_base = 1d0
+            !b% s_donor% limit_for_rel_error_in_energy_conservation = 1d-2
+            !b% s_donor% hard_limit_for_rel_error_in_energy_conservation = 1d0
+
+            !b% s_donor% mix_factor = 0d0
+            !b% s_donor% dxdt_nuc_factor = 0d0
+
             call ce_check_state(binary_id, ierr)
             if (ierr /= 0) return
             if (ce_merge) then
@@ -339,7 +386,7 @@
                return
             end if
          end if
-      
+
       end function extras_binary_start_step
      
 
@@ -348,12 +395,35 @@
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
          integer :: ierr
+         
+         include 'formats'
+         
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if  
+         
          extras_binary_check_model = keep_going
-        
+         
+         if (b% model_number /= b% s_donor% model_number) &
+            b% model_number = b% s_donor% model_number
+         
+         ! check if ce
+         if (b% r(b% d_i) > b% rl(b% d_i) .and. ce_off) then
+            call ce_unstable_mt_phase(binary_id, ierr)
+            if (ierr /= 0) return
+
+            if (ce_on) then
+               b% lxtra(lx_ce_on) = .true.
+               b% lxtra(lx_ce_off) = .false.
+               b% ixtra(ix_ce_model_number) = ce_initial_model_number
+               call ce_init(binary_id, ierr)
+               if (ierr /= 0) return
+               write(*,11) 'save model at start of ce, model_number', b% model_number
+               call do_saves_for_binary(b, ierr)
+            end if
+         end if
+
       end function extras_binary_check_model
       
       
@@ -507,6 +577,115 @@
          end if
          
       end function extras_binary_finish_step
+
+      subroutine do_saves_for_binary(b, ierr)
+         type(binary_info), pointer :: b
+         integer, intent(out) :: ierr
+         integer :: iounit, id
+         character (len=strlen) :: str_photo, filename, iomsg, report_str
+
+         call string_for_model_number('x', b% model_number, b% photo_digits, str_photo)
+
+         filename = trim(trim(b% photo_directory) // '/b_' // str_photo)
+         report_str = trim('save ' // filename)
+         open(newunit=iounit, file=trim(filename), action='write', &
+            status='replace', iostat=ierr, iomsg=iomsg, form='unformatted')
+         if (ierr /= 0) then
+            write(*,*) 'failed in do_saves_for_binary', trim(filename)
+            return
+         end if
+         call binary_photo_write(b% binary_id, iounit)
+         close(iounit)
+
+         if (b% have_star_1) then
+            filename = trim(trim(b% s1% photo_directory) // '/1_' // str_photo)
+            call star_save_for_restart(b% s1% id, filename, ierr)
+            report_str = trim(trim(report_str) // ', ' // filename)
+         end if
+         if (b% have_star_2) then
+            filename = trim(trim(b% s2% photo_directory) // '/2_' // str_photo)
+            call star_save_for_restart(b% s2% id, filename, ierr)
+            report_str = trim(trim(report_str) // ', ' // filename)
+         end if
+         if (ierr /= 0) then
+            write(*,*) 'failed in do_saves_for_binary'
+            return
+         end if
+
+         write(*,*) trim(trim(report_str) // ' for model'), b% model_number
+
+         contains
+
+         subroutine binary_photo_write(binary_id, iounit)
+            integer, intent(in) :: binary_id, iounit
+            type(binary_info), pointer :: b
+
+            integer :: ierr
+
+            ierr = 0
+            call binary_ptr(binary_id, b, ierr)
+            if (ierr /= 0) then
+               write(*,*) 'failed in binary_ptr'
+               return
+            end if
+
+            write(iounit) star_def_version
+
+            write(iounit, iostat=ierr) &
+               b% binary_age, b% binary_age_old, &
+               b% model_number, b% model_number_old, &
+               b% mtransfer_rate, b% mtransfer_rate_old, &
+               b% angular_momentum_j, b% angular_momentum_j_old, &
+               b% separation, b% separation_old, &
+               b% eccentricity, b% eccentricity_old, &
+               b% rl_relative_gap(1), b% rl_relative_gap_old(1), &
+               b% rl_relative_gap(2), b% rl_relative_gap_old(2), &
+               b% r(1), b% r_old(1), &
+               b% r(2), b% r_old(2), &
+               b% rl(1), b% rl_old(1), &
+               b% rl(2), b% rl_old(2), &
+               b% m(1), b% m_old(1), &
+               b% m(2), b% m_old(2), &
+               b% dt, b% dt_old, &
+               b% env, b% env_old, &
+               b% eq_initial_bh_mass, &
+               b% period, b% period_old, &
+               b% max_timestep, b% max_timestep_old, &
+               b% change_factor, b% change_factor_old, &
+               b% min_binary_separation, &
+               b% using_jdot_mb(1), b% using_jdot_mb_old(1), &
+               b% using_jdot_mb(2), b% using_jdot_mb_old(2), &
+               b% d_i, b% d_i_old, b% a_i, b% a_i_old, &
+               b% point_mass_i, b% point_mass_i_old, &
+               b% ignore_rlof_flag, b% ignore_rlof_flag_old, &
+               b% model_twins_flag, b% model_twins_flag_old, &
+               b% dt_why_reason, b% dt_why_reason_old, &
+               b% have_star_1, b% have_star_2, &
+               b% CE_flag, b% CE_flag_old, &
+               b% CE_init, b% CE_init_old, &
+               b% CE_nz, b% CE_initial_radius, b% CE_initial_separation, b% CE_initial_Mdonor, &
+               b% CE_initial_Maccretor, b% CE_initial_age, b% CE_initial_model_number, &
+               b% CE_b_initial_age, b% CE_b_initial_model_number, &
+               b% CE_num1, b% CE_num1_old, &
+               b% CE_num2, b% CE_num2_old, &
+               b% CE_lambda1, b% CE_lambda1_old, &
+               b% CE_lambda2, b% CE_lambda2_old, &
+               b% CE_Ebind1, b% CE_Ebind1_old, &
+               b% CE_Ebind2, b% CE_Ebind2_old, &
+               b% ixtra(:), b% ixtra_old(:), &
+               b% xtra(:), b% xtra_old(:), &
+               b% lxtra(:), b% lxtra_old(:)
+
+            if (b% CE_init) then
+               write(iounit, iostat=ierr) &
+                  b% CE_m(:), b% CE_entropy(:), b% CE_U_in(:), b% CE_U_out(:), b% CE_Omega_in(:), b% CE_Omega_out(:)
+            end if
+
+            if (ierr /= 0) stop "error in binary_photo_write"
+
+         end subroutine binary_photo_write
+
+      end subroutine do_saves_for_binary
 
 
       logical function switch_donor_star(binary_id) result(do_switch)

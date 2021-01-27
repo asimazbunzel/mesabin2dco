@@ -218,11 +218,46 @@
             remnant_mass = baryon2grav_factor * baryonic_mass
          end if
 
-         ! Update core-collapse info
+         ! update core-collapse info
          M_baryonic = baryonic_mass
          M_remnant = remnant_mass
          M_ejected = s% star_mass - baryonic_mass
          M_fallback = fallback_mass
+
+         ! report only if wanted
+         if (report_core_collapse) call report_core_collapse_conditions
+
+         contains
+
+         subroutine report_core_collapse_conditions
+            character(len=strlen) :: mechanism_name
+         
+            if (model_id == cc_rapid) then
+               mechanism_name = 'rapid'
+            else if (model_id == cc_delayed) then
+               mechanism_name = 'delayed'
+            else if (model_id == cc_startrack) then
+               mechanism_name = 'startrack'
+            else if (model_id == cc_combine) then
+               mechanism_name = 'combine'
+            end if
+            
+            write(*,'(/,a)') '   -----------------------------------------------------' // &
+               '---------------------------------------'
+            write(*,'(a)') '   star_mass  core_mass proto_mass   fb_fract    fb_mass' // &
+               '  ejected_mass  remnant_mass   sn_model'
+            write(*,'(a)') '   -----------------------------------------------------' // &
+               '---------------------------------------'
+            write(*,'(1x,5(1pe11.3,0p),2(3x,1pe11.3,0p),4x,a15,/)') s% star_mass, &
+               s% c_core_mass, &
+               proto_mass, &
+               fallback_fraction, &
+               fallback_mass, &
+               M_ejected, &
+               M_remnant, &
+               mechanism_name
+
+         end subroutine report_core_collapse_conditions
 
       end subroutine do_explode_star
 
