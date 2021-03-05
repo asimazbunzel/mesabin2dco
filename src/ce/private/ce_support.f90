@@ -111,7 +111,7 @@
          if (ce_type == ce_two_stars) tol = tol_two_stars
 
          ! check detachment
-         if (b% rl_relative_gap(ce_donor_id) < tol) then
+         if (b% rl_relative_gap(ce_donor_id) < -tol) then
             if (ce_years_in_detach >= years_in_detachment) is_detach = .true.
          end if
 

@@ -54,7 +54,7 @@
                / b% s_accretor% photosphere_opacity
          else
             mdot_edd_accretor = 4.0d0 * pi * standard_cgrav * b% m(b% a_i) &
-               / (clight * b% s_donor% opacity(1) * b% mdot_edd_eta)
+            / (clight * b% s_donor% opacity(1) * b% mdot_edd_eta)
          end if
 
          ! check for ce init
@@ -155,7 +155,7 @@
          ierr = 0
          
          ! run `mkdir -p` over ce_data_directory if it does not exist
-         call mkdir(ce_data_directory)
+         if (save_profile_pre_ce .or. save_profile_after_ce) call mkdir(ce_data_directory)
 
          ! check type of ce
          call ce_type_of(ce_id, ierr)
@@ -172,8 +172,8 @@
          ! check if we need to save stuff
          if (save_profile_pre_ce) call save_ce_profile(ce_id, 'pre', ierr)
          if (ierr /= 0) return
-         if (save_model_pre_ce) call save_ce_model(ce_id, 'pre', ierr)
-         if (ierr /= 0) return
+         ! if (save_model_pre_ce) call save_ce_model(ce_id, 'pre', ierr)
+         ! if (ierr /= 0) return
 
          ! eval energies from previous step
          call ce_donor_binding_energy_prev_step(ce_id, ierr)
@@ -283,6 +283,9 @@
             b% mass_transfer_gamma = 0.0d0
          end if
 
+         ! no photos during ce
+         b% photo_interval = 100000
+
          ! use custom rlo_mdot and jdot
          b% use_other_rlo_mdot = .true.
          b% other_rlo_mdot => ce_rlo_mdot
@@ -296,15 +299,16 @@
          b% do_jdot_missing_wind = .false.
          b% do_jdot_mb = .false.
 
-         b% fj = 0.01d0
+         b% fj = 0.001d0
+         b% fj_hard = 0.01d0
 
          b% max_explicit_abs_mdot = max_mdot_rlof
          b% max_tries_to_achieve = 0
          b% solver_type = 'bisect'
 
-         b% s_donor% delta_lgTeff_limit = 0.1d0
-         b% s_donor% delta_lgL_phot_limit_L_min = 1d99
-         b% s_donor% delta_lgL_limit_L_min = 1d99
+         !b% s_donor% delta_lgTeff_limit = 0.1d0
+         !b% s_donor% delta_lgL_phot_limit_L_min = 1d99
+         !b% s_donor% delta_lgL_limit_L_min = 1d99
          
          ! avoid burning info on donor
          b% s_donor% mix_factor = 0d0
@@ -382,7 +386,7 @@
       subroutine ce_dot_j(ce_id, ierr)
          use ce_jdot, only: eval_ce_jdot
          integer, intent(in) :: ce_id
-         integer, intent(out) :: ierr
+        integer, intent(out) :: ierr
          type(binary_info), pointer :: b
 
          ierr = 0
@@ -408,7 +412,6 @@
          if (ierr /= 0) return
 
          if (b% model_number <= ce_initial_model_number) then
-            write(*,'(/,a,/)') 'first model is not evaluated. Skipping it'
             ce_detach = .false.
             ce_merge = .false.
             return
@@ -425,7 +428,7 @@
          if (ce_detach) then
             write(*,'(/,a,/)') 'reach ce detach'
             if (save_profile_after_ce) call save_ce_profile(ce_id, 'after', ierr)
-            if (save_model_after_ce) call save_ce_model(ce_id, 'after', ierr)
+           ! if (save_model_after_ce) call save_ce_model(ce_id, 'after', ierr)
             call ce_end(b, ierr)
             ce_on = .false.
             ce_off = .true.
@@ -490,6 +493,8 @@
          type(binary_info), pointer :: b
 
          ierr = 0
+         
+         b% photo_interval = 100
 
          ! unset some binary controls
          b% use_other_rlo_mdot = .false.
@@ -501,21 +506,22 @@
          b% do_jdot_missing_wind = .false.
          b% do_jdot_mb = .false.
 
-         b% mass_transfer_alpha = alpha_mt_start_ce
-         b% mass_transfer_beta = beta_mt_start_ce
-         b% mass_transfer_delta = delta_mt_start_ce
-         b% mass_transfer_gamma = gamma_mt_start_ce
+         b% mass_transfer_alpha = 0d0
+         b% mass_transfer_beta = 0d0
+         b% mass_transfer_delta = 0d0
+         b% mass_transfer_gamma = 0d0
 
-         b% fj = fj_start_ce
+         b% fj = 0.001d0
+         b% fj_hard = 0.01d0
 
-         b% max_explicit_abs_mdot = max_explicit_abs_mdot_ce
-         b% max_tries_to_achieve = max_tries_to_achieve_ce
-         b% solver_type = solver_type_start_ce
+         b% max_explicit_abs_mdot = 1d99
+         b% max_tries_to_achieve = 200
+         b% solver_type = 'both'
          
          b% s_donor% mix_factor = 1d0
          b% s_donor% dxdt_nuc_factor = 1d0
 
-         b% accretor_overflow_terminate = accretor_overflow_terminate_start_ce
+         b% accretor_overflow_terminate = 10d0
 
          if (ce_type == ce_two_stars) b% keep_donor_fixed = .false.
 

@@ -12,11 +12,11 @@
   ! tolerance to consider ce detachment
   ! a binary is considered to survive ce if (r-rl)/rl < tol_*
   ! where tol_* depends on the type of binary system (two stars or star + point mass)
-   tol_two_stars = -1d-2
-   tol_xrb = -1d-1
+   tol_two_stars = 0.01
+   tol_xrb = 0.05
 
   ! wait this time before turning ce off when tolerance has been fulfilled
-   years_in_detachment = 1d0
+   years_in_detachment = 0.1d0
 
   ! increment mdot_rlof during this many years until reach max_mdot_rlof
    years_to_max_mdot_rlof = 7.5d0
@@ -32,7 +32,7 @@
    save_profile_after_ce = .false.
 
   ! save model(s) at start/end of ce
-   save_model_pre_ce = .false.
+   save_model_pre_ce = .true.
    save_model_after_ce = .false.
 
   ! flag to report mdot comparison to init a ce

@@ -13,6 +13,10 @@
    set_initial_model_number = .true.
    initial_model_number = 0
 
+   !save_model_when_terminate = .true.
+   !required_termination_code_string = 'core-collapse'
+   !save_model_filename = 'companion_at_core_collapse.mod'
+
 / ! end of star_job namelist
 
 &eos

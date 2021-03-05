@@ -50,6 +50,16 @@
       ! b% ixtra(ix_ce_model_number) contains the model number of a ce start
       integer, parameter :: ix_ce_model_number = 1
 
+      ! b% xtra(x_cumulative_binding_energy) contains the cumulative Ebind removed
+      integer, parameter :: x_cumulative_binding_energy = 1
+      ! b% xtra(x_binding_energy_prev_step) contains Ebind on previous timestep
+      integer, parameter :: x_binding_energy_prev_step = 2
+      ! b% xtra(x_orbital_energy_prev_step) contains Eorb on previous timestep
+      integer, parameter :: x_orbital_energy_prev_step = 3
+      ! b% xtra(x_ce_duration) contains the duration of the CE
+      integer, parameter :: x_ce_duration = 4
+
+
       logical :: high_mass_evolution, low_mass_evolution
       character(len=strlen) :: star_plus_star_filename, star_plus_pm_filename
       character(len=strlen) :: cc1_inlist_filename, cc2_inlist_filename
@@ -324,9 +334,14 @@
             end if
 
             if (ce_on) then
+               ce_donor_id = b% d_i
+               ce_accretor_id = b% a_i
+               ce_duration = b% xtra(x_ce_duration)
+               ce_initial_model_number = b% ixtra(ix_ce_model_number)
+               cumulative_removed_binding_energy = b% xtra(x_cumulative_binding_energy)
+               donor_bind_energy_prev_step = b% xtra(x_binding_energy_prev_step)
+               orbital_energy_prev_step = b% xtra(x_orbital_energy_prev_step)
                call ce_init_binary_controls(binary_id, ierr)
-               call ce_donor_binding_energy_prev_step(binary_id, ierr)
-               call ce_orbital_energy_prev_step(binary_id, ierr)
             end if
          end if
 
@@ -361,24 +376,6 @@
 
          ! check ce end
          if (ce_on) then
-
-            !b% s_donor% use_gold2_tolerances = .false.
-            !b% s_donor% use_gold_tolerances = .false.
-            !b% s_donor% use_dedt_form_of_energy_eqn = .false.
-            !b% s_donor% always_use_dedt_form_of_energy_eqn = .false.
-            !b% s_donor% use_dedt_form_with_total_energy_conservation = .false.
-            !b% s_donor% varcontrol_target = 1d-4
-            !b% s_donor% Pextra_factor = 4
-            !b% s_donor% mesh_delta_coeff = 0.5d0
-            !b% s_donor% kap_rq% kap_blend_logT_lower_bdy = 4.1
-            !b% s_donor% kap_rq% kap_blend_logT_upper_bdy = 4.2
-            !b% s_donor% tau_base = 1d0
-            !b% s_donor% limit_for_rel_error_in_energy_conservation = 1d-2
-            !b% s_donor% hard_limit_for_rel_error_in_energy_conservation = 1d0
-
-            !b% s_donor% mix_factor = 0d0
-            !b% s_donor% dxdt_nuc_factor = 0d0
-
             call ce_check_state(binary_id, ierr)
             if (ierr /= 0) return
             if (ce_merge) then
@@ -414,13 +411,8 @@
             if (ierr /= 0) return
 
             if (ce_on) then
-               b% lxtra(lx_ce_on) = .true.
-               b% lxtra(lx_ce_off) = .false.
-               b% ixtra(ix_ce_model_number) = ce_initial_model_number
                call ce_init(binary_id, ierr)
                if (ierr /= 0) return
-               write(*,11) 'save model at start of ce, model_number', b% model_number
-               call do_saves_for_binary(b, ierr)
             end if
          end if
 
@@ -437,6 +429,8 @@
          integer :: star_cc_id
          integer :: number_io
          real(dp), parameter :: chandra_mass = 1.4d0
+         
+         include 'formats'
 
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
@@ -444,7 +438,7 @@
          end if  
 
          extras_binary_finish_step = keep_going
-
+               
          ! if mass-transfer is really high even though no RLOF, then terminate
          if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_off &
             .and. abs(b% mtransfer_rate) * secyer/Msun > max_mdot_rlof) then
@@ -462,6 +456,21 @@
                write(*,'(a)') 'failed in ce_step_success'
                return
             end if
+            
+            ! we need to store some stuff on binary pointer for restarts
+            b% lxtra(lx_ce_on) = .true.
+            b% lxtra(lx_ce_off) = .false.
+            b% ixtra(ix_ce_model_number) = ce_initial_model_number
+            b% xtra(x_ce_duration) = ce_duration
+            b% xtra(x_cumulative_binding_energy) = cumulative_removed_binding_energy
+            b% xtra(x_binding_energy_prev_step) = donor_bind_energy_prev_step
+            b% xtra(x_orbital_energy_prev_step) = orbital_energy_prev_step
+
+            ! also, save model if first ce step
+            if (b% model_number == b% ixtra(ix_ce_model_number) .and. save_model_pre_ce) then
+               write(*,11) 'save model at start of ce, model_number', b% model_number
+               call do_saves_for_binary(b, ierr)
+            end if
          end if
 
          ! for high-mass evolution
@@ -469,13 +478,13 @@
             ! first collapse
             star_cc_id = 0
             if (b% point_mass_i == 0) then
-               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z .and. b% s1% center_he4 < 1d-6) then
+               if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
                   star_cc_id = 1
                   call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
                   b% s1% termination_code = t_xtra1
                   termination_code_str(t_xtra1) = 'core-collapse'
                   extras_binary_finish_step = terminate
-               else if (b% s2% center_c12 < 1d-3 * b% s2% initial_z .and. b% s2% center_he4 < 1d-6) then
+               else if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
                   star_cc_id = 2
                   call star_write_model(1, 'companion_at_core_collapse.mod', ierr)
                   b% s2% termination_code = t_xtra1
@@ -484,7 +493,7 @@
                end if
             ! second collapse
             else if (b% point_mass_i == 1) then
-               if (b% s2% center_c12 < 1d-3 * b% s2% initial_z .and. b% s2% center_he4 < 1d-6) then
+               if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
                   second_collapse = .true.
                   star_cc_id = 2
                   b% s2% termination_code = t_xtra1
@@ -492,7 +501,7 @@
                   extras_binary_finish_step = terminate
                end if
             else if (b% point_mass_i == 2) then
-               if (b% s1% center_c12 < 1d-3 * b% s1% initial_z .and. b% s1% center_he4 < 1d-6) then
+               if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
                   second_collapse = .true.
                   star_cc_id = 1
                   b% s1% termination_code = t_xtra1
@@ -783,7 +792,11 @@
          if (b% point_mass_i == 0) then
             fname = trim(termination_codes_folder) // '/termination_code_star_plus_star'
          else
-            fname = trim(termination_codes_folder) // '/termination_code_' // trim(kick_id)
+            if (do_kicks .and. b% point_mass_i /= 0 .and. add_kick_id_as_suffix) then
+               fname = trim(termination_codes_folder) // '/termination_code_' // trim(kick_id)
+            else
+               fname = trim(termination_codes_folder) // '/termination_code_star_plus_point_mass'
+            end if
          end if
 
          ! write termination code into a file

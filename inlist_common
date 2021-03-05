@@ -3,9 +3,6 @@
 
     show_log_description_at_start = .false.
 
-    set_cumulative_energy_error_at_step = 1
-    new_cumulative_energy_error = 0d0
-
     history_columns_file = 'column_lists/history.list'
     profile_columns_file = 'column_lists/profile.list'
 
@@ -13,6 +10,13 @@
 
     set_cumulative_energy_error_at_step = 1
     new_cumulative_energy_error = 0d0
+
+    !new_rotation_flag = .true.
+    !change_rotation_flag = .true.
+    !set_initial_surface_rotation_v = .true.
+    !new_surface_rotation_v = 0
+
+    !logT_for_conv_vel_flag = 7.5d0
 
 / ! end of star_job namelist
 
@@ -27,9 +31,6 @@
 
 &controls
 
-    delta_lgTeff_limit = 0.05d0
-    delta_lgTeff_hard_limit = 0.1d0
-
     ! debugging
     !solver_test_partials_call_number = 7191
     !solver_test_partials_iter_number = 2
@@ -38,7 +39,7 @@
     !solver_test_partials_var_name = 'all'
     !solver_test_partials_dx_0 = 1d-7
 
-    max_model_number = 10000  !1355
+    max_model_number = 25000
 
     report_solver_progress = .false.
     report_ierr = .false.
@@ -47,6 +48,17 @@
 
     ! wind options implemented as in Brott et al. 2011
     use_other_wind = .true.
+    ! close to critical rotation, use implicit wind
+    !max_mdot_redo_cnt = 100
+    !min_years_dt_for_redo_mdot = 0
+    !surf_w_div_w_crit_limit = 0.98d0
+    !surf_w_div_w_crit_tol = 0.001d0
+    !rotational_mdot_boost_fac = 1d10
+    !rotational_mdot_kh_fac = 1d10
+    !mdot_revise_factor = 1.2
+    !implicit_mdot_boost = 0.1
+    !surf_avg_tau_min = 0
+    !surf_avg_tau = 10
 
     ! atmosphere
     atm_option = 'T_tau'
@@ -60,6 +72,8 @@
     write_profiles_flag = .false.
 
     ! timesteps
+    delta_lgTeff_limit = 0.05d0
+    delta_lgTeff_hard_limit = 0.1d0
     delta_lgRho_cntr_limit = 0.03
     delta_lgRho_limit = 0.1
     delta_lgT_max_limit = 0.001
@@ -79,9 +93,6 @@
     !max_timestep_factor = 1.05
     !timestep_factor_for_retries = 0.75
    
-    ! relative variation in the structure
-    !varcontrol_target = 1d-3  ! 7d-4
-
     ! mesh grid resolution
     mesh_delta_coeff = 1.0  ! 0.5
     min_dq_for_xa = 1d-4
@@ -111,14 +122,37 @@
     thermohaline_coeff = 1d0
     !min_overshoot_q = 0d0
     !overshoot_D_min = 100d0
-    overshoot_scheme(1) = 'exponential'
-    overshoot_zone_type(1) = 'any'
-    overshoot_zone_loc(1) = 'any'
-    overshoot_bdy_loc(1) = 'any'
-    overshoot_f(1) = 0.01
-    overshoot_f0(1) = 0.005
+    !overshoot_scheme(1) = 'exponential'
+    !overshoot_zone_type(1) = 'any'
+    !overshoot_zone_loc(1) = 'any'
+    !overshoot_bdy_loc(1) = 'any'
+    !overshoot_f(1) = 0.01
+    !overshoot_f0(1) = 0.005
+    overshoot_scheme(1) = 'step'
+    overshoot_zone_type(1) = 'burn_H'
+    overshoot_zone_loc(1) = 'core'
+    overshoot_bdy_loc(1) = 'top'
+    overshoot_f(1) = 0.345
+    overshoot_f0(1) = 0.01
 
     ! this is to avoid odd behaviour when a star switches from accreting to mass losing
     max_mdot_jump_for_rotation = 1.1
+
+    ! rotation
+    !fitted_fp_ft_i_rot = .true.
+    !w_div_wcrit_max = 0.9d0
+    !am_nu_ST_factor = 1.0
+    !D_visc_factor = 0.0
+    !am_nu_SH_factor = 0.0
+    !D_ST_factor = 0.0
+    !D_SH_factor = 0.0
+    !D_GSF_factor = 1.0
+    !D_ES_factor = 1.0
+    !D_SSI_factor = 1.0
+    !D_DSI_factor = 1.0
+    !am_D_mix_factor = 0.0333333d0
+    !am_gradmu_factor = 0.1d0
+    !num_cells_for_smooth_gradL_composition_term = 2
+    !premix_omega = .true.
 
 / ! end of controls namelist

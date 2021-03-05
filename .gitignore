@@ -18,6 +18,7 @@ build.log
 **/LOGS/
 **/LOGS1/
 **/LOGS2/
+**/LOGS_companion/
 **/LOGS_binary/
 **/photos/
 **/photos1/
@@ -42,6 +43,8 @@ bin2dco
 **/cc_data/
 
 .skip_star_plus_star
+
+**/tmp/
 
 # ---------------------------------------------------------------------------------------------
 # Python gitignore

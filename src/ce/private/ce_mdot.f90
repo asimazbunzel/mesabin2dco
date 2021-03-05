@@ -41,16 +41,30 @@
 
          if (b% rl_relative_gap(b% d_i) > 0d0) then
             mdot = - max_mdot_rlof * Msun/secyer
-         ! If R<RL apply another linear decreasing in log10(mdot)
-         !else (b% rl_relative_gap(b% d_i) > rl_rel_limit) then
+         else if (b% rl_relative_gap(b% d_i) < -rl_rel_limit) then
+            mdot = - mdot_kh() * Msun/secyer
          else
-            write(*,*) 'reducing mdot_rlof'
-            x0 = 0d0; x1 = rl_rel_limit
+            x0 = 0d0; x1 = -rl_rel_limit
             y0 = safe_log10(max_mdot_rlof)
-            y1 = lg_mtransfer_rate_start_ce -1d0
+            y1 = safe_log10(mdot_kh())
             m = (y1 - y0) / (x1 - x0)
             mdot = - exp10(m*(b% rl_relative_gap(b% d_i)-x0)+y0) * Msun/secyer
+            if (ce_dbg) write(*,*) 'reducing mdot_rlof. mdot, target', -mdot * secyer/Msun, exp10(y1)
          end if
+
+         contains
+
+         real(dp) function mdot_kh()
+            type(star_info), pointer :: s
+            real(dp) :: t_kh
+
+            s => b% s_donor
+
+            t_kh =  0.75d0 * s% cgrav(1) * s% mstar * s% mstar / (s% r(1) * s% L(1))
+            mdot_kh = (s% mstar / Msun) / (t_kh / secyer)
+
+         end function mdot_kh
+            
       end function eval_ce_mdot
 
       end module ce_mdot

@@ -7,14 +7,14 @@
    initial_he4 = 0.28d0
 
    relax_initial_Z = .true.
-   new_Z = 0.0001d0
+   new_Z = 0.0017  !0.017d0
    relax_initial_Y = .true.
-   new_Y = 0.2999d0
+   new_Y = 0.2521  !0.28d0
 
 / ! end of star_job namelist
 
 &kap
 
-   Zbase = 0.0001d0
+   Zbase = 0.0017  !0.017d0
 
 / ! end of kap namelist
