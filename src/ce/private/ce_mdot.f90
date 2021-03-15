@@ -46,7 +46,7 @@
          else
             x0 = 0d0; x1 = -rl_rel_limit
             y0 = safe_log10(max_mdot_rlof)
-            y1 = safe_log10(mdot_kh())
+            y1 = safe_log10(mdot_kh()) - 2d0
             m = (y1 - y0) / (x1 - x0)
             mdot = - exp10(m*(b% rl_relative_gap(b% d_i)-x0)+y0) * Msun/secyer
             if (ce_dbg) write(*,*) 'reducing mdot_rlof. mdot, target', -mdot * secyer/Msun, exp10(y1)

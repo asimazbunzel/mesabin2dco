@@ -46,11 +46,11 @@
          if (ierr /= 0) return
 
          ! Eddington mass-changes rates
-         mdot_edd_donor = (4d0 * pi * clight * b% s_donor% r(1)) &
+         mdot_edd_donor = (4d0 * pi * clight * b% s_donor% photosphere_r * Rsun) &  ! b% s_donor% r(1)) &
             / b% s_donor% photosphere_opacity
 
          if (b% point_mass_i == 0) then
-            mdot_edd_accretor = (4d0 * pi * clight * b% s_accretor% r(1)) &
+            mdot_edd_accretor = (4d0 * pi * clight * b% s_accretor% photosphere_r * Rsun) &  ! b% s_accretor% r(1)) &
                / b% s_accretor% photosphere_opacity
          else
             mdot_edd_accretor = 4.0d0 * pi * standard_cgrav * b% m(b% a_i) &
@@ -81,6 +81,9 @@
 
          if (ce_condition /= 'stable mt') then
             write(*,'(/,a)') 'turning ce on, condition: ' // trim(ce_condition)
+            write(*,*) 'scaling_factor:', edd_scaling_factor
+            write(*,*) 'R_donor:', b% s_donor% r(1) / Rsun, b% s_donor% photosphere_r
+            write(*,*) 'opacity:', b% s_donor% photosphere_opacity, b% s_donor% surf_opacity
             ce_on = .true.
             ce_off = .false.
          end if

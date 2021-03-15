@@ -269,7 +269,7 @@
       integer function how_many_extra_binary_history_columns(binary_id)
          use binary_def, only: binary_info
          integer, intent(in) :: binary_id
-         how_many_extra_binary_history_columns = 0
+         how_many_extra_binary_history_columns = 1
       end function how_many_extra_binary_history_columns
 
 
@@ -280,11 +280,21 @@
          character (len=maxlen_binary_history_column_name) :: names(n)
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
+
          ierr = 0
+
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then
             write(*,*) 'failed in binary_ptr'
             return
+         end if
+
+         ! CE output
+         names(1) = 'ce_phase'
+         if (ce_on) then
+            vals(1) = 1d0
+         else
+            vals(1) = 0d0
          end if
          
       end subroutine data_for_extra_binary_history_columns
