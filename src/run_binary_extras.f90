@@ -60,7 +60,7 @@
       integer, parameter :: x_ce_duration = 4
 
 
-      logical :: high_mass_evolution, low_mass_evolution
+      ! bin2dco variables
       character(len=strlen) :: star_plus_star_filename, star_plus_pm_filename
       character(len=strlen) :: cc1_inlist_filename, cc2_inlist_filename
       character(len=strlen) :: ce1_inlist_filename, ce2_inlist_filename
@@ -71,7 +71,6 @@
       logical :: add_kick_id_as_suffix
       character(len=strlen) :: termination_codes_folder
       namelist /bin2dco_controls/ &
-         high_mass_evolution, low_mass_evolution, &
          do_star_plus_star, &
          star_plus_star_filename, star_plus_pm_filename, &
          cc1_inlist_filename, cc2_inlist_filename, &
@@ -90,8 +89,7 @@
 
       ! post-kick id (changed from run to run)
       character(len=strlen) :: kick_id
-      real(dp) :: v_kick, phi_kick, theta_kick
-      real(dp) :: ecc_kick, porb_kick
+      real(dp) :: porb_kick, a_kick, ecc_kick
 
       ! utilities
       integer :: num_switches
@@ -108,7 +106,10 @@
       subroutine do_run(extras_controls, extras_binary_controls, ierr)
          integer, intent(out) :: ierr
          character(len=strlen) :: inlist_fname, termination_code_fname
+         character(len=strlen) :: str_index
+         integer :: iounit, k
          logical :: has_reached_cc
+         logical :: already_done_star_plus_star
 
          interface
 
@@ -128,20 +129,24 @@
 
          write(*,'(/,a)') 'do bin2dco run'
 
+         ! avoid trying to get MESA_INLIST from the command-line arguments
+         MESA_INLIST_RESOLVED = .true.
+
          ! get bin2dco controls
          inlist_fname = 'inlist_bin2dco'
          call read_bin2dco_controls(inlist_fname, ierr)
          if (ierr /= 0) return
 
-         ! just check that `*_mass_evolution` are not both false
-         if (.not. high_mass_evolution .and. .not. low_mass_evolution) then
-            write(*,'(/,a,/)') &
-               'cannot have both `high_mass_evolution` and `low_mass_evolution` be .false.'
-            return
+         ! check for a hidden file created when the star + star has already been computed
+         already_done_star_plus_star = .false.
+         open(newunit=iounit, file='.skip_star_plus_star', status='old', action='read', iostat=ierr)
+         if (ierr == 0) then
+            already_done_star_plus_star = .true.
+            close(iounit)
          end if
 
          ! star + star simulation (if chosen)
-         if (do_star_plus_star) then
+         if (do_star_plus_star .and. .not. already_done_star_plus_star) then
             write(*,'(a)') 'going to do star + star'
             call run1_binary(.true., extras_controls, extras_binary_controls, &
                ierr, &
@@ -164,7 +169,7 @@
          end if
 
          ! two possible ways of doing star + point-mass evolution: either grabbing
-         ! assymetric kicks from a file after which binary parameters will be updated,
+         ! asymmetric kicks from a file after which binary parameters will be updated,
          ! or a typical MESAbinary evolution in which binary parameters needs to be
          ! set in the file `inlist_star_plus_pm`
          if (do_kicks) then
@@ -175,31 +180,57 @@
                pre_cc_separation, pre_cc_period, &
                ierr)
 
-            write(*,'(a)')
-            write(*,'(a)') 'binary at core-collapse:'
-            write(*,'(a)')
-            write(*,1) 'progenitor_mass', mass_of_progenitor
-            write(*,1) 'remnant_mass', mass_of_remnant
-            write(*,1) 'companion_mass', mass_of_companion
-            write(*,1) 'separation', pre_cc_separation
-            write(*,1) 'period', pre_cc_period
-            write(*,'(a)')
+            if (dbg) then
+               write(*,'(a)')
+               write(*,'(a)') 'binary at core-collapse:'
+               write(*,'(a)')
+               write(*,1) 'progenitor_mass', mass_of_progenitor
+               write(*,1) 'remnant_mass', mass_of_remnant
+               write(*,1) 'companion_mass', mass_of_companion
+               write(*,1) 'separation', pre_cc_separation
+               write(*,1) 'period', pre_cc_period
+               write(*,'(a)')
+            end if
 
             if (do_kicks_in_one_run) then
+
+               ! read how many simulations are needed
+               ! do...
+               ! call read_natal_kick(filename, line_number, kick_id, porb_kick, a_kick, ecc_kick, ierr)
+               !
+               ! end do
+
                write(*,'(a)') 'TBD'
+
             else
-               write(*,'(a)') 'TBD'
+
+               ! get orbital parameters post kick from command-line argument
+               call get_command_argument(1, str_index, status=ierr)
+               if (ierr /= 0) stop 'failed to get index of ' // trim(natal_kicks_filename)
+               ! convert str_index to integer
+               read(str_index,*) k
+
+               ! get orbital parameters from file
+               call read_natal_kick(natal_kicks_filename, &
+                  k, kick_id, porb_kick, a_kick, ecc_kick, &
+                  ierr)
+
+               ! call MESAbinary run
+               write(*,'(a)') 'going to do star + point-mass after a natal kick'
+               call run1_binary(.true., extras_controls, extras_binary_controls, &
+                  ierr, &
+                  star_plus_pm_filename)
+
             end if
 
          else
             
+            write(*,'(a)') 'going to do star + point-mass'
             call run1_binary(.true., extras_controls, extras_binary_controls, &
                ierr, &
                star_plus_pm_filename)
 
          end if
-
-         if (dbg) stop 'debugging'
 
          contains
 
@@ -306,12 +337,15 @@
          integer, intent(out) :: ierr
          logical, intent(in) :: restart
 
+         include 'formats'
+
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
 
          if (.not. restart) then
+
             b% lxtra(lx_ce_on) = .false.
             b% lxtra(lx_ce_off) = .true.
             b% ixtra(ix_ce_model_number) = 0
@@ -324,7 +358,30 @@
                call ce_variables_on_startup(ce2_inlist_filename, ierr)
                if (ierr /= 0) return
             end if
+
+            ! running star + pm with kick
+            if (b% point_mass_i /= 0 .and. do_kicks) then
+               b% m(b% a_i) = mass_of_remnant * Msun  ! cgs
+               b% initial_period_in_days = porb_kick
+               b% initial_eccentricity = ecc_kick
+               call binary_set_period_eccentricity(binary_id, & 
+                  b% initial_period_in_days*(24d0*60d0*60d0), b% initial_eccentricity, ierr)
+               write(b% history_name, '(a)') 'binary_history_' // trim(kick_id) // '.data'
+               write(b% s_donor% star_history_name, '(a)') 'history_' // trim(kick_id) // '.data'
+            
+               if (dbg) then
+                  write(*,'(a55,99(a55))') 'kick id', trim(kick_id)
+                  write(*,1) 'm1', b% m(b% d_i) / Msun
+                  write(*,1) 'm2', b% m(b% a_i) / Msun
+                  write(*,1) 'period', b% period / (24d0*60d0*60d0)
+                  write(*,1) 'separation', b% separation / Rsun
+                  write(*,1) 'eccentricity', b% eccentricity
+               end if
+
+            end if
+
          else
+
             if (b% lxtra(lx_ce_on)) then
                ce_on = .true.
                ce_off = .false.
@@ -353,6 +410,7 @@
                orbital_energy_prev_step = b% xtra(x_orbital_energy_prev_step)
                call ce_init_binary_controls(binary_id, ierr)
             end if
+
          end if
 
          ! when doing kicks, change output name to contain kick id
@@ -483,44 +541,74 @@
             end if
          end if
 
-         ! for high-mass evolution
-         if (high_mass_evolution) then
-            ! first collapse
-            star_cc_id = 0
-            if (b% point_mass_i == 0) then
-               if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
-                  star_cc_id = 1
-                  call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
-                  b% s1% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'core-collapse'
-                  extras_binary_finish_step = terminate
-               else if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
-                  star_cc_id = 2
-                  call star_write_model(1, 'companion_at_core_collapse.mod', ierr)
-                  b% s2% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'core-collapse'
-                  extras_binary_finish_step = terminate
-               end if
-            ! second collapse
-            else if (b% point_mass_i == 1) then
-               if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
-                  second_collapse = .true.
-                  star_cc_id = 2
-                  b% s2% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'core-collapse'
-                  extras_binary_finish_step = terminate
-               end if
-            else if (b% point_mass_i == 2) then
-               if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
-                  second_collapse = .true.
-                  star_cc_id = 1
-                  b% s1% termination_code = t_xtra1
-                  termination_code_str(t_xtra1) = 'core-collapse'
-                  extras_binary_finish_step = terminate
-               end if
+         ! first collapse
+         star_cc_id = 0
+         if (b% point_mass_i == 0) then
+            if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
+               star_cc_id = 1
+               call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
+               b% s1% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'core-collapse'
+               extras_binary_finish_step = terminate
+            else if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
+               star_cc_id = 2
+               call star_write_model(1, 'companion_at_core_collapse.mod', ierr)
+               b% s2% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'core-collapse'
+               extras_binary_finish_step = terminate
             end if
+         ! second collapse
+         else if (b% point_mass_i == 1) then
+            if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
+               second_collapse = .true.
+               star_cc_id = 2
+               b% s2% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'core-collapse'
+               extras_binary_finish_step = terminate
+            end if
+         else if (b% point_mass_i == 2) then
+            if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
+               second_collapse = .true.
+               star_cc_id = 1
+               b% s1% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'core-collapse'
+               extras_binary_finish_step = terminate
+            end if
+         end if
 
-            if (star_cc_id > 0 .and. .not. second_collapse) then
+         if (star_cc_id > 0 .and. .not. second_collapse) then
+            call cc_set_controls(cc1_inlist_filename, ierr)
+            if (do_kicks) then
+               write(filename_for_star_data, '(a)') &
+                  trim(filename_for_star_data) // "_1"
+               write(filename_for_binary_data, '(a)') &
+                  trim(filename_for_binary_data) // "_1"
+            end if
+            if (ierr /= 0) return
+            call cc_compact_object_formation(star_cc_id, ierr)
+            if (ierr /= 0) then
+               write(*,'(a)') 'failed in cc_compact_object_formation'
+               return
+            end if
+            return
+         else if (star_cc_id > 0 .and. second_collapse) then
+            write(*,'(a)') 'calling second collapse'
+            if (do_kicks) then
+               call cc_set_controls(cc2_inlist_filename, ierr)
+               if (ierr /= 0) return
+               ! replace filenames by adding natal-kick id
+               write(filename_for_star_data, '(a)') &
+                  trim(filename_for_star_data) // "_" // trim(kick_id)
+               write(filename_for_binary_data, '(a)') &
+                  trim(filename_for_binary_data) // "_" // trim(kick_id)
+               call cc_compact_object_formation(star_cc_id, ierr)
+               if (dbg) then
+                  write(*,'(a32, 2x, a)') &
+                     'filename_for_star_data =', trim(filename_for_star_data)
+                  write(*,'(a32, 2x, a)') &
+                     'filename_for_binary_data =', trim(filename_for_binary_data)
+               end if
+            else
                call cc_set_controls(cc1_inlist_filename, ierr)
                if (do_kicks) then
                   write(filename_for_star_data, '(a)') &
@@ -530,45 +618,12 @@
                end if
                if (ierr /= 0) return
                call cc_compact_object_formation(star_cc_id, ierr)
-               if (ierr /= 0) then
-                  write(*,'(a)') 'failed in cc_compact_object_formation'
-                  return
-               end if
-               return
-            else if (star_cc_id > 0 .and. second_collapse) then
-               write(*,'(a)') 'calling second collapse'
-               if (do_kicks) then
-                  call cc_set_controls(cc2_inlist_filename, ierr)
-                  if (ierr /= 0) return
-                  ! replace filenames by adding natal-kick id
-                  write(filename_for_star_data, '(a)') &
-                     trim(filename_for_star_data) // "_" // trim(kick_id)
-                  write(filename_for_binary_data, '(a)') &
-                     trim(filename_for_binary_data) // "_" // trim(kick_id)
-                  call cc_compact_object_formation(star_cc_id, ierr)
-                  if (dbg) then
-                     write(*,'(a32, 2x, a)') &
-                        'filename_for_star_data =', trim(filename_for_star_data)
-                     write(*,'(a32, 2x, a)') &
-                        'filename_for_binary_data =', trim(filename_for_binary_data)
-                  end if
-               else
-                  call cc_set_controls(cc1_inlist_filename, ierr)
-                  if (do_kicks) then
-                     write(filename_for_star_data, '(a)') &
-                        trim(filename_for_star_data) // "_1"
-                     write(filename_for_binary_data, '(a)') &
-                        trim(filename_for_binary_data) // "_1"
-                  end if
-                  if (ierr /= 0) return
-                  call cc_compact_object_formation(star_cc_id, ierr)
-               end if
-               if (ierr /= 0) then
-                  write(*,'(a)') 'failed in cc_compact_object_formation'
-                  return
-               end if
+            end if
+            if (ierr /= 0) then
+               write(*,'(a)') 'failed in cc_compact_object_formation'
                return
             end if
+            return
          end if
 
          ! check if we need to switch donor star only when ce is off

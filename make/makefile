@@ -60,7 +60,7 @@ run_binary.o: $(BINARY_JOB_DIR)/run_binary.f90
 	$(OWN_WORK_COMPILE) $<
 
 clean:
-	-@rm -f *.o *.mod $(WORK_DIR)/$(STAR)
+	-@rm -f *.o *.mod *.smod $(WORK_DIR)/$(STAR)
 
 remk:
 	-@rm -f run.o $(WORK_DIR)/$(STAR)

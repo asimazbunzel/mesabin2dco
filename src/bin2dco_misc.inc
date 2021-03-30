@@ -146,3 +146,74 @@
             number_of_kicks = Nsim
 
          end function number_of_kicks
+
+
+         ! read from file natal kick information: id, velocity, angles
+         subroutine read_natal_kick(filename, line_number, name_id, porb, a, ecc, ierr)
+            use const_def, only: dp, strlen
+            character(len=*) :: filename
+            integer, intent(in) :: line_number
+            character(len=*), intent(out) :: name_id
+            real(dp), intent(out) :: porb, a, ecc
+            integer, intent(out) :: ierr
+
+            integer :: iounit
+            integer :: i, j
+            character(len=strlen), dimension(4) :: str_entry
+            character(len=strlen) :: buffer, trimmed_buffer, string
+            logical :: dbg = .false.
+         
+            include 'formats'
+
+            ! open up natal kicks file
+            open(newunit=iounit, file=trim(filename), action='read', delim='quote', status='old', iostat=ierr)
+            if (ierr /= 0) then
+               write(*,*) 'failed to open ' // trim(filename)
+               return
+            end if
+   
+            i = 1
+            do while (ierr == 0)
+
+               ! skip first (line_number - 1) lines
+               do
+                  if (i > line_number - 1) exit
+                  read(iounit, *, iostat=ierr)
+                  if (ierr > 0) then
+                     if (dbg) write(*,'(a)') 'problem in reading ' // trim(filename)
+                     return
+                  else if (ierr < 0) then
+                     if (dbg) write(*,'(a)') 'end of file ' // trim(filename) // ' reached'
+                     return
+                  else
+                     i = i + 1
+                  end if
+               end do
+
+               read(iounit, '(A)', iostat=ierr) buffer
+               read(buffer,*) (str_entry(i), i=1,4)
+
+               do j = 1, 4
+                  string = trim(adjustl(str_entry(j)))
+                  select case (j)
+                  case (1)
+                     read(string, *, iostat=ierr) name_id
+                     if (dbg) write(*,'(a55,99(a55))') 'Read name_id:', name_id
+                  case (2)
+                     read(string, *, iostat=ierr) porb
+                     if (dbg) write(*,1) 'Read porb:', porb
+                  case (3)
+                     read(string, *, iostat=ierr) a
+                     if (dbg) write(*,1) 'Read a:', a
+                  case (4)
+                     read(string, *, iostat=ierr) ecc
+                     if (dbg) write(*,1) 'Read ecc:', ecc
+                  end select
+               end do
+               ierr = -1
+            end do
+
+            ierr = 0
+            close(iounit)
+
+         end subroutine read_natal_kick

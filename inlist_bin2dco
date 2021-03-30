@@ -9,8 +9,8 @@
   ! NOTE: both flags can be set to true. simulations in which both of them are needed
   ! are, for example, LMXB which are composed by a low-mass evolved star and compact
   ! companion. however, note that both flags cannot be false simultaneously.
-   high_mass_evolution = .true.
-   low_mass_evolution = .false.
+  ! high_mass_evolution = .true.
+  ! low_mass_evolution = .false.
 
   ! flag to control if going to do star + star simulation
    do_star_plus_star = .false.
@@ -50,7 +50,7 @@
   ! `./rn 10` will make the code to search for the 10th line in the `natal_kicks_filename`
   ! and run the corresponding binary (of course, the number passed should be less or equal
   ! to the number of rows in the file).
-   do_kicks = .false.
+   do_kicks = .true.
    do_kicks_in_one_run = .false.
    
   ! filename with the natal-kicks. only used if one of the `do_kick*` flags are used
@@ -58,7 +58,7 @@
   ! # natal-kick id -- kick magnitude -- theta -- phi
   ! the first column is an id for the kick, which is used to name MESA output,
   ! the second, third and fourth columns represent the actual natal-kick.
-   natal_kicks_filename = 'natal_kicks.data'
+   natal_kicks_filename = 'grid.data'
 
   ! filenames where the information of the binary system at core-collapse can be found.
   ! this is only important when running natal-kicks, as the code needs to know what were
