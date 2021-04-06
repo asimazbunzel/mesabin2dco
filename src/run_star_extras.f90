@@ -301,7 +301,7 @@
          do k=1, s% nz
             Ebind = Ebind + s% dm(k) * (-standard_cgrav * s% m(k) / s% r(k) + s% energy(k))
          end do
-         vals(4) = Ebind
+         vals(3) = Ebind
 
       end subroutine data_for_extra_history_columns
 
