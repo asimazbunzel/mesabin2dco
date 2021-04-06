@@ -24,7 +24,7 @@
    read_extra_binary_controls_inlist1 = .true.
    extra_binary_controls_inlist1_name = 'inlist_binary'
 
-   history_name = 'binary_history_xrb.data'
+   history_name = 'binary_history.data'
    history_interval = 1
    append_to_star_history = .false.
    log_directory = 'LOGS_binary'
