@@ -220,10 +220,6 @@
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
 
-         !do k=1, s% nvar
-         !   write(*,*) k, s% nameofvar(k), s% nameofequ(k)
-         !end do
-
       end subroutine extras_startup
 
 
@@ -231,10 +227,13 @@
          integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
+
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
          extras_start_step = 0
+
       end function extras_start_step
 
 
@@ -251,14 +250,14 @@
          
          extras_check_model = keep_going
 
-         write(*,1) 'rel_error', abs(s% error_in_energy_conservation/s% total_energy_end)
-
       end function extras_check_model
 
 
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
-         how_many_extra_history_columns = 0
+
+         how_many_extra_history_columns = 3
+
       end function how_many_extra_history_columns
       
       
@@ -268,13 +267,50 @@
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
          real(dp) :: dt
+         type(star_info), pointer :: s
+         real(dp) :: m_conv, Ebind
+         integer :: k
+
          ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+
+         names(1) = 'Mconv_env'
+         names(2) = 'fconv_env'
+
+         if (s% he_core_mass > 0d0 .and. s% center_h1 < 1d-6) then
+            m_conv = 0d0
+            if (s% he_core_k == 1 .or. (s% star_mass - s% he_core_mass) < 1d-3) then
+               vals(1) = 0d0
+               vals(2) = 0d0
+            else
+               do k = 1, s% he_core_k
+                  if (s% mixing_type(k) == convective_mixing) m_conv = m_conv + s% dm(k)
+               end do
+               vals(1) = m_conv / Msun
+               vals(2) = (m_conv / Msun) / (s% star_mass - s% he_core_mass)
+            end if
+         else
+            vals(1) = 0d0
+            vals(2) = 0d0
+         end if
+
+         names(3) = 'Ebind'
+
+         Ebind = 0d0
+         do k=1, s% nz
+            Ebind = Ebind + s% dm(k) * (-standard_cgrav * s% m(k) / s% r(k) + s% energy(k))
+         end do
+         vals(4) = Ebind
+
       end subroutine data_for_extra_history_columns
 
       
       integer function how_many_extra_profile_columns(id)
          integer, intent(in) :: id
-         how_many_extra_profile_columns = 0
+
+         how_many_extra_profile_columns = 1
+
       end function how_many_extra_profile_columns
       
       
@@ -284,7 +320,19 @@
          real(dp) :: vals(nz,n)
          integer, intent(out) :: ierr
          integer :: k
+         type(star_info), pointer :: s
+
          ierr = 0
+         call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+
+         names(1) = 'Ebind'
+         vals(:,1) = 0d0
+         vals(1,1) = s% dm(1) * (-standard_cgrav * s% m(1) / s% r(1) + s% energy(1))
+         do k=2, s% nz
+            vals(k,1) = vals(k-1,1) + s% dm(k) * (-standard_cgrav * s% m(k) / s% r(k) + s% energy(k))
+         end do
+
       end subroutine data_for_extra_profile_columns
       
 
@@ -292,9 +340,11 @@
          integer, intent(in) :: id
          integer :: ierr
          type (star_info), pointer :: s
+
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
          extras_finish_step = keep_going
 
       end function extras_finish_step
@@ -305,9 +355,11 @@
          integer, intent(out) :: ierr
          type (star_info), pointer :: s
          real(dp) :: dt
+
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
       end subroutine extras_after_evolve
       
 
