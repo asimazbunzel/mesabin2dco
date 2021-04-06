@@ -49,6 +49,12 @@
 
       ! b% ixtra(ix_ce_model_number) contains the model number of a ce start
       integer, parameter :: ix_ce_model_number = 1
+      ! b% ixtra(ix_ce_num_star_1) contains the number of times star 1 has been donor in a ce
+      integer, parameter :: ix_ce_num_star_1 = 2
+      ! b% ixtra(ix_ce_num_star_1) contains the number of times star 2 has been donor in a ce
+      integer, parameter :: ix_ce_num_star_2 = 3
+      ! b% ixtra(ix_num_switches) contains the number of donor switches of a run
+      integer, parameter :: ix_num_switches = 4
 
       ! b% xtra(x_cumulative_binding_energy) contains the cumulative Ebind removed
       integer, parameter :: x_cumulative_binding_energy = 1
@@ -110,7 +116,7 @@
          integer, intent(out) :: ierr
          character(len=strlen) :: inlist_fname, termination_code_fname
          character(len=strlen) :: str_index
-         integer :: iounit, k
+         integer :: iounit, k, k_idx
          logical :: has_reached_cc
          logical :: already_done_star_plus_star
 
@@ -207,19 +213,47 @@
                   ierr)
                if (ierr /= 0) stop 'failed to get number of kicks in ' // trim(natal_kicks_filename)
 
-               do k=1, num_kicks
-               
+               ! find out if this is a restart, in which case k must be upgraded to this value
+               open(newunit=iounit, file='.last_kick_id', status='old', action='read', iostat=ierr)
+               if (ierr == 0) then
+                  read(iounit,*,iostat=ierr) k_idx
+                  if (ierr /= 0) stop 'failed to read k-index for restart of kicks'
+                  close(iounit)
+               else
+                  k_idx = 1
+               endif
+
+               do k=k_idx, num_kicks
+
                   ! get orbital parameters from file
                   call read_natal_kick(natal_kicks_filename, &
                      k+header_lines_in_natal_kicks_file, &
                      kick_id, porb_kick, a_kick, ecc_kick, &
                      ierr)
+                  
+                  if (dbg) then
+                     write(*,'(a)')
+                     write(*,'(a)') 'binary after core-collapse:'
+                     write(*,'(a)')
+                     write(*,11) 'k-index', k
+                     write(*,'(a55,a26)') 'kick_id', trim(kick_id)
+                     write(*,1) 'period', porb_kick
+                     write(*,1) 'separation', a_kick
+                     write(*,1) 'eccentricty', ecc_kick
+                     write(*,'(a)')
+                  end if
 
                   ! call MESAbinary run
                   write(*,'(a)') 'going to do star + point-mass after a natal kick'
                   call run1_binary(.true., extras_controls, extras_binary_controls, &
                      ierr, &
                      star_plus_pm_filename)
+
+                  ! write k value into a file for restarts
+                  open(newunit=iounit, file='.last_kick_id', action='write', iostat=ierr)
+                  if (ierr /= 0) stop 'failed to write k-index for restart of kicks'
+                  write(iounit,*) k
+                  close(iounit)
 
                end do
 
@@ -282,11 +316,11 @@
          b% how_many_extra_binary_history_columns => how_many_extra_binary_history_columns
          b% data_for_extra_binary_history_columns => data_for_extra_binary_history_columns
 
-         b% extras_binary_startup=> extras_binary_startup
-         b% extras_binary_start_step=> extras_binary_start_step
-         b% extras_binary_check_model=> extras_binary_check_model
+         b% extras_binary_startup => extras_binary_startup
+         b% extras_binary_start_step => extras_binary_start_step
+         b% extras_binary_check_model => extras_binary_check_model
          b% extras_binary_finish_step => extras_binary_finish_step
-         b% extras_binary_after_evolve=> extras_binary_after_evolve
+         b% extras_binary_after_evolve => extras_binary_after_evolve
 
          ! Once you have set the function pointers you want, then uncomment this (or set it in your star_job inlist)
          ! to disable the printed warning message,
@@ -321,7 +355,9 @@
       integer function how_many_extra_binary_history_columns(binary_id)
          use binary_def, only: binary_info
          integer, intent(in) :: binary_id
-         how_many_extra_binary_history_columns = 1
+
+         how_many_extra_binary_history_columns = 6
+
       end function how_many_extra_binary_history_columns
 
 
@@ -334,20 +370,33 @@
          integer, intent(out) :: ierr
 
          ierr = 0
-
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then
             write(*,*) 'failed in binary_ptr'
             return
          end if
 
-         ! CE output
-         names(1) = 'ce_phase'
+         ! number of switches of donor star
+         names(1) = 'num_switches'
+         vals(1) = num_switches
+
+         ! ce output
+         names(2) = 'ce_phase'
+         names(3) = 'ce_num_star_1'
+         names(4) = 'ce_num_star_2' 
+         names(5) = 'ce_cumulative_Ebind'
          if (ce_on) then
-            vals(1) = 1d0
+            vals(2) = 1d0
          else
-            vals(1) = 0d0
+            vals(2) = 0d0
          end if
+         vals(3) = ce_num_star_1
+         vals(4) = ce_num_star_2
+         vals(5) = cumulative_removed_binding_energy
+
+         ! outer lagrangian point equivalent radii
+         names(6) = 'rl2_donor'
+         vals(6) = eval_outer_roche_lobe(b% m(b% d_i), b% m(b% a_i), b% separation) / Rsun
          
       end subroutine data_for_extra_binary_history_columns
       
@@ -370,6 +419,13 @@
             b% lxtra(lx_ce_on) = .false.
             b% lxtra(lx_ce_off) = .true.
             b% ixtra(ix_ce_model_number) = 0
+            b% ixtra(ix_ce_num_star_1) = 0
+            b% ixtra(ix_ce_num_star_2) = 0
+            b% ixtra(ix_num_switches) = 0
+            b% xtra(x_cumulative_binding_energy) = 0d0
+            b% xtra(x_binding_energy_prev_step) = 0d0
+            b% xtra(x_orbital_energy_prev_step) = 0d0
+            b% xtra(x_ce_duration)= 0d0
 
             ! set initial ce variables, no need to check if it's a restart
             if (b% point_mass_i == 0) then
@@ -403,6 +459,8 @@
 
          else
 
+            num_switches = b% ixtra(ix_num_switches)
+
             if (b% lxtra(lx_ce_on)) then
                ce_on = .true.
                ce_off = .false.
@@ -424,11 +482,13 @@
             if (ce_on) then
                ce_donor_id = b% d_i
                ce_accretor_id = b% a_i
-               ce_duration = b% xtra(x_ce_duration)
                ce_initial_model_number = b% ixtra(ix_ce_model_number)
+               ce_num_star_1 = b% ixtra(ix_ce_num_star_1)
+               ce_num_star_2 = b% ixtra(ix_ce_num_star_2)
                cumulative_removed_binding_energy = b% xtra(x_cumulative_binding_energy)
                donor_bind_energy_prev_step = b% xtra(x_binding_energy_prev_step)
                orbital_energy_prev_step = b% xtra(x_orbital_energy_prev_step)
+               ce_duration = b% xtra(x_ce_duration)
                call ce_init_binary_controls(binary_id, ierr)
             end if
 
@@ -517,7 +577,6 @@
          logical :: do_switch
          integer :: star_cc_id
          integer :: number_io
-         real(dp), parameter :: chandra_mass = 1.4d0
          
          include 'formats'
 
@@ -527,6 +586,13 @@
          end if  
 
          extras_binary_finish_step = keep_going
+
+         ! just for debugging
+         if (b% model_number > 50) then
+            write(*,*) 'early stop for debugging'
+            extras_binary_finish_step = terminate
+            return
+         end if
                
          ! if mass-transfer is really high even though no RLOF, then terminate
          if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_off &
@@ -550,10 +616,12 @@
             b% lxtra(lx_ce_on) = .true.
             b% lxtra(lx_ce_off) = .false.
             b% ixtra(ix_ce_model_number) = ce_initial_model_number
-            b% xtra(x_ce_duration) = ce_duration
+            b% ixtra(ix_ce_num_star_1) = ce_num_star_1
+            b% ixtra(ix_ce_num_star_2) = ce_num_star_2
             b% xtra(x_cumulative_binding_energy) = cumulative_removed_binding_energy
             b% xtra(x_binding_energy_prev_step) = donor_bind_energy_prev_step
             b% xtra(x_orbital_energy_prev_step) = orbital_energy_prev_step
+            b% xtra(x_ce_duration) = ce_duration
 
             ! also, save model if first ce step
             if (b% model_number == b% ixtra(ix_ce_model_number) .and. save_model_pre_ce) then
@@ -653,6 +721,7 @@
             if (do_switch) then
                write(*,'(a)') 'switching donor'
                num_switches = num_switches + 1
+               b% ixtra(ix_num_switches) = num_switches
                if (b% d_i == 2) then
                   b% d_i = 1
                   b% d_i_old = 1
@@ -848,6 +917,7 @@
          integer, intent(out) :: ierr
          integer :: iounit, ios
          character(len=strlen) :: fname, termination_code
+         type(star_info), pointer :: s
 
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
@@ -863,10 +933,17 @@
                termination_code = 'unknown'
             end if
          else
-            if (b% s1% termination_code > 0) then
-               termination_code = trim(termination_code_str(b% s1% termination_code))
-            else if (b% s2% termination_code > 0) then
-               termination_code = trim(termination_code_str(b% s2% termination_code))
+            if (b% have_star_1) then
+               s => b% s1
+            else if (b% have_star_2) then
+               s => b% s2
+            else
+               write(*,*) 'logic failure when trying to save termination code'
+               return
+            end if
+
+            if (s% termination_code > 0) then
+               termination_code = trim(termination_code_str(s% termination_code))
             else
                termination_code = 'unknown'
             end if
@@ -891,6 +968,25 @@
          write(iounit, fmt='(a)', iostat=ios, advance='no') trim(termination_code)
          if (ios /= 0) return
          
-      end subroutine extras_binary_after_evolve     
+      end subroutine extras_binary_after_evolve
+
+
+      ! compute radii for outer lagrangian point
+      real function eval_outer_roche_lobe(donor_mass, accretor_mass, separation) result(rl2)
+         ! Based on Eggleton 2006 'Evolutionary processes in binary and multiple stars'
+         real(dp), intent(in) :: donor_mass, accretor_mass, separation
+         real(dp) :: q, q13
+
+         q = donor_mass / accretor_mass
+         q13 = pow(q,one_third)
+         if (q > 1d0) then
+            rl2 = 0.49d0 * q13*q13 + 0.15d0
+         else
+            rl2 = 0.49d0 * q13*q13 + 0.27d0 * q - 0.12d0 * q13*q13*q13*q13
+         end if
+
+         rl2 = (separation * rl2) / (0.6d0 * q13*q13 + log1p(q13))
+
+      end function eval_outer_roche_lobe
       
       end module run_binary_extras
