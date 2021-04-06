@@ -121,8 +121,9 @@
 
 
          ! get number of natal kicks saved in the natal-kick file
-         integer function number_of_kicks(filename, ierr)
+         integer function number_of_kicks(filename, skip_rows, ierr)
             character(len=*) :: filename
+            integer, intent(in) :: skip_rows
             integer, intent(out) :: ierr
             integer :: iounit
             integer :: Nsim
@@ -130,9 +131,15 @@
             Nsim = 0
             open(newunit=iounit, file=trim(filename), status='old', action='read', iostat=ierr)
             if (ierr /= 0) stop 'could not open ' // trim(filename)
+
+            do k = 1, skip_rows
+               read(iounit,*,iostat=ierr)
+               if (ierr /= 0) return
+            end do
+
             do
                if (Nsim > max_num_kicks) then
-                  write(*,'(a, 2x, i12)') 'reach max number of kicks that can be simulated of', Nsim
+                  write(*,'(a, 2x, i12)') 'reach max number of kicks', Nsim
                   stop 'modify value of max_num_kicks on run_binary_extras.f and re-compile to have more kicks'
                end if
 

@@ -87,11 +87,14 @@
       real(dp) :: mass_of_remnant, mass_of_companion
       real(dp) :: pre_cc_separation, pre_cc_period
 
+      integer, parameter :: header_lines_in_natal_kicks_file = 9
+
       ! post-kick id (changed from run to run)
       character(len=strlen) :: kick_id
       real(dp) :: porb_kick, a_kick, ecc_kick
 
       ! utilities
+      integer :: num_kicks
       integer :: num_switches
       logical :: second_collapse
 
@@ -195,12 +198,28 @@
             if (do_kicks_in_one_run) then
 
                ! read how many simulations are needed
-               ! do...
-               ! call read_natal_kick(filename, line_number, kick_id, porb_kick, a_kick, ecc_kick, ierr)
-               !
-               ! end do
+               num_kicks = number_of_kicks(natal_kicks_filename, &
+                  header_lines_in_natal_kicks_file, &
+                  ierr)
+               if (ierr /= 0) stop 'failed to get number of kicks in ' // trim(natal_kicks_filename)
 
-               write(*,'(a)') 'TBD'
+               write(*,*) 'num kicks', num_kicks
+               
+               do k=1, num_kicks
+               
+                  ! get orbital parameters from file
+                  call read_natal_kick(natal_kicks_filename, &
+                     k+header_lines_in_natal_kicks_file, &
+                     kick_id, porb_kick, a_kick, ecc_kick, &
+                     ierr)
+
+                  ! call MESAbinary run
+                  write(*,'(a)') 'going to do star + point-mass after a natal kick'
+                  call run1_binary(.true., extras_controls, extras_binary_controls, &
+                     ierr, &
+                     star_plus_pm_filename)
+
+               end do
 
             else
 
