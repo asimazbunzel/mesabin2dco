@@ -197,14 +197,16 @@
 
             if (do_kicks_in_one_run) then
 
+               ! reset initilized_*_handles to false, else after 10 runs, MESA will not continue evolving binaries
+               have_initialized_binary_handles = .false.
+               have_initialized_star_handles = .false.
+
                ! read how many simulations are needed
                num_kicks = number_of_kicks(natal_kicks_filename, &
                   header_lines_in_natal_kicks_file, &
                   ierr)
                if (ierr /= 0) stop 'failed to get number of kicks in ' // trim(natal_kicks_filename)
 
-               write(*,*) 'num kicks', num_kicks
-               
                do k=1, num_kicks
                
                   ! get orbital parameters from file
