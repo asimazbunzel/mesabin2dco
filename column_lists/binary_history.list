@@ -60,8 +60,8 @@
    
       ! Information related to eccentricity change
       
-      !edot ! total eccentricity change
-      !edot_tidal ! eccentricity change due to tidal interactions
+      edot ! total eccentricity change
+      edot_tidal ! eccentricity change due to tidal interactions
       !edot_enhance ! eccentricity change due to eccentricity pumping
       !extra_edot ! user defined extra eccentricity change
 
@@ -98,9 +98,9 @@
       ! Information regarding angular momentum
 
       J_orb ! orbital angular momentum in g cm^2 s^-1
-      !J_spin_1 ! spin angular momentum of first star
-      !J_spin_2 ! spin angular momentum of second star
-      !J_total ! orbital+spin angular momentum
+      J_spin_1 ! spin angular momentum of first star
+      J_spin_2 ! spin angular momentum of second star
+      J_total ! orbital+spin angular momentum
       Jdot ! time derivative of orbital J
       jdot_mb ! time derivative of J due to magnetic braking
       jdot_gr ! time derivative of J due to gravitational wave radiation
