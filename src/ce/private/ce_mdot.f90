@@ -22,6 +22,8 @@
          real(dp) :: rl_rel_limit
          real(dp) :: x0, x1, y0, y1, m
 
+         include 'formats'
+
          ierr = 0
 
          if (ce_duration <= years_to_max_mdot_rlof .and. &
@@ -49,7 +51,7 @@
             y1 = safe_log10(mdot_kh()) - 2d0
             m = (y1 - y0) / (x1 - x0)
             mdot = - exp10(m*(b% rl_relative_gap(b% d_i)-x0)+y0) * Msun/secyer
-            if (ce_dbg) write(*,*) 'reducing mdot_rlof. mdot, target', -mdot * secyer/Msun, exp10(y1)
+            if (ce_dbg) write(*,1) 'reducing mdot_rlof. mdot, target', -mdot * secyer/Msun, exp10(y1)
          end if
 
          contains

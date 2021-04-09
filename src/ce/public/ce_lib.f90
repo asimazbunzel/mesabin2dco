@@ -80,10 +80,7 @@
          end if
 
          if (ce_condition /= 'stable mt') then
-            write(*,'(/,a)') 'turning ce on, condition: ' // trim(ce_condition)
-            write(*,*) 'scaling_factor:', edd_scaling_factor
-            write(*,*) 'R_donor:', b% s_donor% r(1) / Rsun, b% s_donor% photosphere_r
-            write(*,*) 'opacity:', b% s_donor% photosphere_opacity, b% s_donor% surf_opacity
+            write(*,'(/,a,/)') 'turning ce on, condition: ' // trim(ce_condition)
             ce_on = .true.
             ce_off = .false.
          end if
@@ -175,8 +172,6 @@
          ! check if we need to save stuff
          if (save_profile_pre_ce) call save_ce_profile(ce_id, 'pre', ierr)
          if (ierr /= 0) return
-         ! if (save_model_pre_ce) call save_ce_model(ce_id, 'pre', ierr)
-         ! if (ierr /= 0) return
 
          ! eval energies from previous step
          call ce_donor_binding_energy_prev_step(ce_id, ierr)
@@ -285,9 +280,6 @@
             b% mass_transfer_delta = 0.0d0
             b% mass_transfer_gamma = 0.0d0
          end if
-
-         ! no photos during ce
-         b% photo_interval = 100000
 
          ! use custom rlo_mdot and jdot
          b% use_other_rlo_mdot = .true.
@@ -476,6 +468,8 @@
          if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_duration > years_to_max_mdot_rlof) then
             ce_years_in_detach = ce_years_in_detach + b% time_step
             write(*,1) 'binary close ce end. years detached:', ce_years_in_detach
+         else if (b% r(b% d_i) > b% rl(b% d_i) .and. ce_duration > years_to_max_mdot_rlof) then
+            ce_years_in_detach = 0d0
          end if
 
          ! add energy removed to cumulative
@@ -497,9 +491,6 @@
 
          ierr = 0
          
-         b% photo_interval = 100
-
-         ! unset some binary controls
          b% use_other_rlo_mdot = .false.
          b% use_other_extra_jdot = .false.
 

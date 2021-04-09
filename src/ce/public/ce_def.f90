@@ -67,7 +67,7 @@
       logical :: report_mdot_for_ce
 
       ! debugging flag for ce module
-      logical :: ce_dbg = .true.
+      logical :: ce_dbg = .false.
 
       ! -----------------------------
       ! parameters during ce
