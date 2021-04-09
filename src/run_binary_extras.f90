@@ -64,7 +64,8 @@
       integer, parameter :: x_orbital_energy_prev_step = 3
       ! b% xtra(x_ce_duration) contains the duration of the CE
       integer, parameter :: x_ce_duration = 4
-
+      ! b% xtra(x_ce_years_in_detach) contains time of binary in detach after CE
+      integer, parameter :: x_ce_years_in_detach = 5
 
       ! bin2dco variables
       character(len=strlen) :: star_plus_star_filename, star_plus_pm_filename
@@ -104,7 +105,7 @@
       integer :: num_switches
       logical :: second_collapse
 
-      logical, parameter :: dbg = .true.
+      logical, parameter :: dbg = .false.
       
       contains
 
@@ -308,6 +309,13 @@
             return
          end if
 
+         ! this is for having the correct values in the header of the log
+         if (.not. b% job% evolve_both_stars .and. do_kicks) then
+            b% m2 = mass_of_remnant
+            b% initial_period_in_days = porb_kick
+            b% initial_eccentricity = ecc_kick
+         end if
+
          ! Set these function pointers to point to the functions you wish to use in
          ! your run_binary_extras. Any which are not set, default to a null_ version
          ! which does nothing.
@@ -356,7 +364,7 @@
          use binary_def, only: binary_info
          integer, intent(in) :: binary_id
 
-         how_many_extra_binary_history_columns = 6
+         how_many_extra_binary_history_columns = 7
 
       end function how_many_extra_binary_history_columns
 
@@ -368,6 +376,7 @@
          character (len=maxlen_binary_history_column_name) :: names(n)
          real(dp) :: vals(n)
          integer, intent(out) :: ierr
+         real(dp) :: mu, I1, I2
 
          ierr = 0
          call binary_ptr(binary_id, b, ierr)
@@ -397,6 +406,20 @@
          ! outer lagrangian point equivalent radii
          names(6) = 'rl2_donor'
          vals(6) = eval_outer_roche_lobe(b% m(b% d_i), b% m(b% a_i), b% separation) / Rsun
+
+
+         ! Darwin unstable separation
+         names(7) = 'a_Darwin'
+         
+         mu = b% m(1) * b% m(2) / (b% m(1) + b% m(2))
+         I1 = 0d0
+         I2 = 0d0
+         if (b% point_mass_i /= 1) &
+            I1 = I1 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+         if (b% point_mass_i /= 2) &
+            I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+
+         vals(7) = sqrt(3 * (I1 + I2) / mu) / Rsun
          
       end subroutine data_for_extra_binary_history_columns
       
@@ -413,7 +436,23 @@
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
+            
+         ! set ce controls
+         if (b% point_mass_i == 0) then
+            call ce_set_controls(ce1_inlist_filename, ierr)
+            if (ierr /= 0) return
+         else
+            call ce_set_controls(ce2_inlist_filename, ierr)
+            if (ierr /= 0) return
+         end if
 
+         ! update log names to use kick_id
+         if (b% point_mass_i /= 0 .and. do_kicks) then
+            write(b% history_name, '(a)') 'binary_history_' // trim(kick_id) // '.data'
+            write(b% s_donor% star_history_name, '(a)') 'history_' // trim(kick_id) // '.data'
+         end if
+
+         ! make different stuff for restart or new run
          if (.not. restart) then
 
             b% lxtra(lx_ce_on) = .false.
@@ -427,59 +466,21 @@
             b% xtra(x_orbital_energy_prev_step) = 0d0
             b% xtra(x_ce_duration)= 0d0
 
-            ! set initial ce variables, no need to check if it's a restart
-            if (b% point_mass_i == 0) then
-               call ce_variables_on_startup(ce1_inlist_filename, ierr)
-               if (ierr /= 0) return
-            else
-               call ce_variables_on_startup(ce2_inlist_filename, ierr)
-               if (ierr /= 0) return
-            end if
-
-            ! running star + pm with kick
-            if (b% point_mass_i /= 0 .and. do_kicks) then
-               b% m(b% a_i) = mass_of_remnant * Msun  ! cgs
-               b% initial_period_in_days = porb_kick
-               b% initial_eccentricity = ecc_kick
-               call binary_set_period_eccentricity(binary_id, & 
-                  b% initial_period_in_days*(24d0*60d0*60d0), b% initial_eccentricity, ierr)
-               write(b% history_name, '(a)') 'binary_history_' // trim(kick_id) // '.data'
-               write(b% s_donor% star_history_name, '(a)') 'history_' // trim(kick_id) // '.data'
-            
-               if (dbg) then
-                  write(*,'(a55,99(a55))') 'kick id', trim(kick_id)
-                  write(*,1) 'm1', b% m(b% d_i) / Msun
-                  write(*,1) 'm2', b% m(b% a_i) / Msun
-                  write(*,1) 'period', b% period / (24d0*60d0*60d0)
-                  write(*,1) 'separation', b% separation / Rsun
-                  write(*,1) 'eccentricity', b% eccentricity
-               end if
-
-            end if
+            ce_on = .false.
+            ce_off = .true.
 
          else
 
             num_switches = b% ixtra(ix_num_switches)
 
             if (b% lxtra(lx_ce_on)) then
+               ! call this function as they will compute (wrongly) energies. use MESA extra vars
+               ! to correct this
+               call ce_store_initial_info(binary_id, ierr)
+               call ce_init_binary_controls(binary_id, ierr)
+               ! then set everything correctly
                ce_on = .true.
                ce_off = .false.
-            end if
-            if (b% lxtra(lx_ce_off)) then
-               ce_on = .false.
-               ce_off = .true.
-            end if
-
-            ! set ce controls
-            if (b% point_mass_i == 0) then
-               call ce_set_controls(ce1_inlist_filename, ierr)
-               if (ierr /= 0) return
-            else
-               call ce_set_controls(ce2_inlist_filename, ierr)
-               if (ierr /= 0) return
-            end if
-
-            if (ce_on) then
                ce_donor_id = b% d_i
                ce_accretor_id = b% a_i
                ce_initial_model_number = b% ixtra(ix_ce_model_number)
@@ -489,7 +490,12 @@
                donor_bind_energy_prev_step = b% xtra(x_binding_energy_prev_step)
                orbital_energy_prev_step = b% xtra(x_orbital_energy_prev_step)
                ce_duration = b% xtra(x_ce_duration)
-               call ce_init_binary_controls(binary_id, ierr)
+               ce_years_in_detach = b% xtra(x_ce_years_in_detach)
+            end if
+
+            if (b% lxtra(lx_ce_off)) then
+               ce_on = .false.
+               ce_off = .true.
             end if
 
          end if
@@ -522,6 +528,9 @@
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
+
+         ! turn pgstar flag on
+         if (b% doing_first_model_of_run) b% s_donor% job% pgstar_flag = .true.
 
          ! check ce end
          if (ce_on) then
@@ -577,6 +586,7 @@
          logical :: do_switch
          integer :: star_cc_id
          integer :: number_io
+         real(dp) :: mu, I1, I2, a_Darwin
          
          include 'formats'
 
@@ -587,13 +597,24 @@
 
          extras_binary_finish_step = keep_going
 
-         ! just for debugging
-         if (b% model_number > 50) then
-            write(*,*) 'early stop for debugging'
+         ! check for Darwin unstable binary
+         mu = b% m(1) * b% m(2) / (b% m(1) + b% m(2))
+         I1 = 0d0
+         I2 = 0d0
+         if (b% point_mass_i /= 1) &
+            I1 = I1 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+         if (b% point_mass_i /= 2) &
+            I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+         a_Darwin = sqrt(3 * (I1 + I2) / mu)
+
+         if (b% doing_first_model_of_run .and. b% separation < a_Darwin) then
+            write(*,'(a)') 'system is Darwin unstable'
+            b% s_donor% termination_code = t_xtra1
+            termination_code_str(t_xtra1) = 'Darwin unstable'
             extras_binary_finish_step = terminate
             return
          end if
-               
+
          ! if mass-transfer is really high even though no RLOF, then terminate
          if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_off &
             .and. abs(b% mtransfer_rate) * secyer/Msun > max_mdot_rlof) then
@@ -622,6 +643,7 @@
             b% xtra(x_binding_energy_prev_step) = donor_bind_energy_prev_step
             b% xtra(x_orbital_energy_prev_step) = orbital_energy_prev_step
             b% xtra(x_ce_duration) = ce_duration
+            b% xtra(x_ce_years_in_detach) = ce_years_in_detach
 
             ! also, save model if first ce step
             if (b% model_number == b% ixtra(ix_ce_model_number) .and. save_model_pre_ce) then

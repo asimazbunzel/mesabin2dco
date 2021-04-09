@@ -256,7 +256,7 @@
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
 
-         how_many_extra_history_columns = 3
+         how_many_extra_history_columns = 4
 
       end function how_many_extra_history_columns
       
@@ -268,11 +268,14 @@
          integer, intent(out) :: ierr
          real(dp) :: dt
          type(star_info), pointer :: s
+         type(binary_info), pointer :: b
          real(dp) :: m_conv, Ebind
          integer :: k
 
          ierr = 0
          call star_ptr(id, s, ierr)
+         if (ierr /= 0) return
+         call binary_ptr(s% binary_id, b, ierr)
          if (ierr /= 0) return
 
          names(1) = 'Mconv_env'
@@ -302,6 +305,9 @@
             Ebind = Ebind + s% dm(k) * (-standard_cgrav * s% m(k) / s% r(k) + s% energy(k))
          end do
          vals(3) = Ebind
+
+         names(4) = 'log_mtransfer_rate'
+         vals(4) = safe_log10(abs(b% step_mtransfer_rate)/Msun*secyer)
 
       end subroutine data_for_extra_history_columns
 
