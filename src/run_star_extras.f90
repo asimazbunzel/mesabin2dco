@@ -256,7 +256,7 @@
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
 
-         how_many_extra_history_columns = 4
+         how_many_extra_history_columns = 5
 
       end function how_many_extra_history_columns
       
@@ -306,8 +306,11 @@
          end do
          vals(3) = Ebind
 
-         names(4) = 'log_mtransfer_rate'
-         vals(4) = safe_log10(abs(b% step_mtransfer_rate)/Msun*secyer)
+         names(4) = 'spin_magnitude'
+         vals(4) = clight * s% total_angular_momentum / (standard_cgrav * s% m(1)**2)
+
+         names(5) = 'log_mtransfer_rate'
+         vals(5) = safe_log10(abs(b% step_mtransfer_rate)/Msun*secyer)
 
       end subroutine data_for_extra_history_columns
 
