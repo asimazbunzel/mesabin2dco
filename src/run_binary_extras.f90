@@ -702,6 +702,11 @@
                return
             end if
             return
+
+            ! save profile of first collapsing star
+            call star_write_profile_info(star_cc_id, s% log_directory // '/profile_at_cc.data', ierr)
+            if (ierr /= 0) return
+
          else if (star_cc_id > 0 .and. second_collapse) then
             write(*,'(a)') 'calling second collapse'
             if (do_kicks) then
@@ -719,6 +724,12 @@
                   write(*,'(a32, 2x, a)') &
                      'filename_for_binary_data =', trim(filename_for_binary_data)
                end if
+
+               ! save profile of first collapsing star
+               call star_write_profile_info(star_cc_id, &
+                  s% log_directory // '/profile_at_cc' // '_' // trim(kick_id) // '.data', ierr)
+               if (ierr /= 0) return
+
             else
                call cc_set_controls(cc1_inlist_filename, ierr)
                if (do_kicks) then
@@ -734,6 +745,12 @@
                write(*,'(a)') 'failed in cc_compact_object_formation'
                return
             end if
+
+            ! save profile of first collapsing star
+            call star_write_profile_info(star_cc_id, &
+               s% log_directory // '/profile_at_second_cc.data', ierr)
+            if (ierr /= 0) return
+
             return
          end if
 

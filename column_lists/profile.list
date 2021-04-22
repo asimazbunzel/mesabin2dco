@@ -46,7 +46,7 @@
    !logM ! log10(m/Msun)
    !dm ! cell mass (grams)
    !dm_bar ! boundary mass (grams) average of adjacent dm's
-   !logdq ! log10(dq)
+   logdq ! log10(dq)
    !dq_ratio ! dq(k-1)/dq(k)
    !q ! fraction of star mass interior to outer boundary of this zone
    !log_q ! log10(q)
@@ -468,7 +468,7 @@
 
 
 !# Rotation
-   !omega ! angular velocity = j_rot/i_rot
+   omega ! angular velocity = j_rot/i_rot
    !log_omega
    !log_j_rot
    !log_J_div_M53 ! J is j*1e-15 integrated from center; M53 is m^(5/3)
@@ -476,8 +476,8 @@
    !shear ! -dlnomega/dlnR
    !log_abs_shear ! log10(abs(dlnomega/dlnR))
    !richardson_number
-   !i_rot ! specific moment of inertia at cell boundary
-   !j_rot ! specific angular momentum at cell boundary
+   i_rot ! specific moment of inertia at cell boundary
+   j_rot ! specific angular momentum at cell boundary
    !v_rot ! rotation velocity at cell boundary (km/sec)
    !w_div_w_crit_roche !ratio of rotational velocity to keplerian at the equator
                        !without the contribution from the Eddington factor
