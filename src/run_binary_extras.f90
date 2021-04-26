@@ -450,6 +450,8 @@
          if (b% point_mass_i /= 0 .and. do_kicks) then
             write(b% history_name, '(a)') 'binary_history_' // trim(kick_id) // '.data'
             write(b% s_donor% star_history_name, '(a)') 'history_' // trim(kick_id) // '.data'
+            write(b% s1% Grid1_file_dir, '(a)') 'png/png_' // trim(kick_id)
+            write(b% s1% Grid1_file_prefix, '(a)') trim('grid1_') // trim(kick_id) // '_'
          end if
 
          ! make different stuff for restart or new run
@@ -528,9 +530,15 @@
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
+            
+         if (do_kicks .and. b% point_mass_i /= 0 .and. add_kick_id_as_suffix) then
+         end if
 
          ! turn pgstar flag on
-         if (b% doing_first_model_of_run) b% s_donor% job% pgstar_flag = .true.
+         if (b% doing_first_model_of_run) then
+            b% s_donor% job% pgstar_flag = .true.
+            if (b% point_mass_i == 0) b% s_accretor% job% pgstar_flag = .true.
+         end if
 
          ! check ce end
          if (ce_on) then
@@ -710,7 +718,10 @@
             else
                s => b% s2
             end if
-            call star_write_profile_info(star_cc_id, s% log_directory // '/profile_at_cc.data', ierr)
+
+            write(*,*) trim(s% log_directory) // '/profile_at_cc.data'
+
+            call star_write_profile_info(star_cc_id, trim(s% log_directory) // '/profile_at_cc.data', ierr)
             if (ierr /= 0) return
             
             return

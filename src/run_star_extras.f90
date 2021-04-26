@@ -256,7 +256,7 @@
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
 
-         how_many_extra_history_columns = 5
+         how_many_extra_history_columns = 6
 
       end function how_many_extra_history_columns
       
@@ -275,6 +275,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
+
          call binary_ptr(s% binary_id, b, ierr)
          if (ierr /= 0) return
 
@@ -311,6 +312,13 @@
 
          names(5) = 'log_mtransfer_rate'
          vals(5) = safe_log10(abs(b% step_mtransfer_rate)/Msun*secyer)
+
+         names(6) = 'eff_xfer_fraction'
+         if (b% component_mdot(b% d_i) == 0d0) then
+            vals(6) = 1d0
+         else
+            vals(6) = (-b% component_mdot(b% a_i))/(b% component_mdot(b% d_i))
+         end if
 
       end subroutine data_for_extra_history_columns
 
