@@ -750,7 +750,7 @@
                end if
 
                call star_write_profile_info(star_cc_id, &
-                  s% log_directory // '/profile_at_cc' // '_' // trim(kick_id) // '.data', ierr)
+                  trim(s% log_directory) // '/profile_at_cc' // '_' // trim(kick_id) // '.data', ierr)
                if (ierr /= 0) return
 
             else
@@ -771,7 +771,7 @@
             
                ! save profile of first collapsing star
                call star_write_profile_info(star_cc_id, &
-                  s% log_directory // '/profile_at_second_cc.data', ierr)
+                  trim(s% log_directory) // '/profile_at_second_cc.data', ierr)
                if (ierr /= 0) return
             
             end if
