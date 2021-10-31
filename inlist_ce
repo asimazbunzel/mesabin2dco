@@ -4,7 +4,7 @@
    alpha_two_stars = 1d0
 
   ! efficiency for removing envelope in binaries of a star and a compact object (point mass)
-   alpha_xrb = 10d0
+   alpha_xrb = 2d0
   
   ! Eddington scaling factor to trigger ce
    edd_scaling_factor = 1d0

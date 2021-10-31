@@ -13,7 +13,7 @@
   ! low_mass_evolution = .false.
 
   ! flag to control if going to do star + star simulation
-   do_star_plus_star = .false.
+   do_star_plus_star = .true.
    
   ! filenames of the inlists with the binary control values:
   !  - `star_plus_star_filename` contains the controls for the star + star simulation,
@@ -50,8 +50,8 @@
   ! `./rn 10` will make the code to search for the 10th line in the `natal_kicks_filename`
   ! and run the corresponding binary (of course, the number passed should be less or equal
   ! to the number of rows in the file).
-   do_kicks = .true.
-   do_kicks_in_one_run = .true.
+   do_kicks = .false.
+   do_kicks_in_one_run = .false.
    
   ! filename with the natal-kicks. only used if one of the `do_kick*` flags are used
   ! the first line of this file is the header which provides the name of the columns in it:
