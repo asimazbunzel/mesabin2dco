@@ -1,6 +1,8 @@
+
 &star_job
 
-   pgstar_flag = .false.
+   pgstar_flag = .true.
+   disable_pgstar_for_relax = .true.
 
    read_extra_star_job_inlist1 = .true.
    extra_star_job_inlist1_name = 'inlist_common'
@@ -13,11 +15,8 @@
    set_initial_model_number = .true.
    initial_model_number = 0
 
-   !save_model_when_terminate = .true.
-   !required_termination_code_string = 'core-collapse'
-   !save_model_filename = 'companion_at_core_collapse.mod'
-
 / ! end of star_job namelist
+
 
 &eos
 
@@ -26,12 +25,14 @@
 
 /
 
+
 &kap
 
    read_extra_kap_inlist1 = .true.
    extra_kap_inlist1_name = 'inlist_composition'
 
 /
+
 
 &controls
 
@@ -44,6 +45,12 @@
 
 / ! end of controls namelist
 
+
 &pgstar
+
+   read_extra_pgstar_inlist1 = .true.
+   extra_pgstar_inlist1_name = 'inlist_pgstar'
+
+   Grid1_file_dir = 'png1'
 
 / ! end of pgstar namelist

@@ -36,7 +36,7 @@
    save_model_after_ce = .false.
 
   ! flag to report mdot comparison to init a ce
-   report_mdot_for_ce = .true.
+   report_mdot_for_ce = .false.
 
   ! directory where profile(s) and model(s) during ce will be saved
    ce_data_directory = 'ce_data'

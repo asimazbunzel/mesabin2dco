@@ -256,7 +256,7 @@
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
 
-         how_many_extra_history_columns = 6
+         how_many_extra_history_columns = 11
 
       end function how_many_extra_history_columns
       
@@ -319,6 +319,21 @@
          else
             vals(6) = (-b% component_mdot(b% a_i))/(b% component_mdot(b% d_i))
          end if
+
+         names(7) = 'Prot'
+         vals(7) = (2d0 * pi / s% omega_avg_surf) / (60d0 * 60d0 * 24d0)
+
+         names(8) = 'Porb'
+         vals(8) = b% period / (60d0 * 60d0 * 24d0)
+
+         names(9) = 'Prot_div_Porb'
+         vals(9) = vals(9) / vals(10)
+
+         names(10) = 'Omega'
+         vals(10) = s% omega_avg_surf
+
+         names(11) = 'Omega_div_Omega_crit'
+         vals(11) = s% w_div_w_crit_avg_surf
 
       end subroutine data_for_extra_history_columns
 
