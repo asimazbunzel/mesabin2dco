@@ -531,15 +531,6 @@
             return
          end if
             
-         if (do_kicks .and. b% point_mass_i /= 0 .and. add_kick_id_as_suffix) then
-         end if
-
-         ! turn pgstar flag on
-         if (b% doing_first_model_of_run) then
-            b% s_donor% job% pgstar_flag = .true.
-            if (b% point_mass_i == 0) b% s_accretor% job% pgstar_flag = .true.
-         end if
-
          ! check ce end
          if (ce_on) then
             call ce_check_state(binary_id, ierr)
@@ -605,6 +596,24 @@
          end if  
 
          extras_binary_finish_step = keep_going
+
+         if (b% ignore_rlof_flag .and. &
+            abs(log10(abs(b% s1% L_nuc_burn_total * Lsun / b% s1% L(1)))) < 0.005) then
+            ! if here, primary reached thermal equilibrium (reached ZAMS), so activate RLOF
+            call binary_set_ignore_rlof_flag(b% binary_id, .false., ierr)
+            if (ierr /= 0) then
+               return
+            end if
+            write(*,'(a)') 'reach ZAMS condition'
+         else if (b% ignore_rlof_flag .and. &
+            abs(log10(abs(b% s1% L_nuc_burn_total * Lsun / b% s1% L(1)))) > 0.005) then
+            ! if here, still not in ZAMS, keep period fixed
+            call binary_set_period_eccentricity(b% binary_id, &
+               b% initial_period_in_days*(24d0*60d0*60d0), 0d0, ierr)
+            if (ierr /= 0) then
+               return
+            end if
+         end if
 
          ! check for Darwin unstable binary
          mu = b% m(1) * b% m(2) / (b% m(1) + b% m(2))
