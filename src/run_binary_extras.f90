@@ -106,7 +106,8 @@
       logical :: second_collapse
 
       logical, parameter :: dbg = .false.
-      
+      logical, parameter :: dbg_do_run = .true.
+
       contains
 
 
@@ -153,6 +154,11 @@
          if (ierr == 0) then
             already_done_star_plus_star = .true.
             close(iounit)
+         end if
+
+         if (dbg_do_run) then
+            write(*,14) ' do_star_plus_star flag:', do_star_plus_star
+            write(*,14) ' already_done_star_plus_star flag:', already_done_star_plus_star
          end if
 
          ! star + star simulation (if chosen)
