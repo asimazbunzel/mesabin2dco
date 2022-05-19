@@ -19,20 +19,20 @@
 !   foundation, inc., 59 temple place, suite 330, boston, ma 02111-1307 usa
 !
 ! *********************************************************************** 
+
       module run_binary_extras 
 
-      use star_def
-      use const_def
       use const_def
       use chem_def
+      use star_def
       use binary_def
       use cc_def
       use ce_def
       use run_star_support
-      
-      use star_lib
+ 
       use math_lib
       use num_lib
+      use star_lib
       use cc_lib
       use ce_lib
 
@@ -74,6 +74,7 @@
       logical :: do_star_plus_star, stop_after_star_plus_star
       logical :: do_kicks, do_kicks_in_one_run
       character(len=strlen) :: natal_kicks_filename
+      integer :: header_lines_to_skip_in_natal_kicks_file
       character(len=strlen) :: star_info_at_cc_filename, binary_info_at_cc_filename
       logical :: add_kick_id_as_suffix
       character(len=strlen) :: termination_codes_folder
@@ -85,6 +86,7 @@
          stop_after_star_plus_star, &
          do_kicks, do_kicks_in_one_run, &
          natal_kicks_filename, &
+         header_lines_to_skip_in_natal_kicks_file, &
          star_info_at_cc_filename, binary_info_at_cc_filename, &
          add_kick_id_as_suffix, &
          termination_codes_folder
@@ -93,8 +95,6 @@
       real(dp) :: mass_of_progenitor
       real(dp) :: mass_of_remnant, mass_of_companion
       real(dp) :: pre_cc_separation, pre_cc_period
-
-      integer, parameter :: header_lines_in_natal_kicks_file = 9
 
       ! post-kick id (changed from run to run)
       character(len=strlen) :: kick_id
@@ -144,7 +144,7 @@
          MESA_INLIST_RESOLVED = .true.
 
          ! get bin2dco controls
-         inlist_fname = 'inlist_bin2dco'
+         inlist_fname = 'inlist'
          call read_bin2dco_controls(inlist_fname, ierr)
          if (ierr /= 0) return
 
@@ -216,7 +216,7 @@
 
                ! read how many simulations are needed
                num_kicks = number_of_kicks(natal_kicks_filename, &
-                  header_lines_in_natal_kicks_file, &
+                  header_lines_to_skip_in_natal_kicks_file, &
                   ierr)
                if (ierr /= 0) stop 'failed to get number of kicks in ' // trim(natal_kicks_filename)
 
@@ -234,10 +234,10 @@
 
                   ! get orbital parameters from file
                   call read_natal_kick(natal_kicks_filename, &
-                     k+header_lines_in_natal_kicks_file, &
+                     k+header_lines_to_skip_in_natal_kicks_file, &
                      kick_id, porb_kick, a_kick, ecc_kick, &
                      ierr)
-                  
+
                   if (dbg) then
                      write(*,'(a)')
                      write(*,'(a)') 'binary after core-collapse:'
@@ -286,7 +286,7 @@
             end if
 
          else
-            
+
             write(*,'(a)') 'going to do star + point-mass'
             call run1_binary(.true., extras_controls, extras_binary_controls, &
                ierr, &
@@ -297,12 +297,11 @@
          contains
 
          ! include bin2dco utility functions
-
          include 'bin2dco_misc.inc'
 
       end subroutine do_run
-      
-      
+
+
       subroutine extras_binary_controls(binary_id, ierr)
          integer :: binary_id
          integer, intent(out) :: ierr
@@ -339,7 +338,7 @@
          ! Once you have set the function pointers you want, then uncomment this (or set it in your star_job inlist)
          ! to disable the printed warning message,
           b% warn_binary_extra =.false.
-         
+
       end subroutine extras_binary_controls
 
 
@@ -416,7 +415,7 @@
 
          ! Darwin unstable separation
          names(7) = 'a_Darwin'
-         
+
          mu = b% m(1) * b% m(2) / (b% m(1) + b% m(2))
          I1 = 0d0
          I2 = 0d0
@@ -426,10 +425,10 @@
             I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
 
          vals(7) = sqrt(3 * (I1 + I2) / mu) / Rsun
-         
+
       end subroutine data_for_extra_binary_history_columns
-      
-      
+
+
       integer function extras_binary_startup(binary_id,restart,ierr)
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
@@ -442,7 +441,7 @@
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
-            
+
          ! set ce controls
          if (b% point_mass_i == 0) then
             call ce_set_controls(ce1_inlist_filename, ierr)
@@ -519,24 +518,24 @@
             write(filename_donor_model_after_ce, '(a)') &
                trim(filename_donor_model_after_ce) // "_" // trim(kick_id)
          end if
-         
+
          extras_binary_startup = keep_going
 
       end function extras_binary_startup
-      
+
 
       integer function extras_binary_start_step(binary_id,ierr)
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
          integer, intent(out) :: ierr
-         
+
          extras_binary_start_step = keep_going
 
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
-            
+
          if (do_kicks .and. b% point_mass_i /= 0 .and. add_kick_id_as_suffix) then
          end if
 
@@ -557,26 +556,26 @@
          end if
 
       end function extras_binary_start_step
-     
+
 
       !Return either keep_going, retry or terminate
       integer function extras_binary_check_model(binary_id)
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
          integer :: ierr
-         
+
          include 'formats'
-         
+
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if  
-         
+
          extras_binary_check_model = keep_going
-         
+
          if (b% model_number /= b% s_donor% model_number) &
             b% model_number = b% s_donor% model_number
-         
+
          ! check if ce
          if (b% r(b% d_i) > b% rl(b% d_i) .and. ce_off) then
             call ce_unstable_mt_phase(binary_id, ierr)
@@ -589,8 +588,8 @@
          end if
 
       end function extras_binary_check_model
-      
-      
+
+
       ! returns either keep_going or terminate.
       ! note: cannot request retry; extras_check_model can do that.
       integer function extras_binary_finish_step(binary_id)
@@ -602,7 +601,7 @@
          integer :: star_cc_id
          integer :: number_io
          real(dp) :: mu, I1, I2, a_Darwin
-         
+
          include 'formats'
 
          call binary_ptr(binary_id, b, ierr)
@@ -647,7 +646,7 @@
                write(*,'(a)') 'failed in ce_step_success'
                return
             end if
-            
+
             ! we need to store some stuff on binary pointer for restarts
             b% lxtra(lx_ce_on) = .true.
             b% lxtra(lx_ce_off) = .false.
@@ -729,11 +728,11 @@
 
             call star_write_profile_info(star_cc_id, trim(s% log_directory) // '/profile_at_cc.data', ierr)
             if (ierr /= 0) return
-            
+
             return
 
          else if (star_cc_id > 0 .and. second_collapse) then
-               
+
             ! save profile of first collapsing star inside log directory
             if (star_cc_id == 1) then
                s => b% s1
@@ -748,7 +747,7 @@
                ! replace filenames by adding natal-kick id
                write(filename_for_star_data, '(a)') trim(filename_for_star_data) // "_" // trim(kick_id)
                write(filename_for_binary_data, '(a)') trim(filename_for_binary_data) // "_" // trim(kick_id)
-               
+
                call cc_compact_object_formation(star_cc_id, ierr)
                if (ierr /= 0) then
                   write(*,'(a)') 'failed in cc_compact_object_formation'
@@ -763,7 +762,7 @@
 
                call cc_set_controls(cc1_inlist_filename, ierr)
                if (ierr /= 0) return
-               
+
                if (do_kicks) then
                   write(filename_for_star_data, '(a)') trim(filename_for_star_data) // "_1"
                   write(filename_for_binary_data, '(a)') trim(filename_for_binary_data) // "_1"
@@ -774,12 +773,12 @@
                   write(*,'(a)') 'failed in cc_compact_object_formation'
                   return
                end if
-            
+
                ! save profile of first collapsing star
                call star_write_profile_info(star_cc_id, &
                   trim(s% log_directory) // '/profile_at_second_cc.data', ierr)
                if (ierr /= 0) return
-            
+
             end if
 
             return
@@ -809,7 +808,7 @@
                end if
             end if
          end if
-         
+
       end function extras_binary_finish_step
 
       subroutine do_saves_for_binary(b, ierr)
@@ -980,7 +979,7 @@
 
       end function switch_donor_star
 
-      
+
       subroutine extras_binary_after_evolve(binary_id, ierr)
          type (binary_info), pointer :: b
          integer, intent(in) :: binary_id
@@ -1037,7 +1036,7 @@
          if (ios /= 0) return
          write(iounit, fmt='(a)', iostat=ios, advance='no') trim(termination_code)
          if (ios /= 0) return
-         
+
       end subroutine extras_binary_after_evolve
 
 
@@ -1058,5 +1057,5 @@
          rl2 = (separation * rl2) / (0.6d0 * q13*q13 + log1p(q13))
 
       end function eval_outer_roche_lobe
-      
+
       end module run_binary_extras

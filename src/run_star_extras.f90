@@ -22,15 +22,16 @@
  
       module run_star_extras 
 
-      use star_lib
-      use star_def
       use const_def
       use chem_def
+      use star_def
       use binary_def
+
       use math_lib
-      
+      use star_lib
+
       implicit none
-      
+
       contains
 
       subroutine extras_controls(id, ierr)
@@ -41,7 +42,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         
+
          s% extras_startup => extras_startup
          s% extras_start_step => extras_start_step
          s% extras_check_model => extras_check_model
@@ -55,7 +56,7 @@
          s% other_wind => brott_wind
 
       end subroutine extras_controls
-      
+
       subroutine brott_wind(id, Lsurf, Msurf, Rsurf, Tsurf, X, Y, Z, w, ierr)
          use star_def
          integer, intent(in) :: id
@@ -146,7 +147,7 @@
                   alfa = (T1 - (Teff_jump - dT)) / (2*dT)
                end if
             end if
-            
+
             if (alfa > 0) then ! eval hot side wind (eqn 24)
                vinf_div_vesc = 2.6d0 ! this is the hot side galactic value
                vinf_div_vesc = vinf_div_vesc*pow(Z_div_Z_solar,0.13d0) ! corrected for Z
@@ -162,7 +163,7 @@
             else
                w1 = 0
             end if
-            
+
             if (alfa < 1) then ! eval cool side wind (eqn 25)
                vinf_div_vesc = 1.3d0 ! this is the cool side galactic value
                vinf_div_vesc = vinf_div_vesc*pow(Z_div_Z_solar,0.13d0) ! corrected for Z
@@ -177,9 +178,9 @@
             else
                w2 = 0
             end if
-            
+
             w = alfa*w1 + (1 - alfa)*w2
-            
+
          end subroutine eval_Vink_wind
 
          subroutine eval_Nieuwenhuijzen_wind(w)
@@ -247,7 +248,7 @@
          ierr = 0
          call star_ptr(id, s, ierr)
          if (ierr /= 0) return
-         
+
          extras_check_model = keep_going
 
       end function extras_check_model
@@ -259,8 +260,8 @@
          how_many_extra_history_columns = 6
 
       end function how_many_extra_history_columns
-      
-      
+
+
       subroutine data_for_extra_history_columns(id, n, names, vals, ierr)
          integer, intent(in) :: id, n
          character (len=maxlen_history_column_name) :: names(n)
@@ -322,15 +323,15 @@
 
       end subroutine data_for_extra_history_columns
 
-      
+
       integer function how_many_extra_profile_columns(id)
          integer, intent(in) :: id
 
          how_many_extra_profile_columns = 1
 
       end function how_many_extra_profile_columns
-      
-      
+
+
       subroutine data_for_extra_profile_columns(id, n, nz, names, vals, ierr)
          integer, intent(in) :: id, n, nz
          character (len=maxlen_profile_column_name) :: names(n)
@@ -351,7 +352,7 @@
          end do
 
       end subroutine data_for_extra_profile_columns
-      
+
 
       integer function extras_finish_step(id)
          integer, intent(in) :: id
@@ -365,8 +366,8 @@
          extras_finish_step = keep_going
 
       end function extras_finish_step
-      
-      
+
+
       subroutine extras_after_evolve(id, ierr)
          integer, intent(in) :: id
          integer, intent(out) :: ierr
@@ -378,7 +379,6 @@
          if (ierr /= 0) return
 
       end subroutine extras_after_evolve
-      
+
 
       end module run_star_extras
-      
