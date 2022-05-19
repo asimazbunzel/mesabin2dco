@@ -105,7 +105,10 @@
       integer :: num_switches
       logical :: second_collapse
 
-      logical, parameter :: dbg = .false.
+      ! minimum value for the fraction of convective envelope
+      real(dp), parameter :: min_convective_fraction = 0.1d0
+
+      logical, parameter :: dbg = .true.
       logical, parameter :: dbg_do_run = .true.
 
       contains
@@ -342,6 +345,47 @@
       end subroutine extras_binary_controls
 
 
+      logical function is_convective(s)
+         type(star_info), pointer :: s
+         real(dp) :: m_conv, f_conv
+         integer :: k
+
+         include 'formats.inc'
+
+         is_convective = .false.
+
+         ! two different ways to check for convective envelope. One for MS evolution,
+         ! the other for post-MS evolution
+         if (s% he_core_mass > 0d0 .and. s% center_h1 < 1d-6) then
+            if (s% he_core_k == 1 .or. (s% star_mass-s% he_core_mass) < 1d-3) then
+               m_conv = 0d0
+               f_conv = 0d0
+            else
+               m_conv = 0d0
+               do k = 1, s% he_core_k
+                  if (s% mixing_type(k) == convective_mixing) m_conv = m_conv+s% dm(k)
+               end do
+               f_conv = (m_conv/Msun) / (s% star_mass-s% he_core_mass)
+            end if
+         else
+            m_conv = 0d0
+            do k = 1, s% nz
+               if (s% m(k) / s% mstar < 0.8) exit
+               if (s% mixing_type(k) == convective_mixing) m_conv = m_conv+s% dm(k)
+            end do
+            f_conv = (m_conv/Msun) / s% star_mass
+         end if
+
+         if (f_conv > min_convective_fraction) is_convective = .true.
+
+         if (dbg) then
+            write(*,1) 'f_conv', f_conv
+            write(*,14) 'is_convective', is_convective
+         end if
+
+      end function is_convective
+
+
       integer function how_many_extra_binary_history_header_items(binary_id)
          use binary_def, only: binary_info
          integer, intent(in) :: binary_id
@@ -411,7 +455,6 @@
          ! outer lagrangian point equivalent radii
          names(6) = 'rl2_donor'
          vals(6) = eval_outer_roche_lobe(b% m(b% d_i), b% m(b% a_i), b% separation) / Rsun
-
 
          ! Darwin unstable separation
          names(7) = 'a_Darwin'
@@ -543,6 +586,31 @@
          if (b% doing_first_model_of_run) then
             b% s_donor% job% pgstar_flag = .true.
             if (b% point_mass_i == 0) b% s_accretor% job% pgstar_flag = .true.
+         end if
+
+         ! check for convective envelope in star 1
+         if (b% point_mass_i /= 1) then
+            if (is_convective(b% s1)) then
+               b% circ_type_1 = 'Hut_conv'
+               b% sync_type_1 = 'Hut_conv'
+               b% Ftid_1 = 50
+            else
+               b% circ_type_1 = 'Hut_rad'
+               b% sync_type_1 = 'Hut_rad'
+               b% Ftid_1 = 1
+            end if
+         end if
+         ! save but for star 2
+         if (b% point_mass_i /= 2) then
+            if (is_convective(b% s2)) then
+               b% circ_type_2 = 'Hut_conv'
+               b% sync_type_2 = 'Hut_conv'
+               b% Ftid_2 = 50
+            else
+               b% circ_type_2 = 'Hut_rad'
+               b% sync_type_2 = 'Hut_rad'
+               b% Ftid_2 = 1
+            end if
          end if
 
          ! check ce end
