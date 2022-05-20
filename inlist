@@ -1,0 +1,10 @@
+&bin2dco_controls
+
+   ! file with binary controls 
+   star_plus_pm_filename = 'inlist_project'
+
+   ! files with core-collapse & common-envelope controls
+   cc2_inlist_filename = 'inlist_cc'
+   ce2_inlist_filename = 'inlist_ce'
+
+/ ! end of bin2dco_controls namelist

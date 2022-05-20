@@ -1,19 +1,19 @@
 &cc_controls
 
-  ! name of supernova model used to calculate ejected, remnant and fallback mass
+   ! name of supernova model used to calculate ejected, remnant and fallback mass
    model_name = 'delayed'
 
-  ! name of folder where core-collapse data will be saved
+   ! name of folder where core-collapse data will be saved
    cc_data_directory = 'cc_data'
 
-  ! flag to print out core-collapse info
+   ! flag to print out core-collapse info
    report_core_collapse = .true.
 
-  ! name of files with information of the collapsing star & binary system at core-collapse
+   ! name of files with information of the collapsing star & binary system at core-collapse
    filename_for_star_data = 'star_at_core_collapse'
    filename_for_binary_data = 'binary_at_core_collapse'
 
-  ! maximum mass for a neutron star in Msun (used if model_name is 'rapid' or 'delayed')
+   ! maximum mass for a neutron star in Msun (used if model_name is 'rapid' or 'delayed')
    max_ns_mass = 2.5d0
 
 / ! end of cc_controls namelist

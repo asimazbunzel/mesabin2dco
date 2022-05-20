@@ -4,10 +4,10 @@
 
    binary_history_columns_file = 'column_lists/binary_history.list'
 
-   inlist_names(1) = 'inlist1' 
+   inlist_names(1) = 'inlist1'
    inlist_names(2) = 'inlist2'
 
-   evolve_both_stars = .true.
+   evolve_both_stars = .false.
 
 / ! end of binary_job namelist
 
@@ -15,50 +15,47 @@
 
    report_rlo_solver_progress = .false.
 
-  ! initial parameters in inlist_binary
+   ! in case classical star + point-mass evolution, set this to true
+   ! and use binary parameters from `inlist_binary`
    read_extra_binary_controls_inlist1 = .true.
    extra_binary_controls_inlist1_name = 'inlist_binary'
 
    history_name = 'binary_history.data'
-   log_directory = 'LOGS_binary'
    history_interval = 1
    append_to_star_history = .false.
+   log_directory = 'LOGS_binary'
    photo_interval = 100
-   photo_directory = 'photos'
+   photo_digits = 4
 
-  ! mass-transfer controls
+   ! mass-transfer controls
    mdot_scheme = 'Kolb'
-   limit_retention_by_mdot_edd = .false.
+   limit_retention_by_mdot_edd = .true.
+   
    do_jdot_mb = .false.
    do_jdot_missing_wind = .true.
-   !do_tidal_sync = .true.
-   !do_j_accretion = .true.
 
-   keep_donor_fixed = .false.
+   do_tidal_circ = .true.
+   do_tidal_sync = .true.
 
-  ! numerical resolution during mass-transfer
-   fr = 0.02
-   varcontrol_case_a = 7d-4 !3d-4
-   varcontrol_case_b = 7d-4 !5d-4
-   varcontrol_ms = 7d-4 !5d-4
-   varcontrol_post_ms = 7d-4 !5d-4
-   dt_softening_factor = 0.4
+   ! compute models with a star overflowing at ZAMS
+   terminate_if_initial_overflow = .false.
+
+   ! numerical resolution during mass-transfer
+   fr = 0.01
+   fr_limit = 1d-2
+   varcontrol_case_a = 3d-4
+   varcontrol_case_b = 5d-4
+   varcontrol_ms = 5d-4
+   varcontrol_post_ms = 5d-4
+   dt_softening_factor = 0.1
    implicit_scheme_tolerance = 1d-2
-   max_tries_to_achieve = 100 ! 200
+   max_tries_to_achieve = 200
    min_change_factor = 1.025
    max_change_factor = 1.2d0
    initial_change_factor = 1.2d0
    change_factor_fraction = 0.8d0
+   implicit_lambda = 0.4d0
    min_mdot_for_implicit = 1d-10
-
-   !sync_mode_1 = 'Uniform'
-   !sync_type_1 = 'Hut_rad'
-   !Ftid_1 = 1
-   !sync_mode_2 = 'Uniform'
-   !sync_type_2 = 'Hut_rad'
-   !Ftid_2 = 1
-   !do_initial_orbit_sync_1 = .true.
-   !do_initial_orbit_sync_2 = .true.
 
 / ! end of binary_controls namelist
 
