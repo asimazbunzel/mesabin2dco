@@ -1,2 +1,40 @@
-cd make
-make clean
+#!/bin/bash
+
+function check_okay {
+   if [ $? -ne 0 ]; then
+      echo
+      echo "FAILED"
+      echo
+      exit 1
+   fi
+}
+
+function rmdir_libncls {
+   if [ -r lib ]
+   then
+      rm -rf lib
+   fi
+
+   if [ -r include ]
+   then
+      rm -rf include
+   fi
+}
+
+function rmdir_mod {
+   cd src/$1
+   check_okay
+   ./clean
+   check_okay
+   cd ../..
+}
+
+# rm lib & include dirs
+rmdir_libncls
+
+# rm mods
+rmdir_mod ce
+rmdir_mod core_collapse
+
+# clean links with source code
+cd make; make clean; check_okay
