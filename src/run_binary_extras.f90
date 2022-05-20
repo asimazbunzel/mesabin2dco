@@ -38,8 +38,6 @@
 
       implicit none
 
-      include 'test_suite_extras_def.inc'
-
       integer, parameter :: max_num_kicks = 100000
 
       ! b% lxtra(lx_ce_on) is true when ce is on
@@ -78,6 +76,7 @@
       character(len=strlen) :: star_info_at_cc_filename, binary_info_at_cc_filename
       logical :: add_kick_id_as_suffix
       character(len=strlen) :: termination_codes_folder
+
       namelist /bin2dco_controls/ &
          do_star_plus_star, &
          star_plus_star_filename, star_plus_pm_filename, &
@@ -105,6 +104,9 @@
       integer :: num_switches
       logical :: second_collapse
 
+      integer :: time0, time1, clock_rate
+      real(dp) :: runtime
+
       ! minimum value for the fraction of convective envelope
       real(dp), parameter :: min_convective_fraction = 0.1d0
 
@@ -112,9 +114,6 @@
       logical, parameter :: dbg_do_run = .true.
 
       contains
-
-
-      include 'test_suite_extras.inc'
 
 
       subroutine do_run(extras_controls, extras_binary_controls, ierr)
@@ -148,6 +147,7 @@
 
          ! get bin2dco controls
          inlist_fname = 'inlist'
+         call set_default_bin2dco_controls
          call read_bin2dco_controls(inlist_fname, ierr)
          if (ierr /= 0) return
 
@@ -484,6 +484,9 @@
          if (ierr /= 0) then ! failure in  binary_ptr
             return
          end if
+
+         ! for debugging mode, use test_suite subroutines to compute runtime of model
+         if (dbg) call system_clock(time0, clock_rate)
 
          ! set ce controls
          if (b% point_mass_i == 0) then
@@ -1059,6 +1062,13 @@
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
+         end if
+
+         if (dbg) then
+            call system_clock(time1, clock_rate)
+            runtime = real(time1 - time0, dp) / clock_rate / 60
+            write(*,'(/,a50,f12.2,99i10/)') 'runtime (minutes), retries, steps', &
+               runtime, b% s1% num_retries, b% s1% model_number
          end if
 
          if (b% point_mass_i == 0) then

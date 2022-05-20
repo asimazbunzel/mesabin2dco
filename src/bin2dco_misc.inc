@@ -1,4 +1,10 @@
 
+
+         subroutine set_default_bin2dco_controls
+            include 'bin2dco_controls.defaults'
+         end subroutine set_default_bin2dco_controls
+
+
          subroutine read_bin2dco_controls(filename, ierr)
             character(len=*) :: filename
             integer, intent(out) :: ierr
@@ -23,6 +29,7 @@
 
          end subroutine read_bin2dco_controls
 
+
          logical function end_as_core_collapse(filename)
             use const_def, only: strlen
             character(len=*) :: filename
@@ -42,6 +49,7 @@
             end if
 
          end function end_as_core_collapse
+
 
          ! search for string in file and return value associated to it
          subroutine read_cc_parameters(star_filename, binary_filename, &
@@ -169,7 +177,7 @@
             character(len=strlen), dimension(4) :: str_entry
             character(len=strlen) :: buffer, trimmed_buffer, string
             logical :: dbg = .false.
-         
+
             include 'formats'
 
             ! open up natal kicks file
@@ -178,7 +186,7 @@
                write(*,*) 'failed to open ' // trim(filename)
                return
             end if
-   
+
             i = 1
             do while (ierr == 0)
 
