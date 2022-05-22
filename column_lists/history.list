@@ -135,7 +135,7 @@
       ! you might want to get a more complete list of mixing regions by using the following
 
       !mixing_regions <integer> ! note: this includes regions where the mixing type is no_mixing.
-      mixing_regions 20
+      !mixing_regions 20
 
          ! the <integer> is the number of regions to report
          ! there will be 2*<integer> columns for this in the log file, 2 for each region.
@@ -154,7 +154,7 @@
 
 
       !mix_relr_regions <integer>
-      mix_relr_regions 20
+      !mix_relr_regions 20
 
          ! same as above, but locations given as r/rstar instead of m/mstar.
          ! the columns in the log file will have names like 'mix_relr_type_1' and 'mix_relr_top_1'
@@ -259,9 +259,9 @@
 
       ! log10 total luminosity for reaction categories (Lsun units)
 
-      pp
-      cno
-      tri_alfa
+      !pp
+      !cno
+      !tri_alfa
       !burn_c
       !burn_n
       !burn_o
@@ -323,7 +323,7 @@
       ! you might want to get a more complete list of burning regions by using the following
 
       !burning_regions <integer>
-      burning_regions 20
+      !burning_regions 20
 
          ! the <integer> is the number of regions to report
          ! there will be 2*<integer> columns for this in the log file, 2 for each region.
@@ -336,9 +336,9 @@
          ! since we start at the center, the bottom of the 1st region is q=0 and top of last is q=1.
 
          ! the columns in the log file will have names like 'burn_type_1' and 'burn_qtop_1'
-         
+
       !burn_relr_regions <integer>
-      burn_relr_regions 20
+      !burn_relr_regions 20
 
          ! same as above, but locations given as r/rstar instead of m/mstar.
          ! the columns in the log file will have names like 'burn_relr_type_1' and 'burn_relr_top_1'
@@ -353,7 +353,7 @@
 
    !## helium core
       he_core_mass
-      !he_core_radius
+      he_core_radius
       !he_core_lgT
       !he_core_lgRho
       !he_core_L
@@ -364,7 +364,7 @@
 
    !## carbon core
       c_core_mass
-      !c_core_radius
+      c_core_radius
       !c_core_lgT
       !c_core_lgRho
       !c_core_L
@@ -375,7 +375,7 @@
 
    !## oxygen core
       o_core_mass
-      !o_core_radius
+      o_core_radius
       !o_core_lgT
       !o_core_lgRho
       !o_core_L
@@ -419,7 +419,7 @@
 
    !## envelope
 
-      !envelope_mass ! = star_mass - he_core_mass
+      envelope_mass ! = star_mass - he_core_mass
       !envelope_fraction_left ! = envelope_mass / (initial_mass - he_core_mass)
 
       !h_rich_layer_mass ! = star_mass - he_core_mass
@@ -499,8 +499,8 @@
 
       log_g ! log10 gravity
       !gravity
-      !log_Ledd
-      !log_L_div_Ledd ! log10(L/Leddington)
+      log_Ledd
+      log_L_div_Ledd ! log10(L/Leddington)
       !lum_div_Ledd
       !log_surf_optical_depth
       !surface_optical_depth
@@ -524,9 +524,9 @@
       !surface_accel_div_grav ! (v - v_old)/dt divided by GM/R^2 at outermost grid point
 
       !surf_avg_j_rot
-      !surf_avg_omega
-      !surf_avg_omega_crit
-      !surf_avg_omega_div_omega_crit
+      surf_avg_omega
+      surf_avg_omega_crit
+      surf_avg_omega_div_omega_crit
       !surf_avg_v_rot ! km/sec rotational velocity at equator
       !surf_avg_v_crit ! critical rotational velocity at equator
       !surf_avg_v_div_v_crit
@@ -645,6 +645,7 @@
       center h1
       center he4
       center c12
+      center n14
       center o16
 
       ! individual log10 central mass fractions (as many as desired)
@@ -663,6 +664,7 @@
       surface h1
       surface he4
       surface c12
+      surface n14
       surface o16
       ! etc.
 

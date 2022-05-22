@@ -21,7 +21,7 @@
 
 ! the first few lines of the log file contain parameter values as of the start of the run
 ! for completeness, those items are described here:
-   
+
    ! version_number -- MESA version number that created this file
    ! initial_star_1_mass -- initial mass of first star (in Msun)
    ! initial_star_2_mass -- initial mass of second star (in Msun)
@@ -33,7 +33,7 @@
 
 
 ! the following lines of the log file contain info about 1 model per row
-   
+
       model_number ! model number of donor star
       age ! age of donor star
 
@@ -88,10 +88,10 @@
       !delta_star_2_mass ! star_2_mass/initial_star_2_mass
       fixed_xfer_fraction ! fixed mass transfer fraction 1-alpha-beta-delta
       eff_xfer_fraction ! effective efficiency, -dot_M_a/dot_M_d
-      !lg_mdot_edd ! log10 Eddington accretion rate for point mass accretor in units of Msun/yr
-      !mdot_edd_eta ! Efficiency of radiation from accretion to point source
-      !lg_accretion_luminosity ! log10 Luminosity from accretion to point source (in units of Lsun)
-      !bh_spin ! Spin parameter of BH accretor 
+      lg_mdot_edd ! log10 Eddington accretion rate for point mass accretor in units of Msun/yr
+      mdot_edd_eta ! Efficiency of radiation from accretion to point source
+      lg_accretion_luminosity ! log10 Luminosity from accretion to point source (in units of Lsun)
+      bh_spin ! Spin parameter of BH accretor 
       !lg_mdot_system h1 ! you can use lg_mdot_system <isotope> to get the mass loss
                          ! rate from the system corresponding to a particular isotope.
 
