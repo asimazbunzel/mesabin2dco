@@ -22,9 +22,9 @@
    initial_he4 = 0.28d0
 
    relax_initial_Z = .true.
-   new_Z = 0.0017
+   new_Z = 0.017
    relax_initial_Y = .true.
-   new_Y = 0.2521
+   new_Y = 0.28
 
    change_conv_vel_flag = .true.
    change_initial_conv_vel_flag = .true.
@@ -47,7 +47,7 @@
 
 &kap
 
-   Zbase = 0.0017
+   Zbase = 0.017
 
 /
 
