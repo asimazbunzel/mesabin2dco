@@ -4,9 +4,6 @@
 
    pgstar_flag = .false.
 
-   history_columns_file = 'column_lists/history.list'
-   profile_columns_file = 'column_lists/profile.list'
-
    set_cumulative_energy_error_at_step = 1
    new_cumulative_energy_error = 0d0
 

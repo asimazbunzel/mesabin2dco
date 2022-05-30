@@ -2,8 +2,6 @@
 
    show_binary_log_description_at_start = .false.
 
-   binary_history_columns_file = 'column_lists/binary_history.list'
-
    inlist_names(1) = 'inlist1'
    inlist_names(2) = 'inlist2'
 
