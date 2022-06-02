@@ -22,7 +22,7 @@ OWN_WORK_COMPILE = \
 	-I$(MESA_INCLUDE_DIR) -I$(OWN_INCLUDE_DIR) $(INCLUDE_HDF5) -c
 
 ifndef STAR
-STAR = bin2dco
+STAR = binary
 endif
 
 OBJS = $(BINARY_WORK_OBJS) binary_run.o
