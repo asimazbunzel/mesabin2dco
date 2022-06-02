@@ -118,7 +118,8 @@
 
       subroutine do_run(extras_controls, extras_binary_controls, ierr)
          integer, intent(out) :: ierr
-         character(len=strlen) :: inlist_fname, termination_code_fname
+         character(len=strlen) :: inlist_fname, inlist_fname_arg
+         character(len=strlen) :: termination_code_fname
          character(len=strlen) :: str_index
          integer :: iounit, k, k_idx
          logical :: has_reached_cc
@@ -142,11 +143,11 @@
 
          write(*,'(/,a)') 'do bin2dco run'
 
-         ! avoid trying to get MESA_INLIST from the command-line arguments
+         inlist_fname_arg = 'inlist'
+         call resolve_inlist_fname(inlist_fname, inlist_fname_arg)
          MESA_INLIST_RESOLVED = .true.
 
          ! get bin2dco controls
-         inlist_fname = 'inlist'
          call set_default_bin2dco_controls
          call read_bin2dco_controls(inlist_fname, ierr)
          if (ierr /= 0) return
