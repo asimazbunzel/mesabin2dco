@@ -490,7 +490,7 @@
          if (dbg) call system_clock(time0, clock_rate)
 
          ! set ce controls
-         if (b% point_mass_i == 0) then
+         if (b% point_mass_i == 0 .or. .not. b% evolve_both_stars) then
             call ce_set_controls(ce1_inlist_filename, ierr)
             if (ierr /= 0) return
          else
@@ -805,52 +805,46 @@
 
          else if (star_cc_id > 0 .and. second_collapse) then
 
-            ! save profile of first collapsing star inside log directory
+            ! pointer to collapsing star as well as loading the proper file for cc module options
             if (star_cc_id == 1) then
                s => b% s1
+
+               call cc_set_controls(cc1_inlist_filename, ierr)
+               if (ierr /= 0) return
+
             else
                s => b% s2
+
+               call cc_set_controls(cc2_inlist_filename, ierr)
+               if (ierr /= 0) return
+
             end if
 
             if (do_kicks) then
-               call cc_set_controls(cc2_inlist_filename, ierr)
-               if (ierr /= 0) return
 
                ! replace filenames by adding natal-kick id
                write(filename_for_star_data, '(a)') trim(filename_for_star_data) // "_" // trim(kick_id)
                write(filename_for_binary_data, '(a)') trim(filename_for_binary_data) // "_" // trim(kick_id)
 
-               call cc_compact_object_formation(star_cc_id, ierr)
-               if (ierr /= 0) then
-                  write(*,'(a)') 'failed in cc_compact_object_formation'
-                  return
-               end if
-
+               ! save profile of collapsing star with natal-kick id
                call star_write_profile_info(star_cc_id, &
                   trim(s% log_directory) // '/profile_at_cc' // '_' // trim(kick_id) // '.data', ierr)
                if (ierr /= 0) return
 
             else
 
-               call cc_set_controls(cc1_inlist_filename, ierr)
-               if (ierr /= 0) return
-
-               if (do_kicks) then
-                  write(filename_for_star_data, '(a)') trim(filename_for_star_data) // "_1"
-                  write(filename_for_binary_data, '(a)') trim(filename_for_binary_data) // "_1"
-               end if
-
-               call cc_compact_object_formation(star_cc_id, ierr)
-               if (ierr /= 0) then
-                  write(*,'(a)') 'failed in cc_compact_object_formation'
-                  return
-               end if
-
-               ! save profile of first collapsing star
+               ! save profile of collapsing star
                call star_write_profile_info(star_cc_id, &
                   trim(s% log_directory) // '/profile_at_second_cc.data', ierr)
                if (ierr /= 0) return
 
+            end if
+
+            ! compute collapse of star
+            call cc_compact_object_formation(star_cc_id, ierr)
+            if (ierr /= 0) then
+               write(*,'(a)') 'failed in cc_compact_object_formation'
+               return
             end if
 
             return
