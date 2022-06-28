@@ -648,8 +648,9 @@
          if (b% model_number /= b% s_donor% model_number) &
             b% model_number = b% s_donor% model_number
 
-         ! check if ce
-         if (b% r(b% d_i) > b% rl(b% d_i) .and. ce_off) then
+         ! check if ce using the relative Roche lobe with eccentricity to study cases with
+         ! RLOF at periastron passage
+         if (b% rl_relative_gap(b% d_i) > 0 .and. ce_off) then
             call ce_unstable_mt_phase(binary_id, ierr)
             if (ierr /= 0) return
 
@@ -702,7 +703,7 @@
          end if
 
          ! if mass-transfer is really high even though no RLOF, then terminate
-         if (b% r(b% d_i) < b% rl(b% d_i) .and. ce_off &
+         if (b% rl_relative_gap(b% d_i) < 0 .and. ce_off &
             .and. abs(b% mtransfer_rate) * secyer/Msun > max_mdot_rlof) then
             write(*,'(a)') 'reach a really high MT rate without having RLOF'
             b% s_donor% termination_code = t_xtra1
@@ -741,13 +742,13 @@
          ! first collapse
          star_cc_id = 0
          if (b% point_mass_i == 0) then
-            if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
+            if (b% s1% center_c12 < 1d-3 .and. b% s1% center_he4 < 1d-4 .and. b% s1% center_h1 < 1d-5) then
                star_cc_id = 1
                call star_write_model(2, 'companion_at_core_collapse.mod', ierr)
                b% s1% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'core-collapse'
                extras_binary_finish_step = terminate
-            else if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
+            else if (b% s2% center_c12 < 1d-3 .and. b% s2% center_he4 < 1d-4 .and. b% s2% center_h1 < 1d-5) then
                star_cc_id = 2
                call star_write_model(1, 'companion_at_core_collapse.mod', ierr)
                b% s2% termination_code = t_xtra1
@@ -756,7 +757,7 @@
             end if
          ! second collapse
          else if (b% point_mass_i == 1) then
-            if (b% s2% center_c12 < 1d-4 .and. b% s2% center_he4 < 1d-4) then
+            if (b% s2% center_c12 < 1d-3 .and. b% s2% center_he4 < 1d-4 .and. b% s2% center_h1 < 1d-5) then
                second_collapse = .true.
                star_cc_id = 2
                b% s2% termination_code = t_xtra1
@@ -764,7 +765,7 @@
                extras_binary_finish_step = terminate
             end if
          else if (b% point_mass_i == 2) then
-            if (b% s1% center_c12 < 1d-4 .and. b% s1% center_he4 < 1d-4) then
+            if (b% s1% center_c12 < 1d-3 .and. b% s1% center_he4 < 1d-4 .and. b% s1% center_h1 < 1d-5) then
                second_collapse = .true.
                star_cc_id = 1
                b% s1% termination_code = t_xtra1
@@ -1005,7 +1006,7 @@
             return
          end if
 
-         if (b% point_mass_i == 0  .and. .not. b% keep_donor_fixed .and. b% r(b% d_i) < b% rl(b% d_i)) then
+         if (b% point_mass_i == 0  .and. .not. b% keep_donor_fixed .and. b% rl_relative_gap(b% d_i) < 0) then
             !--------------------- Optically thin MT rate --------------------------
             ! As described in H. Ritter 1988, A&A 202,93-100 and
             ! U. Kolb and H. Ritter 1990, A&A 236,385-392
