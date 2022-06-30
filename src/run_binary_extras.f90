@@ -110,6 +110,9 @@
       ! minimum value for the fraction of convective envelope
       real(dp), parameter :: min_convective_fraction = 0.1d0
 
+      ! chandrasekhar mass
+      real(dp), parameter :: chandra_mass = 1.4d0
+
       logical, parameter :: dbg = .true.
       logical, parameter :: dbg_do_run = .true.
 
@@ -736,6 +739,31 @@
             if (b% model_number == b% ixtra(ix_ce_model_number) .and. save_model_pre_ce) then
                write(*,11) 'save model at start of ce, model_number', b% model_number
                call do_saves_for_binary(b, ierr)
+            end if
+         end if
+
+         ! if star has too low-mass, assume WD formation, thus not important for us
+         if (b% point_mass_i == 0) then
+            if (b% s1% c_core_mass < chandra_mass) then
+               b% s1% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'white-dwarf'
+               extras_binary_finish_step = terminate
+            else if (b% s2% c_core_mass < chandra_mass) then
+               b% s2% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'white-dwarf'
+               extras_binary_finish_step = terminate
+            end if
+         else if (b% point_mass_i == 1) then
+            if (b% s2% c_core_mass < chandra_mass) then
+               b% s2% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'white-dwarf'
+               extras_binary_finish_step = terminate
+            end if
+         else if (b% point_mass_i == 2) then
+            if (b% s1% c_core_mass < chandra_mass) then
+               b% s1% termination_code = t_xtra1
+               termination_code_str(t_xtra1) = 'white-dwarf'
+               extras_binary_finish_step = terminate
             end if
          end if
 
