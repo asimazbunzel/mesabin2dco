@@ -113,8 +113,8 @@
       ! chandrasekhar mass
       real(dp), parameter :: chandra_mass = 1.4d0
 
-      logical, parameter :: dbg = .true.
-      logical, parameter :: dbg_do_run = .true.
+      logical, parameter :: dbg = .false.
+      logical, parameter :: dbg_do_run = .false.
 
       contains
 
@@ -744,23 +744,23 @@
 
          ! if star has too low-mass, assume WD formation, thus not important for us
          if (b% point_mass_i == 0) then
-            if (b% s1% c_core_mass < chandra_mass .and. b% s1% power_nuc_burn < b% s1% power_neutrinos) then
+            if (b% s1% center_c12 < 5d-2 .and. b% s1% c_core_mass < chandra_mass .and. b% s1% power_nuc_burn < b% s1% power_neutrinos) then
                b% s1% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'white-dwarf'
                extras_binary_finish_step = terminate
-            else if (b% s2% c_core_mass < chandra_mass .and. b% s2% power_nuc_burn < b% s2% power_neutrinos) then
+            else if (b% s2% center_c12 < 5d-2 .and. b% s2% c_core_mass < chandra_mass .and. b% s2% power_nuc_burn < b% s2% power_neutrinos) then
                b% s2% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'white-dwarf'
                extras_binary_finish_step = terminate
             end if
          else if (b% point_mass_i == 1) then
-            if (b% s2% c_core_mass < chandra_mass .and. b% s2% power_nuc_burn < b% s2% power_neutrinos) then
+            if (b% s2% center_c12 < 5d-2 .and. b% s2% c_core_mass < chandra_mass .and. b% s2% power_nuc_burn < b% s2% power_neutrinos) then
                b% s2% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'white-dwarf'
                extras_binary_finish_step = terminate
             end if
          else if (b% point_mass_i == 2) then
-            if (b% s1% c_core_mass < chandra_mass .and. b% s1% power_nuc_burn < b% s1% power_neutrinos) then
+            if (b% s1% center_c12 < 5d-2 .and. b% s1% c_core_mass < chandra_mass .and. b% s1% power_nuc_burn < b% s1% power_neutrinos) then
                b% s1% termination_code = t_xtra1
                termination_code_str(t_xtra1) = 'white-dwarf'
                extras_binary_finish_step = terminate
