@@ -37,6 +37,7 @@ TAGS
 
 # BIN2DCO binary
 bin2dco
+binary
 
 # CE and CC output
 **/ce_data/
