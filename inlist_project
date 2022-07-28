@@ -28,6 +28,10 @@
    ! mass-transfer controls
    mdot_scheme = 'Kolb'
    limit_retention_by_mdot_edd = .true.
+
+   do_wind_mass_transfer_1 = .true.
+   wind_BH_alpha_1 = 1.5d0
+   max_wind_transfer_fraction_1 = 0.5d0
    
    do_jdot_mb = .false.
    do_jdot_missing_wind = .true.
