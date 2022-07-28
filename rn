@@ -8,15 +8,15 @@ date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
 
 if [[ -e bin2dc0.exe ]]; then
 
-	./bin2dco.exe
+	./binary.exe
 
 else
 
    if [ "$#" -eq 0 ]; then
-      ./bin2dco
+      ./binary
    elif [ "$#" -eq 1 ]; then
       export MESA_TEMP_CACHES_DIR=$PWD/.mesa_temp_cache/$1
-      ./bin2dco $1
+      ./binary $1
       rm -rf $MESA_TEMP_CACHES_DIR
    else
       printf "\nERROR: more arguments than needed were given \n\n"

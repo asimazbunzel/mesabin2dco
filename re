@@ -27,5 +27,5 @@ echo "restart from $photo"
 echo $photo > .restart
 
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
-./bin2dco
+./binary
 date "+DATE: %Y-%m-%d%nTIME: %H:%M:%S"
