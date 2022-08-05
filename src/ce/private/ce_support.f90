@@ -122,11 +122,30 @@
       logical function will_merge(b, ierr)
          type(binary_info), pointer :: b
          integer, intent(out) :: ierr
+         integer :: k
+         real(dp) :: h_diff, he_diff
+         real(dp) :: rlobe
 
          will_merge = .false.
          ierr = 0
          ! do not check if first timestep
          if (b% model_number <= ce_initial_model_number) return
+
+         ! if core is overflowing, end as merge
+         do k = 1, b% s_donor% nz
+            h_diff = abs(b% s_donor% center_h1 - b% s_donor% X(k))
+            he_diff = abs(b% s_donor% center_he4 - b% s_donor% Y(k))
+            if (h_diff < 0.01 .and. he_diff < 0.01) then
+               rlobe = binary_eval_rlobe(b% s_donor% m(k), b% m(b% a_i), b% separation)
+               if (b% s_donor% r(k) > rlobe) then
+                  write(*,*) "Terminate due to CE_terminate_when_core_overflows"
+                  write(*,*) "Terminating evolution"
+                  will_merge = .true.
+                  return
+               end if
+               exit
+            end if
+         end do
 
          ! check for many retries during ce
          if (b% s_donor% num_retries > max_number_retries_during_ce) then
