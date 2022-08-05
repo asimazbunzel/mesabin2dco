@@ -621,14 +621,6 @@
             call ce_check_state(binary_id, ierr)
             if (ierr /= 0) return
 
-            ! if donor star is a MS star, end it in a ce merge. we do not expect it to survive
-            ! this phase
-            if (b% s_donor% center_h1 > 1d-4) then
-               ce_merge = .true.
-               b% s_donor% termination_code = t_xtra1
-               termination_code_str(t_xtra1) = 'ce merge with MS donor'
-            end if
-
             if (ce_merge) then
                extras_binary_start_step = terminate
                return
