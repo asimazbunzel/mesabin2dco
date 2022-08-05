@@ -29,6 +29,7 @@
       use cc_def
       use ce_def
       use run_star_support
+      use run_star_extras
  
       use math_lib
       use num_lib
@@ -103,9 +104,6 @@
       integer :: num_kicks
       integer :: num_switches
       logical :: second_collapse
-
-      integer :: time0, time1, clock_rate
-      real(dp) :: runtime
 
       ! minimum value for the fraction of convective envelope
       real(dp), parameter :: min_convective_fraction = 0.1d0
@@ -489,9 +487,6 @@
             return
          end if
 
-         ! for debugging mode, use test_suite subroutines to compute runtime of model
-         if (dbg) call system_clock(time0, clock_rate)
-
          ! set ce controls
          if (b% point_mass_i == 0 .or. .not. b% evolve_both_stars) then
             call ce_set_controls(ce1_inlist_filename, ierr)
@@ -586,13 +581,14 @@
             return
          end if
 
-         if (do_kicks .and. b% point_mass_i /= 0 .and. add_kick_id_as_suffix) then
-         end if
-
-         ! turn pgstar flag on
-         if (b% doing_first_model_of_run) then
-            b% s_donor% job% pgstar_flag = .true.
-            if (b% point_mass_i == 0) b% s_accretor% job% pgstar_flag = .true.
+         ! set tighter timestep limit for the HG
+         if (b% s_donor% center_h1 < 1d-3 .and. b% s_donor% center_he4 > 0.9d0 &
+                .and. b% r(1) < b% rl(1)) then
+            b% s_donor% delta_HR_limit = delta_HR_limit/10d0
+            b% s_donor% delta_HR_hard_limit = delta_HR_hard_limit/10d0
+         else
+            b% s_donor% delta_HR_limit = delta_HR_limit
+            b% s_donor% delta_HR_hard_limit = delta_HR_hard_limit
          end if
 
          ! check for convective envelope in star 1
@@ -1095,13 +1091,6 @@
          call binary_ptr(binary_id, b, ierr)
          if (ierr /= 0) then ! failure in  binary_ptr
             return
-         end if
-
-         if (dbg) then
-            call system_clock(time1, clock_rate)
-            runtime = real(time1 - time0, dp) / clock_rate / 60
-            write(*,'(/,a50,f12.2,99i10/)') 'runtime (minutes), retries, steps', &
-               runtime, b% s1% num_retries, b% s1% model_number
          end if
 
          if (b% point_mass_i == 0) then
