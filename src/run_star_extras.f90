@@ -26,6 +26,7 @@
       use chem_def
       use star_def
       use binary_def
+      use ce_def
 
       use math_lib
       use star_lib
@@ -275,7 +276,7 @@
       integer function how_many_extra_history_columns(id)
          integer, intent(in) :: id
 
-         how_many_extra_history_columns = 13
+         how_many_extra_history_columns = 14
 
       end function how_many_extra_history_columns
 
@@ -357,9 +358,16 @@
          names(12) = 'accretion_mode'
          vals(12) = b% accretion_mode
 
+         names(13) = 'ce_phase'
+         if (ce_on) then
+            vals(13) = 1d0
+         else
+            vals(13) = 0d0
+         end if
+
          dt = dble(time1 - time0) / clock_rate / 60
-         names(13) = 'runtime_minutes'
-         vals(13) = dt
+         names(14) = 'runtime_minutes'
+         vals(14) = dt
 
       end subroutine data_for_extra_history_columns
 
