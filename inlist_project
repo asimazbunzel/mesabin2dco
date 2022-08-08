@@ -34,8 +34,9 @@
    max_wind_transfer_fraction_1 = 0.5d0
    
    do_jdot_mb = .false.
-   do_jdot_missing_wind = .true.
 
+   do_jdot_ls = .true.
+   do_jdot_missing_wind = .true.
    do_tidal_circ = .true.
    do_tidal_sync = .true.
 
@@ -43,21 +44,28 @@
    terminate_if_initial_overflow = .false.
 
    ! numerical resolution during mass-transfer
-   fr = 0.01
+   fr = 0.005d0  !0.01
    fr_limit = 1d-2
+   fr_dt_limit = 100
+   fm = 1d0
+   fm_limit = 1d-1
+   fj = 0.01d0
+   dt_softening_factor = 0.4
+
    varcontrol_case_a = 3d-4
    varcontrol_case_b = 5d-4
    varcontrol_ms = 5d-4
    varcontrol_post_ms = 5d-4
-   dt_softening_factor = 0.1
+   
    implicit_scheme_tolerance = 1d-2
-   max_tries_to_achieve = 200
-   min_change_factor = 1.025
-   max_change_factor = 1.2d0
-   initial_change_factor = 1.2d0
+   max_tries_to_achieve = 100
+   min_change_factor = 1.002d0  !! 1.025
+   max_change_factor = 1.5d0    !! 1.2d0
+   initial_change_factor = 1.5d0 ! 1.2d0
    change_factor_fraction = 0.8d0
    implicit_lambda = 0.4d0
-   min_mdot_for_implicit = 1d-10
+   implicit_scheme_tiny_factor = 0.4d0
+   min_mdot_for_implicit = 1d-8
 
 / ! end of binary_controls namelist
 
