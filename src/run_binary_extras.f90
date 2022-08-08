@@ -41,6 +41,9 @@
 
       integer, parameter :: max_num_kicks = 100000
 
+      ! neutron star radius in cm
+      real(dp), parameter :: R_NS = 1e6
+
       ! b% lxtra(lx_ce_on) is true when ce is on
       integer, parameter :: lx_ce_on = 1
       ! b% lxtra(lx_ce_off) is true when ce is off
@@ -340,11 +343,99 @@
          b% extras_binary_finish_step => extras_binary_finish_step
          b% extras_binary_after_evolve => extras_binary_after_evolve
 
+         b% use_other_binary_wind_transfer = .true.
+         b% other_binary_wind_transfer => modified_bondi_hoyle_wind_transfer
+
          ! Once you have set the function pointers you want, then uncomment this (or set it in your star_job inlist)
          ! to disable the printed warning message,
           b% warn_binary_extra =.false.
 
       end subroutine extras_binary_controls
+
+
+      subroutine modified_bondi_hoyle_wind_transfer(binary_id, s_i, ierr)
+         integer, intent(in) :: binary_id, s_i ! s_i is index of the wind mass losing star
+         integer, intent(out) :: ierr
+         type(binary_info), pointer :: b
+         type (star_info), pointer :: s
+         
+         real(dp) :: v2_orb, v2_wind, b_BH
+         real(dp) :: alpha, beta
+         real(dp) :: max_xfer
+
+         integer :: h1
+         real(dp) :: h_center, h_surface
+         real(dp) :: p, b0
+
+         ierr = 0
+         call binary_ptr(binary_id, b, ierr)
+         if (ierr /= 0) then
+            write(*,*) 'failed in binary_ptr'
+            return
+         end if
+         
+
+         if (s_i == 1) then
+            s => b% s1
+            alpha = b% wind_BH_alpha_1
+            max_xfer = b% max_wind_transfer_fraction_1
+            ! beta should be interpolated as in Belczynski+ 2008
+            h1 = b% s1% net_iso(ih1)
+            h_surface = b% s1% xa(h1, 1)
+            h_center = b% s1% xa(h1, b% s1% nz)
+            if (h_center < 1d-5) then
+               beta = 0.125 ! 1/8
+               ! ----------------------------
+               ! save space for He-rich stars
+               !
+               ! ----------------------------
+            else
+                  if (b% m(1) > 120 * Msun) then
+                     beta = 7d0
+                  else if (b% m(1) < 1.4 * Msun) then
+                     beta = 0.5d0
+                  else
+                     p = (7 - 0.5) / (120 - 1.4)
+                     b0 = 7 - 120 * p
+                     beta = p * (b% m(1) / Msun) + b0
+                  end if
+            end if
+         else
+            s => b% s2
+            alpha = b% wind_BH_alpha_2
+            max_xfer = b% max_wind_transfer_fraction_2
+            ! beta should be interpolated as in Belczynski+ 2008
+            h1 = b% s2% net_iso(ih1)
+            h_surface = b% s2% xa(h1, 1)
+            h_center = b% s2% xa(h1, b% s2% nz)
+            if (h_center < 1d-5) then
+               beta = 0.125 ! 1/8
+               ! ----------------------------
+               ! save space for He-rich stars
+               !
+               ! ----------------------------
+            else
+                  if (b% m(2) > 120 * Msun) then
+                     beta = 7d0
+                  else if (b% m(2) < 1.4 * Msun) then
+                     beta = 0.5d0
+                  else
+                     p = (7 - 0.5) / (120 - 1.4)
+                     b0 = 7 - 120 * p
+                     beta = p * (b% m(2) / Msun) + b0
+                  end if
+            end if
+         end if
+
+         write(*,*) 'beta =', beta
+         stop 'dbg'
+
+         ! orbital speed Hurley et al 2002 eq. 8
+         v2_orb = sqrt(standard_cgrav * (b% m(1) + b% m(2)) / b% separation)
+
+         b% wind_xfer_fraction(s_i) = min(max_xfer, 1d0) ! b% wind_xfer_fraction(s_i))
+            
+      end subroutine modified_bondi_hoyle_wind_transfer
 
 
       logical function is_convective(s)
@@ -415,7 +506,7 @@
          use binary_def, only: binary_info
          integer, intent(in) :: binary_id
 
-         how_many_extra_binary_history_columns = 7
+         how_many_extra_binary_history_columns = 10
 
       end function how_many_extra_binary_history_columns
 
@@ -470,6 +561,35 @@
             I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
 
          vals(7) = sqrt(3 * (I1 + I2) / mu) / Rsun
+
+
+         names(8) = 'log_mtransfer_wind'
+         names(9) = 'log_wind_luminosity'
+         names(10) = 'log_accretion_luminosity'
+         if (b% d_i == 1) then
+            vals(8) = safe_log10(abs(b% mdot_wind_transfer(1))/Msun*secyer)
+
+            if (b% m(b% a_i) < max_ns_mass) then
+               vals(9) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% mdot_wind_transfer(1)) / R_NS / Lsun)
+               vals(10) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% component_mdot(2)) / R_NS / Lsun)
+            else
+               vals(9) = safe_log10(b% mdot_edd_eta * clight * clight * abs(b% mdot_wind_transfer(1)) / Lsun)
+               vals(10) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% component_mdot(2)) / Lsun)
+            end if
+
+         else
+            vals(8) = safe_log10(abs(b% mdot_wind_transfer(2))/Msun*secyer)
+
+            if (b% m(b% a_i) < max_ns_mass) then
+               vals(9) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% mdot_wind_transfer(2)) / R_NS / Lsun)
+               vals(10) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% component_mdot(1)) / R_NS / Lsun)
+            else
+               vals(9) = safe_log10(b% mdot_edd_eta * clight * clight * abs(b% mdot_wind_transfer(2)) / Lsun)
+               vals(10) = safe_log10(b% mdot_edd_eta * standard_cgrav * b% m(b% a_i) * abs(b% component_mdot(1)) / Lsun)
+            end if
+
+         end if
+
 
       end subroutine data_for_extra_binary_history_columns
 
