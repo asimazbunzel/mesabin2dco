@@ -26,10 +26,6 @@
    set_initial_model_number = .true.
    initial_model_number = 0
 
-   change_net = .true.
-   change_initial_net = .true.
-   new_net_name = 'approx21_plus_co56.net'
-
 / ! end of star_job namelist
 
 &eos
