@@ -49,6 +49,7 @@
 
    ! wind options implemented as in Brott et al. 2011
    use_other_wind = .true.
+
    ! close to critical rotation, use implicit wind
    max_mdot_redo_cnt = 100
    min_years_dt_for_redo_mdot = 0
@@ -105,10 +106,10 @@
    retry_hold = 5 
 
    ! limit on changes in timestep
-   !!min_timestep_factor = 0.8
-   !!max_timestep_factor = 1.05
-   !!timestep_factor_for_retries = 0.75
-   !!min_J_div_delta_J = 50d0
+   !! min_timestep_factor = 0.8
+   !! max_timestep_factor = 1.05
+   !! timestep_factor_for_retries = 0.75
+   !! min_J_div_delta_J = 0.1d0
 
    ! mesh grid resolution
    mesh_delta_coeff = 1d0
@@ -151,9 +152,10 @@
    min_q_for_k_const_mass = 0.99
 
    ! mlt++
-   okay_to_reduce_gradT_excess = .true.
-   gradT_excess_age_fraction = 0.99d0
-   gradT_excess_max_change = 0.001d0
+   use_superad_reduction = .true.
+   !!okay_to_reduce_gradT_excess = .false.
+   !!gradT_excess_age_fraction = 0.99d0
+   !!gradT_excess_max_change = 0.001d0
 
    ! mixing
    mixing_length_alpha = 2d0
