@@ -373,7 +373,10 @@
             write(*,*) 'failed in binary_ptr'
             return
          end if
-         
+
+         ! auxiliary values for linear interpolation (Belczynski+ 2008)
+         p = (7d0 - 0.5d0) / (120d0 - 1.4d0)
+         b0 = 7d0 - 120d0 * p
 
          if (s_i == 1) then
             s => b% s1
@@ -390,10 +393,8 @@
                   if (b% m(1) > 120 * Msun) then
                      beta = 7d0
                   else if (b% m(1) < 1.4 * Msun) then
-                     beta = 0.5
+                     beta = 0.5d0
                   else
-                     p = (7 - 0.5) / (120 - 1.4)
-                     b0 = 7 - 120 * p
                      beta = p * (b% m(1) / Msun) + b0
                   end if
                end if
@@ -404,8 +405,6 @@
                else if (b% m(1) < 1.4 * Msun) then
                   beta = 0.5d0
                else
-                  p = (7 - 0.5) / (120 - 1.4)
-                  b0 = 7 - 120 * p
                   beta = p * (b% m(1) / Msun) + b0
                end if
             end if
@@ -424,10 +423,8 @@
                   if (b% m(2) > 120 * Msun) then
                      beta = 7d0
                   else if (b% m(2) < 1.4 * Msun) then
-                     beta = 0.5
+                     beta = 0.5d0
                   else
-                     p = (7 - 0.5) / (120 - 1.4)
-                     b0 = 7 - 120 * p
                      beta = p * (b% m(2) / Msun) + b0
                   end if
                end if
@@ -438,8 +435,6 @@
                else if (b% m(2) < 1.4 * Msun) then
                   beta = 0.5d0
                else
-                  p = (7 - 0.5) / (120 - 1.4)
-                  b0 = 7 - 120 * p
                   beta = p * (b% m(2) / Msun) + b0
                end if
             end if
