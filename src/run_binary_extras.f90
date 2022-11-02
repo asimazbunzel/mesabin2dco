@@ -576,7 +576,7 @@
          if (b% point_mass_i /= 1) &
             I1 = I1 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
          if (b% point_mass_i /= 2) &
-            I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+            I2 = I2 + dot_product(b% s2% dm_bar(1:b% s2% nz), b% s2% i_rot(1:b% s2% nz))
          vals(7) = sqrt(3 * (I1 + I2) / mu) / Rsun
 
 
@@ -817,7 +817,7 @@
          if (b% point_mass_i /= 1) &
             I1 = I1 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
          if (b% point_mass_i /= 2) &
-            I2 = I2 + dot_product(b% s1% dm_bar(1:b% s1% nz), b% s1% i_rot(1:b% s1% nz))
+            I2 = I2 + dot_product(b% s2% dm_bar(1:b% s2% nz), b% s2% i_rot(1:b% s2% nz))
          a_Darwin = sqrt(3 * (I1 + I2) / mu)
 
          if (b% doing_first_model_of_run .and. b% separation < a_Darwin) then
