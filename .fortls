@@ -1,0 +1,8 @@
+{
+  "source_dirs": ["./**", "../mesa-r15140/**"],
+  "incl_suffixes": [".inc", ".defaults"],
+  "lowercase_intrinsics": true,
+  "hover_signature": true,
+  "hover_language": "fortran90",
+  "max-line-length": 100,
+}
