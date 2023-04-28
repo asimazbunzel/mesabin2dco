@@ -19,3 +19,27 @@ The ``bin2dco`` wrapper handles the launch of one/many binary stellar-evolution(
 
    bin2dco/overview
    bin2dco/defaults
+
+
+Core-collapse (``core_collapse``)
+---------------------------------
+
+The ``core_collapse`` module handles the computation of the compact object in a collapsing star
+
+.. toctree::
+   :maxdepth: 1
+
+   core_collapse/overview
+   core_collapse/defaults
+
+
+Common-envelope (``ce``)
+------------------------
+
+The ``ce`` module handles the evolution of a binary during a common-envelope phase
+
+.. toctree::
+   :maxdepth: 1
+
+   ce/overview
+   ce/defaults
