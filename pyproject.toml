@@ -1,7 +1,0 @@
-[project]
-name = "mesabin2dco"
-authors = [
-  {name = "asimazbunzel", email = "asimazbunzel@iar.unlp.edu.ar"},
-  {name = "garciafederico", email = "fgarcia@iar.unlp.edu.ar"},
-]
-dynamic = ["version", "description"]
