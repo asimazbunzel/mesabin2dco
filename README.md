@@ -21,6 +21,6 @@ This project is licensed under the terms of the GNU Lesser General Public Licens
 license. See [LICENSE](https://github.com/asimazbunzel/mesabin2dco/blob/r15140/LICENSE) for more
 details.
 
-## Credits [![🚀 Your next Python package needs a bleeding-edge project structure.](https://img.shields.io/badge/python--package--template-%F0%9F%9A%80-brightgreen)](https://github.com/TezRomacH/python-package-template)
+## Credits
 
 This project uses modules of the publicly-available [Modules for Experiments in Stellar Astrophysics (MESA)](https://github.com/MESAHub/mesa).
