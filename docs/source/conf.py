@@ -69,12 +69,5 @@ master_doc = 'index'
 # Set logo
 # html_logo = ''
 
-# Override theme stylesheet
-html_context = {
-    'css_files': [
-        '_static/theme_overrides.css',  # overrides for wide tables in RTD theme
-        ],
-    }
-
 # set default highlighting language
 highlight_language = 'fortran'
