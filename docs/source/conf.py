@@ -17,8 +17,9 @@ import os
 
 # -- Project information -----------------------------------------------------
 
-project = 'MESAbin2dco'
-author = 'asimazbunzel, garciafederico & Binary-rEvolution collab on GitHub'
+project = "MESAbin2dco"
+version = "r15140"
+author = "asimazbunzel, garciafederico & Binary-rEvolution collab on GitHub"
 source_suffix = ".rst"
 master_doc = "index"
 
