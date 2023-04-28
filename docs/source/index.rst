@@ -11,6 +11,7 @@ Site with documentation for the bin2dco hook of the publicly-available stellar-e
    :caption: Contents
 
    quickstart
+   modules
    citing
    authors
 
