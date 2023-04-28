@@ -1,0 +1,11 @@
+#!/bin/bash
+
+defaults2rst(){
+    sed 's/^ *\! \?//' "$1" > "$2"
+}
+
+defaults2rst ../src/bin2dco_controls.defaults source/bin2dco/defaults.rst
+
+defaults2rst ../src/ce/defaults/ce_controls.defaults source/ce/defaults.rst
+
+defaults2rst ../src/core_collapse/defaults/cc_controls.defaults source/core_collapse/defaults.rst
