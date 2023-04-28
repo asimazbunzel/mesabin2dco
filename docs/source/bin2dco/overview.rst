@@ -9,7 +9,7 @@ The origin of this wrapper comes from the fact that these two stages are not par
 modules and we (Binary-rEvolution collaboration) were exploring scenarios in which these two phases
 are very important (see `our presentation paper <https://www.aanda.org/articles/aa/full_html/2021/05/aa38357-20/aa38357-20.html>`__).
 
-Controls for the wrapper are found under :ref:`Options of mesabin2dco <defaults>`
+Controls for the wrapper are found in: `Options of mesabin2dco <bin2dco/defaults.html>`__
 
 .. warning::
 

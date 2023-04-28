@@ -42,7 +42,7 @@ extensions = [
 ]
 
 # set default highlighting language
-highlight_language = 'fortran'
+highlight_language = "fortran"
 
 pygments_style = "trac"
 
@@ -50,8 +50,8 @@ pygments_style = "trac"
 templates_path = ["."]
 
 extlinks = {
-    "issue": ("https://github.com/asimazbunzel/stevma/issues/%s", "#"),
-    "pr": ("https://github.com/asimazbunzel/stevma/pull/%s", "PR #"),
+    "issue": ("https://github.com/asimazbunzel/mesabin2dco/issues/%s", "#"),
+    "pr": ("https://github.com/asimazbunzel/mesabin2dco/pull/%s", "PR #"),
 }
 
 # on_rtd is whether we are on readthedocs.org
